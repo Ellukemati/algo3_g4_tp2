@@ -51,12 +51,12 @@ public class Tablero {
             recursos.add(Recurso.MADERA);
             recursos.add(Recurso.LADRILLO);
             recursos.add(Recurso.LANA);
-            recursos.add(Recurso.TRIGO);
+            recursos.add(Recurso.GRANO);
             recursos.add(Recurso.MINERAL);
         }
 
         recursos.add(Recurso.MADERA);
-        recursos.add(Recurso.TRIGO);
+        recursos.add(Recurso.GRANO);
         recursos.add(Recurso.LANA);
 
         return recursos;
