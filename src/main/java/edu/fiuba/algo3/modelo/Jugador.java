@@ -26,7 +26,7 @@ public class Jugador {
         // ACÁ DESPUÉS SE PUEDE AGREGAR LA LÓGICA DE DELEGARLE A SUS PUEBLOS QUE RECOLECTEN CON EL NÚMERO DEL DADO
     }
 
-    public void descartarRecursos() {
+    private void descartarRecursos() {
         int recursosTotales = this.cantidadTotalDeRecursos();
         if (recursosTotales > 7) {
             int cantidadADescartar = recursosTotales / 2;
