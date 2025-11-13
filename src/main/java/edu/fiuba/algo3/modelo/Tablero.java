@@ -7,13 +7,14 @@ import java.util.Random;
 
 public class Tablero {
     private List<Hexagono> hexagonos;
+    private Mapa mapa;
 
     public Tablero() {
         this.hexagonos = new ArrayList<>();
-        inicializarTablero();
+        this.mapa = inicializarTablero();
     }
 
-    private void inicializarTablero() {
+    private Mapa inicializarTablero() {
 
         List<Integer> numeros = crearNumerosAleatorios();
         List<Recurso> recursos = crearRecursos();
@@ -24,6 +25,8 @@ public class Tablero {
         hexagonos.add(new Hexagono(null, 0));
 
         Collections.shuffle(hexagonos);
+
+        return new Mapa(hexagonos);
     }
 
     private List<Integer> crearNumerosAleatorios() {
