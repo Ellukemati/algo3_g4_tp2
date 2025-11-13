@@ -1,27 +1,38 @@
 package edu.fiuba.algo3.modelo;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 public class Tablero {
     private List<Hexagono> hexagonos;
+    private Mapa mapa;
+    private Colocable[][] tablero;
 
-    public Tablero() {
+
+    public Tablero(String ruta) {
         this.hexagonos = new ArrayList<>();
+        this.mapa = new Mapa(ruta);
+        int[] tamanio = mapa.calcularTamañoMapa();
+        this.tablero = new Colocable[tamanio[0]][tamanio[1]];
         inicializarTablero();
     }
+
 
     private void inicializarTablero() {
 
         List<Integer> numeros = crearNumerosAleatorios();
         List<Recurso> recursos = crearRecursos();
 
+        Queue<int[]> pocicionExagonos = this.mapa.calcularPosicionesExagonos();
+
         for (int i = 0; i < 18; i++) {
             hexagonos.add(new Hexagono(recursos.get(i), numeros.get(i)));
+            int[] pocicion = pocicionExagonos.poll();
+            tablero[pocicion[0]][pocicion[1]] = new Hexagono(recursos.get(i), numeros.get(i));
         }
+
         hexagonos.add(new Hexagono(null, 0));
+        int[] pocicion = pocicionExagonos.poll();
+        tablero[pocicion[0]][pocicion[1]] = new Hexagono(null, 0);
 
         Collections.shuffle(hexagonos);
     }
@@ -60,6 +71,37 @@ public class Tablero {
         recursos.add(Recurso.LANA);
 
         return recursos;
+    }
+
+    /*public void colocarConstruible(Contruible contruible, int x, int y, String identificador) {
+
+
+    }*/
+
+    public ArrayList<Colocable> obtenerAdyacentes(int x, int y, String identificador) {
+        ArrayList<int[]> pocicionesAdyacentes = mapa.obtenerPosicionesAdyacentes(x, y, identificador);
+        ArrayList<Colocable> colocables = new ArrayList<>();
+        for (int[] pocicion: pocicionesAdyacentes) {
+            if (tablero[pocicion[0]][pocicion[1]] != null) {
+                colocables.add(tablero[pocicion[0]][pocicion[1]]);
+            }
+
+        }
+        return colocables;
+    }
+
+
+    public void colocarColocable(Colocable colocable, int x, int y, String identificador) {
+        if (mapa.esPocicionValida(x, y, identificador)) {
+            tablero[x][y] = colocable;
+        }
+    }
+
+    public void mejorarPoblado(Ciudad ciudad, int x, int y) {
+       if ( ciudad.esMejorable(tablero[x][y])) {
+           tablero[x][y] = ciudad;
+       }
+
     }
 }
 

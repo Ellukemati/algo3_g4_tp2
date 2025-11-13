@@ -2,7 +2,7 @@ package edu.fiuba.algo3.modelo;
 
 import java.util.Random;
 
-public class Hexagono {
+public class Hexagono extends Colocable{
     private Recurso recurso;
     private int numero;
 
