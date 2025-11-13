@@ -1,4 +1,15 @@
 package edu.fiuba.algo3.modelo;
 
-public class Poblado {
+import java.util.List;
+
+public class Poblado extends Construccion {
+
+    public Poblado(Vertice vertice) {
+        super(vertice);
+    }
+
+    @Override
+    public List<Recurso> cosechar() {
+        return vertice.cosecharRecursos();
+    }
 }

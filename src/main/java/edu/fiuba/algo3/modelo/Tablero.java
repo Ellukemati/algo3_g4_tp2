@@ -64,5 +64,13 @@ public class Tablero {
 
         return recursos;
     }
+
+    public Vertice obtenerVertice(int fila, int columna) {
+        return this.mapa.obtenerVertice(fila, columna);
+    }
+
+    public boolean construirPoblado(int fila, int columna) {
+        return mapa.colocarPoblado(fila, columna);
+    }
 }
 

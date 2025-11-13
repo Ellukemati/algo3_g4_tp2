@@ -6,6 +6,7 @@ public class Mapa {
     private Object[][] matriz;
     private int filas;
     private int columnas;
+    private int[] ladron;
 
     private static final String TIPO_HEXAGONO = "HEXAGONO";
     private static final String TIPO_VERTICE = "VERTICE";
@@ -41,14 +42,20 @@ public class Mapa {
             int fila = coordenadasHexagonos[i][0];
             int columna = coordenadasHexagonos[i][1];
 
-            matriz[fila][columna] = hexagonos.get(i);
+            Hexagono hexagono = hexagonos.get(i);
+            if (hexagono.getNumero() == 0) {
+                int[] posicionLadron = {fila, columna};
+                this.ladron = posicionLadron;
+                hexagono.ladronOcupar();
+            }
+            matriz[fila][columna] = hexagono;
             crearVerticesDesdeHexagono(fila, columna);
-            crearAristasDesdeHexagono(fila, columna);
+            //crearAristasDesdeHexagono(fila, columna);
         }
     }
 
     private boolean esPosicionValida(int fila, int col) {
-        return fila >= 0 && fila <= filas && col >= 0 && col <= columnas;
+        return fila >= 0 && fila < filas && col >= 0 && col < columnas;
     }
 
     private boolean esVacio(int fila, int col) {
@@ -68,8 +75,14 @@ public class Mapa {
             int fil = filaInicial + posicionDesdeHexagono[i][0];
             int col = columnaInicial + posicionDesdeHexagono[i][1];
 
-            if (esPosicionValida(fil, col) && esVacio(fil, col)) {
-                matriz[fil][col] = new Vertice(fil, col);
+            if (esPosicionValida(fil, col)) {
+                if (esVacio(fil, col)) {
+                    matriz[fil][col] = new Vertice(fil, col);
+                }
+                // los casteo para que me acepte el metodo de vertice.
+                Vertice vertice = (Vertice) matriz[fil][col];
+                Hexagono hexagono = (Hexagono) matriz[filaInicial][columnaInicial];
+                vertice.agregarHexagono(hexagono);
             }
         }
     }
@@ -89,5 +102,44 @@ public class Mapa {
                 matriz[fil][col] = new Arista(fil, col);
             }
         }
+    }
+
+    public Vertice obtenerVertice(int fila, int columna) {
+        Vertice vertice = (Vertice) this.matriz[fila][columna];
+        return vertice;
+    }
+
+    private boolean reglaDistancia(int fila, int columna) {
+        int[][] posicionesAdyacentes = {
+                {-2, 0},
+                {-2, -2}, {-2, 2},
+                {2, -2}, {2, 2},
+                {2, 0},
+        };
+
+        for (int i = 0; i < posicionesAdyacentes.length; i++) {
+            int filaAdyacente = fila + posicionesAdyacentes[i][0];
+            int columnaAdyacente = columna + posicionesAdyacentes[i][1];
+
+            if (esPosicionValida(filaAdyacente, columnaAdyacente) && (!esVacio(filaAdyacente, columnaAdyacente))) {
+                Object elemento = matriz[filaAdyacente][columnaAdyacente];
+                if (elemento instanceof Vertice) {
+                    Vertice verticeAdyacente = (Vertice) elemento;
+                    if (verticeAdyacente.verificarOcupado()) {
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
+    public boolean colocarPoblado(int fila, int columna) {
+        Vertice vertice = (Vertice) this.matriz[fila][columna];
+        if (!vertice.verificarOcupado() && this.reglaDistancia(fila, columna)) {
+            vertice.ocuparVertice();
+            return true;
+        }
+        return false;
     }
 }
