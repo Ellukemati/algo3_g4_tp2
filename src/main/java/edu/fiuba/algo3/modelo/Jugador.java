@@ -1,10 +1,42 @@
 package edu.fiuba.algo3.modelo;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 
 public class Jugador {
-    private Map<Recurso, Integer> recursos = new HashMap<>();
+    private Map<Recurso, Integer> recursos;
+    private List<Construccion> construcciones;
+
+    public Jugador() {
+        this.construcciones = new ArrayList<>();
+        this.recursos = new HashMap<>();
+        for (Recurso recurso : Recurso.values()) {
+            this.recursos.put(recurso, 0);
+        }
+    }
+
+    public boolean construirPoblado(Tablero tablero, int fila, int columna) {
+        Construccion nuevaConstruccion = new Poblado(tablero.obtenerVertice(fila, columna));
+        if (tablero.construirPoblado(fila, columna)) {
+            construcciones.add(nuevaConstruccion);
+            if (this.construcciones.size() == 2) {
+                List<Recurso> recursosVertice = nuevaConstruccion.cosechar();
+                for (int i = 0; i < recursosVertice.size(); i++) {
+                    Recurso recursoActual = recursosVertice.get(i);
+                    int cantidadActualizada = this.recursos.get(recursoActual) + 1;
+                    recursos.put((recursoActual), cantidadActualizada);
+                }
+            }
+            return true;
+        }
+        return false;
+    }
+
+    public boolean construirCiudad() {
+        return false;
+    }
 
     public void agregarRecurso(Recurso recurso) {
         int cantidadActual = this.recursos.getOrDefault(recurso, 0);

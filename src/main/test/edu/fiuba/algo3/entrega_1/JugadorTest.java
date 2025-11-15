@@ -1,11 +1,10 @@
 package edu.fiuba.algo3.entrega_1;
 
 import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.*;
 
-import edu.fiuba.algo3.modelo.Jugador;
-import edu.fiuba.algo3.modelo.Recurso;
+import edu.fiuba.algo3.modelo.*;
+import java.util.List;
 
 public class JugadorTest {
 
@@ -55,5 +54,22 @@ public class JugadorTest {
 
         // ASSERT
         assertEquals(cantidadDeRecursosFinalesEsperados, jugador.cantidadTotalDeRecursos());
+    }
+
+    @Test
+    public void test04JugadorRecibeRecursosInicialesAlColocarSegundoPoblado() {
+        // ARRANGE
+        Tablero tablero = new Tablero();
+        Jugador jugador = new Jugador();
+
+        jugador.construirPoblado(tablero,0, 6);
+        int recursosIniciales = jugador.cantidadTotalDeRecursos();
+
+        // ACT
+        boolean segundoPobladoColocado = jugador.construirPoblado(tablero,0, 14);
+        int recursosFinales = jugador.cantidadTotalDeRecursos();
+
+        // ASSERT
+        assertTrue(recursosFinales > recursosIniciales);
     }
 }
