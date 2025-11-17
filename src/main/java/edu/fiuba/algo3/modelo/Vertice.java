@@ -4,16 +4,31 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Vertice {
-    private int fila;
-    private int columna;
+    private int id;
     private List<Hexagono> hexagonos;
+    private  List<Vertice> vertices;
     private boolean ocupado;
 
-    public Vertice(int fila, int columna) {
-        this.fila = fila;
-        this.columna = columna;
+    public Vertice(int id) {
+        this.id = id;
         this.hexagonos = new ArrayList<>();
+        this.vertices = new ArrayList<>();
         this.ocupado = false;
+    }
+    public void agregarHexagono(Hexagono hexagono) {
+        hexagonos.add(hexagono);
+    }
+
+    public void agregarVerticeAdyacente(Vertice vertice) {
+        vertices.add(vertice);
+    }
+
+    public void ocuparVertice() {
+        this.ocupado = true;
+    }
+
+    public boolean verificarOcupado() {
+        return this.ocupado;
     }
 
     public List<Recurso> cosecharRecursos() {
@@ -24,16 +39,5 @@ public class Vertice {
             }
         }
         return recursos;
-    }
-
-    public void agregarHexagono(Hexagono hexagono) {
-        hexagonos.add(hexagono);
-    }
-
-    public void ocuparVertice() {
-        this.ocupado = true;
-    }
-    public boolean verificarOcupado() {
-        return this.ocupado;
     }
 }

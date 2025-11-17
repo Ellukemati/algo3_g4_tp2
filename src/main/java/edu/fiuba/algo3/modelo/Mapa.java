@@ -110,6 +110,7 @@ public class Mapa {
     }
 
     private boolean reglaDistancia(int fila, int columna) {
+        //esto se puede hacer de ocupar todos los de alrededor del vertice
         int[][] posicionesAdyacentes = {
                 {-2, 0},
                 {-2, -2}, {-2, 2},
