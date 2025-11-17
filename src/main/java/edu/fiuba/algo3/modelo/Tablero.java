@@ -81,6 +81,59 @@ public class Tablero {
         }
     }
 
+    // verificar que funcione luego
+    private void conectarVerticesConHexagonos() {
+        int verticesPrimerAnillo = 30;
+        int hexagonoActual = 0;
+        int contador = 0;
+        vertices.get(0).agregarHexagono(hexagonos.get(11));
+
+        for (int i = 0; i < verticesPrimerAnillo; i++) {
+            vertices.get(i).agregarHexagono(hexagonos.get(hexagonoActual));
+
+            if ((hexagonoActual % 2 == 0 && contador == 3) || (hexagonoActual % 2 != 0 && contador == 2)) {
+                hexagonoActual++;
+                vertices.get(i).agregarHexagono(hexagonos.get(hexagonoActual));
+                contador = 0;
+            }
+            contador++;
+        }
+
+        // esta parte es la mas complicada, priorizar revision si algun test relacionado falla
+        hexagonoActual++;
+        int hexagonoPrimerAnillo = 11;
+        contador = 2;
+        int verticesSegundoAnillo = 48;
+        for (int i = 30; i < verticesSegundoAnillo; i++) {
+            vertices.get(i).agregarHexagono(hexagonos.get(hexagonoActual));
+            vertices.get(i).agregarHexagono(hexagonos.get(hexagonoPrimerAnillo));
+
+            if (contador == 1 && hexagonoPrimerAnillo % 2 != 0) {
+                hexagonoActual++;
+                vertices.get(i).agregarHexagono(hexagonos.get(hexagonoActual));
+            } else {
+                hexagonoPrimerAnillo++;
+                if (hexagonoPrimerAnillo == 12) {
+                    hexagonoPrimerAnillo = 0;
+                }
+                vertices.get(i).agregarHexagono(hexagonos.get(hexagonoPrimerAnillo));
+                contador = 0;
+            }
+            contador++;
+        }
+
+        int hexagonoSegundoAnillo = 12;
+        int verticesTercerAnillo = 54;
+        hexagonoActual = 18;
+
+        for (int i = 48; i < verticesTercerAnillo; i++) {
+            vertices.get(i).agregarHexagono(hexagonos.get(hexagonoActual));
+            vertices.get(i).agregarHexagono(hexagonos.get(hexagonoSegundoAnillo));
+            hexagonoSegundoAnillo++;
+            vertices.get(i).agregarHexagono(hexagonos.get(hexagonoSegundoAnillo));
+        }
+    }
+
     private List<Integer> crearNumerosAleatorios() {
         List<Integer> numeros = new ArrayList<>();
         Random random = new Random();
