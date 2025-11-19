@@ -5,22 +5,22 @@ import java.util.List;
 
 public class Vertice {
     private int id;
-    private List<Hexagono> hexagonos;
-    private  List<Vertice> vertices;
+    private List<Hexagono> hexagonosAdyacentes;
+    private  List<Vertice> verticesAdyacentes;
     private boolean ocupado;
 
     public Vertice(int id) {
         this.id = id;
-        this.hexagonos = new ArrayList<>();
-        this.vertices = new ArrayList<>();
+        this.hexagonosAdyacentes = new ArrayList<>();
+        this.verticesAdyacentes = new ArrayList<>();
         this.ocupado = false;
     }
     public void agregarHexagono(Hexagono hexagono) {
-        hexagonos.add(hexagono);
+        hexagonosAdyacentes.add(hexagono);
     }
 
     public void agregarVerticeAdyacente(Vertice vertice) {
-        vertices.add(vertice);
+        verticesAdyacentes.add(vertice);
     }
 
     public void ocuparVertice() {
@@ -33,9 +33,9 @@ public class Vertice {
 
     public List<Recurso> cosecharRecursos() {
         List<Recurso> recursos = new ArrayList<>();
-        for (int i = 0; i < this.hexagonos.size(); i++) {
-            if (hexagonos.get(i).obtenerRecurso() != null) {
-                recursos.add(this.hexagonos.get(i).obtenerRecurso());
+        for (Hexagono hexagonosAdyacente : this.hexagonosAdyacentes) {
+            if (hexagonosAdyacente.obtenerRecurso() != null) {
+                recursos.add(hexagonosAdyacente.obtenerRecurso());
             }
         }
         return recursos;
