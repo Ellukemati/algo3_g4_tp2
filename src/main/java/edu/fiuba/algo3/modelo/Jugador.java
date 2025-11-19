@@ -17,6 +17,84 @@ public class Jugador {
         }
     }
 
+    public void agregarRecurso(Recurso recurso, int cantidadAAgregar) {
+        int cantidadActual = this.recursos.getOrDefault(recurso, 0);
+        this.recursos.put(recurso, cantidadActual + cantidadAAgregar);
+    }
+
+    private void agregarRecursos(Map<Recurso, Integer> recursosAAgregar) {
+        for (Map.Entry<Recurso, Integer> entry : recursosAAgregar.entrySet()) {
+            this.agregarRecurso(entry.getKey(), entry.getValue());
+        }
+    }
+
+    public void quitarRecurso(Recurso recurso, int cantidadAQuitar) {
+        int cantidadActual = this.recursos.getOrDefault(recurso, 0);
+        int nuevaCantidad = Math.max(0, cantidadActual - cantidadAQuitar);
+        this.recursos.put(recurso, nuevaCantidad);
+    }
+
+    private void quitarRecursos(Map<Recurso, Integer> recursosAQuitar) {
+        for (Map.Entry<Recurso, Integer> entry : recursosAQuitar.entrySet()) {
+            this.quitarRecurso(entry.getKey(), entry.getValue());
+        }
+    }
+
+    public int cantidadTotalDeRecursos() {
+        int total = 0;
+        for (Integer cantidad : this.recursos.values()) {
+            total += cantidad;
+        }
+        return total;
+    }
+
+    public boolean tieneRecursos(Map<Recurso, Integer> recursosAChequear) {
+        for (Map.Entry<Recurso, Integer> entry : recursosAChequear.entrySet()) {
+            Recurso recurso = entry.getKey();
+            int cantidadRequerida = entry.getValue();
+
+            if (this.recursos.getOrDefault(recurso, 0) < cantidadRequerida) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public void recibirLanzamientoDeDados(int numeroDado) {
+        if (numeroDado == 7) {
+            int cantidadRecursos = this.cantidadTotalDeRecursos();
+            if (cantidadRecursos > 7)
+                this.descartarRecursosPorTirada7(cantidadRecursos);
+            // ACÁ PODRÍA IR LA LÓGICA DE MOVER AL LADRÓN
+        }
+        // ACÁ SE PODRÍA AGREGAR LA LÓGICA DE DELEGARLE A SUS PUEBLOS QUE RECOLECTEN CON EL NÚMERO DEL DADO
+    }
+
+    private void descartarRecursosPorTirada7(int cantidadRecursosTotales) {
+        int cantidadADescartar = cantidadRecursosTotales / 2;
+
+        Map<Recurso, Integer> recursosParaDescartar = new HashMap<>();
+        int acumuladorDescartados = 0;
+
+        // PRIMERA IMPLEMENTACIÓN: Descarta los primeros X recursos que encuentra
+        for (Recurso recurso : this.recursos.keySet()) {
+            int cantidadActual = this.recursos.get(recurso);
+
+            int cantidadAQuitarDeEsteRecurso = Math.min(cantidadActual, cantidadADescartar - acumuladorDescartados);
+
+            if (cantidadAQuitarDeEsteRecurso > 0) {
+                recursosParaDescartar.put(recurso, cantidadAQuitarDeEsteRecurso);
+                acumuladorDescartados += cantidadAQuitarDeEsteRecurso;
+            }
+
+            if (acumuladorDescartados == cantidadADescartar) {
+                break;
+            }
+        }
+
+        this.quitarRecursos(recursosParaDescartar);
+    }
+
     public boolean construirPoblado(Tablero tablero, int fila, int columna) {
         Construccion nuevaConstruccion = new Poblado(tablero.obtenerVertice(fila, columna));
         if (tablero.construirPoblado(fila, columna)) {
@@ -38,44 +116,13 @@ public class Jugador {
         return false;
     }
 
-    public void agregarRecurso(Recurso recurso) {
-        int cantidadActual = this.recursos.getOrDefault(recurso, 0);
-        this.recursos.put(recurso, cantidadActual + 1);
-    }
+    public void intercambiar(Jugador otroJugador, Map<Recurso, Integer> oferta, Map<Recurso, Integer> solicitud) {
+        if (this.tieneRecursos(oferta) && otroJugador.tieneRecursos(solicitud)) {
+            this.quitarRecursos(oferta);
+            this.agregarRecursos(solicitud);
 
-    public int cantidadTotalDeRecursos() {
-        int total = 0;
-        for (Integer cantidad : this.recursos.values()) {
-            total += cantidad;
-        }
-        return total;
-    }
-
-    public void recibirLanzamientoDeDados(int numeroDado) {
-        if (numeroDado == 7) {
-            this.descartarRecursos();
-        }
-        // ACÁ DESPUÉS SE PUEDE AGREGAR LA LÓGICA DE DELEGARLE A SUS PUEBLOS QUE RECOLECTEN CON EL NÚMERO DEL DADO
-    }
-
-    private void descartarRecursos() {
-        int recursosTotales = this.cantidadTotalDeRecursos();
-        if (recursosTotales > 7) {
-            int cantidadADescartar = recursosTotales / 2;
-
-            // PRIMERA IMPLEMENTACIÓN: Descarta los primeros recursos que encuentra
-            int descartados = 0;
-            for (Recurso recurso : new HashMap<>(this.recursos).keySet()) {
-                int cantidadQueTiene = this.recursos.get(recurso);
-                int puedeDescartar = Math.min(cantidadQueTiene, cantidadADescartar - descartados);
-
-                this.recursos.put(recurso, cantidadQueTiene - puedeDescartar);
-                descartados += puedeDescartar;
-
-                if (descartados == cantidadADescartar) {
-                    break;
-                }
-            }
+            otroJugador.quitarRecursos(solicitud);
+            otroJugador.agregarRecursos(oferta);
         }
     }
 }

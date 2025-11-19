@@ -6,16 +6,14 @@ import static org.junit.jupiter.api.Assertions.*;
 import edu.fiuba.algo3.modelo.*;
 import java.util.List;
 
-public class JugadorTest {
+public class jugadorTest1 {
 
     @Test
     public void test01JugadorCon9CartasDescartaLaMitadAlResultarUn7EnLosDados() {
         // ARRANGE
         int cantidadDeRecursosFinalesEsperados = 5;
         Jugador jugador = new Jugador();
-        for (int i = 0; i < 9; i++) {
-            jugador.agregarRecurso(Recurso.MADERA);
-        }
+        jugador.agregarRecurso(Recurso.MADERA, 9);
 
         // ACT
         jugador.recibirLanzamientoDeDados(7);
@@ -29,9 +27,7 @@ public class JugadorTest {
         // ARRANGE
         int cantidadDeRecursosFinalesEsperados = 7;
         Jugador jugador = new Jugador();
-        for (int i = 0; i < 7; i++) {
-            jugador.agregarRecurso(Recurso.LANA);
-        }
+        jugador.agregarRecurso(Recurso.LANA, 7);
 
         // ACT
         jugador.recibirLanzamientoDeDados(7);
@@ -45,9 +41,7 @@ public class JugadorTest {
         // ARRANGE
         int cantidadDeRecursosFinalesEsperados = 9;
         Jugador jugador = new Jugador();
-        for (int i = 0; i < 9; i++) {
-            jugador.agregarRecurso(Recurso.MADERA);
-        }
+        jugador.agregarRecurso(Recurso.MADERA, 9);
 
         // ACT
         jugador.recibirLanzamientoDeDados(2);
