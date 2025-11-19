@@ -17,27 +17,6 @@ public class Jugador {
         }
     }
 
-    public boolean construirPoblado(Tablero tablero, int fila, int columna) {
-        Construccion nuevaConstruccion = new Poblado(tablero.obtenerVertice(fila, columna));
-        if (tablero.construirPoblado(fila, columna)) {
-            construcciones.add(nuevaConstruccion);
-            if (this.construcciones.size() == 2) {
-                List<Recurso> recursosVertice = nuevaConstruccion.cosechar();
-                for (int i = 0; i < recursosVertice.size(); i++) {
-                    Recurso recursoActual = recursosVertice.get(i);
-                    int cantidadActualizada = this.recursos.get(recursoActual) + 1;
-                    recursos.put((recursoActual), cantidadActualizada);
-                }
-            }
-            return true;
-        }
-        return false;
-    }
-
-    public boolean construirCiudad() {
-        return false;
-    }
-
     public void agregarRecurso(Recurso recurso, int cantidadAAgregar) {
         int cantidadActual = this.recursos.getOrDefault(recurso, 0);
         this.recursos.put(recurso, cantidadActual + cantidadAAgregar);
@@ -114,6 +93,27 @@ public class Jugador {
         }
 
         this.quitarRecursos(recursosParaDescartar);
+    }
+
+    public boolean construirPoblado(Tablero tablero, int fila, int columna) {
+        Construccion nuevaConstruccion = new Poblado(tablero.obtenerVertice(fila, columna));
+        if (tablero.construirPoblado(fila, columna)) {
+            construcciones.add(nuevaConstruccion);
+            if (this.construcciones.size() == 2) {
+                List<Recurso> recursosVertice = nuevaConstruccion.cosechar();
+                for (int i = 0; i < recursosVertice.size(); i++) {
+                    Recurso recursoActual = recursosVertice.get(i);
+                    int cantidadActualizada = this.recursos.get(recursoActual) + 1;
+                    recursos.put((recursoActual), cantidadActualizada);
+                }
+            }
+            return true;
+        }
+        return false;
+    }
+
+    public boolean construirCiudad() {
+        return false;
     }
 
     public void intercambiar(Jugador otroJugador, Map<Recurso, Integer> oferta, Map<Recurso, Integer> solicitud) {
