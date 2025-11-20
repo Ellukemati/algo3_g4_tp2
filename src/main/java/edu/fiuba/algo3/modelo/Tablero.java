@@ -6,9 +6,10 @@ import java.util.List;
 import java.util.Random;
 
 public class Tablero {
-    private List<Hexagono> hexagonos;
-    private List<Vertice> vertices;
-    private List<Arista> aristas;
+    private final List<Hexagono> hexagonos;
+    private final List<Vertice> vertices;
+    private final List<Arista> aristas;
+    private int ladron;
 
     public Tablero() {
         this.hexagonos = new ArrayList<>();
@@ -26,6 +27,10 @@ public class Tablero {
         }
         hexagonos.add(new Hexagono(null, 0));
         Collections.shuffle(hexagonos);
+        Random random = new Random();
+        this.ladron = random.nextInt(19);
+        hexagonos.get(ladron).ladronOcupar();
+
         crearVertices();
         crearAristas();
 
@@ -87,8 +92,12 @@ public class Tablero {
     }
 
     private void conectarVerticesBidireccional(int id1, int id2) {
-        vertices.get(id1).agregarVerticeAdyacente(vertices.get(id2));
-        vertices.get(id2).agregarVerticeAdyacente(vertices.get(id1));
+        if (!(vertices.get(id1).obtenerAdyacentes()).contains(vertices.get(id2))) {
+            vertices.get(id1).agregarVerticeAdyacente(vertices.get(id2));
+        }
+        if (!(vertices.get(id2).obtenerAdyacentes()).contains(vertices.get(id1))) {
+            vertices.get(id2).agregarVerticeAdyacente(vertices.get(id1));
+        }
     }
 
     private void conectarVerticesConHexagonos() {
@@ -253,6 +262,18 @@ public class Tablero {
         recursos.add(Recurso.LANA);
 
         return recursos;
+    }
+
+    public Vertice obtenerVertice(int idVertice) {
+        return vertices.get(idVertice);
+    }
+
+    public Arista obtenerArista(int idAristas) {
+        return aristas.get(idAristas);
+    }
+
+    public boolean construirPoblado(int idVertice) {
+        return vertices.get(idVertice).construirPoblado();
     }
 }
 

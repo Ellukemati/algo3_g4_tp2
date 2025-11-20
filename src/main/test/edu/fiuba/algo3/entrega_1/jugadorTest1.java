@@ -56,14 +56,16 @@ public class jugadorTest1 {
         Tablero tablero = new Tablero();
         Jugador jugador = new Jugador();
 
-        jugador.construirPoblado(tablero,0, 6);
+        jugador.construirPoblado(tablero,0);
         int recursosIniciales = jugador.cantidadTotalDeRecursos();
 
         // ACT
-        boolean segundoPobladoColocado = jugador.construirPoblado(tablero,0, 14);
+        boolean segundoPobladoColocado = jugador.construirPoblado(tablero,20);
         int recursosFinales = jugador.cantidadTotalDeRecursos();
 
         // ASSERT
         assertTrue(recursosFinales > recursosIniciales);
     }
+
+
 }

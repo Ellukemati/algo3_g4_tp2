@@ -1,12 +1,12 @@
 package edu.fiuba.algo3.modelo;
-
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Vertice {
     private int id;
-    private List<Hexagono> hexagonosAdyacentes;
-    private  List<Vertice> verticesAdyacentes;
+    private final List<Hexagono> hexagonosAdyacentes;
+    private final List<Vertice> verticesAdyacentes;
     private boolean ocupado;
 
     public Vertice(int id) {
@@ -21,6 +21,17 @@ public class Vertice {
 
     public void agregarVerticeAdyacente(Vertice vertice) {
         verticesAdyacentes.add(vertice);
+    }
+
+    public boolean construirPoblado() {
+        if (!ocupado) {
+            ocuparVertice();
+            for (Vertice vertice: verticesAdyacentes) {
+                vertice.ocuparVertice();
+            }
+            return true;
+        }
+        return false;
     }
 
     public void ocuparVertice() {
@@ -39,5 +50,14 @@ public class Vertice {
             }
         }
         return recursos;
+    }
+
+    public List<Vertice> obtenerAdyacentes() {
+        return this.verticesAdyacentes;
+    }
+
+    @Override
+    public String toString() {
+        return "Vertice " + this.id;
     }
 }

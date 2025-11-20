@@ -3,8 +3,8 @@ package edu.fiuba.algo3.modelo;
 import java.util.Random;
 
 public class Hexagono {
-    private Recurso recurso;
-    private int numero;
+    private final Recurso recurso;
+    private final int numero;
     private boolean ladron;
 
     public Hexagono(Recurso recurso, int numero) {
