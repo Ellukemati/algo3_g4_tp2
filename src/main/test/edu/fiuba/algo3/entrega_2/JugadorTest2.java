@@ -69,4 +69,19 @@ public class JugadorTest2 {
 
         assertEquals(cantidadTotalDeRecursosEsperado, jugador.cantidadTotalDeRecursos());
     }
+
+    @Test
+    public void test04ComproCartaDeDesarolloConRecursosInsuficientes() {
+        Jugador jugador = new Jugador();
+        Banca banca = new Banca();
+        int cantidadTotalDeRecursosEsperado = 3;
+
+        jugador.agregarRecurso(Recurso.MADERA, 1);
+        jugador.agregarRecurso(Recurso.GRANO, 1);
+        jugador.agregarRecurso(Recurso.MINERAL, 1);
+
+        jugador.comprarCartaDeDesarollo(banca);
+
+        assertEquals(cantidadTotalDeRecursosEsperado, jugador.cantidadTotalDeRecursos());
+    }
 }

@@ -128,7 +128,11 @@ public class Jugador {
     }
 
     public void comprarCartaDeDesarollo(Banca banca){
+        try {
+            cartas.add(banca.comprarCartaDeDesarollo(recursos));
+        } catch(IllegalArgumentException e) {
+            System.out.println(e.getMessage());
+        }
 
-        cartas.add(banca.comprarCartaDeDesarollo(recursos));
     }
 }

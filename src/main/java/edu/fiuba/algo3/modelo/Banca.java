@@ -34,14 +34,17 @@ public class Banca {
 
     public CartaDesarollo comprarCartaDeDesarollo(Map<Recurso, Integer> pago) {
         List<Recurso> recurosNecezarios = new ArrayList<>(Arrays.asList(Recurso.LANA, Recurso.GRANO, Recurso.MINERAL));
+        if (pago.get(Recurso.LANA) < 1 || pago.get(Recurso.GRANO) < 1 || pago.get(Recurso.MINERAL) < 1) {
+            throw new IllegalArgumentException("recursos insuficientes");
+        }
         for (int i = 0; i < 3; i++) {
             Recurso recurso = recurosNecezarios.get(i);
-            if (pago.get(recurso) > 0) {
-                pago.put(recurso, pago.get(recurso) - 1);
-                recursos.put(recurso, recursos.get(recurso) + 1);
-            }
+            pago.put(recurso, pago.get(recurso) - 1);
+            recursos.put(recurso, recursos.get(recurso) + 1);
         }
-        return cartaDeDesarollosDisponible.get(0);
+        CartaDesarollo carta = cartaDeDesarollosDisponible.get(0);
+        cartaDeDesarollosDisponible.remove(0);
+        return carta;
     }
 
 }
