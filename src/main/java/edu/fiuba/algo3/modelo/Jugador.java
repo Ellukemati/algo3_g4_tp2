@@ -8,6 +8,7 @@ import java.util.HashMap;
 public class Jugador {
     private Map<Recurso, Integer> recursos;
     private List<Construccion> construcciones;
+    private List<CartaDesarollo> cartas = new ArrayList<>();
 
     public Jugador() {
         this.construcciones = new ArrayList<>();
@@ -124,5 +125,10 @@ public class Jugador {
             otroJugador.quitarRecursos(solicitud);
             otroJugador.agregarRecursos(oferta);
         }
+    }
+
+    public void comprarCartaDeDesarollo(Banca banca){
+
+        cartas.add(banca.comprarCartaDeDesarollo(recursos));
     }
 }

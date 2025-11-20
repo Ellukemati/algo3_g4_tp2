@@ -1,5 +1,6 @@
 package edu.fiuba.algo3.entrega_2;
 
+import edu.fiuba.algo3.modelo.Banca;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -53,5 +54,19 @@ public class JugadorTest2 {
 
         // jugador1 no posee los recursos que jugador2 solicita = Intercambio fallido
         assertFalse(jugador1.tieneRecursos(solicitud));
+    }
+    @Test
+    public void test03ComproCartaDeDesarolloConLosRecursosJustos() {
+        Jugador jugador = new Jugador();
+        Banca banca = new Banca();
+        int cantidadTotalDeRecursosEsperado = 0;
+
+        jugador.agregarRecurso(Recurso.LANA, 1);
+        jugador.agregarRecurso(Recurso.GRANO, 1);
+        jugador.agregarRecurso(Recurso.MINERAL, 1);
+
+        jugador.comprarCartaDeDesarollo(banca);
+
+        assertEquals(cantidadTotalDeRecursosEsperado, jugador.cantidadTotalDeRecursos());
     }
 }
