@@ -114,9 +114,25 @@ public class Jugador {
         return false;
     }
 
-    public boolean construirCiudad() {
+    public boolean construirCiudad(Tablero tablero, int idVertice) {
+        Vertice verticeBuscado = tablero.obtenerVertice(idVertice);
+
+        Construccion construccionAActualizar = null;
+
+        for (Construccion c : construcciones) {
+            if (c.obtenerVertice() == verticeBuscado) {
+                construccionAActualizar = c;
+                break;
+            }
+        }
+        if (construccionAActualizar instanceof Poblado) {
+            construcciones.remove(construccionAActualizar);
+            construcciones.add(new Ciudad(verticeBuscado));
+            return true;
+        }
         return false;
     }
+
 
     public boolean construirCarretera(Tablero tablero, int idArista) {
         Arista aristaAgregar = tablero.obtenerArista(idArista);

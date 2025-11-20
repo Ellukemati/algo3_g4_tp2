@@ -55,7 +55,9 @@ public class Vertice {
     public List<Vertice> obtenerAdyacentes() {
         return this.verticesAdyacentes;
     }
-
+    public int getId() {
+        return this.id;
+    }
     @Override
     public String toString() {
         return "Vertice " + this.id;
