@@ -15,14 +15,14 @@ public class Jugador {
         this.construcciones = new ArrayList<>();
     }
 
+    public void agregarRecurso(Recurso recurso, int cantidadAAgregar) {
+        this.inventario.agregar(recurso, cantidadAAgregar);
+    }
+
     public void agregarRecursos(Map<Recurso, Integer> recursosNuevos) {
         for (Map.Entry<Recurso, Integer> entry : recursosNuevos.entrySet()) {
             this.inventario.agregar(entry.getKey(), entry.getValue());
         }
-    }
-
-    public void agregarRecurso(Recurso recurso, int cantidadAAgregar) {
-        this.inventario.agregar(recurso, cantidadAAgregar);
     }
 
     private void quitarRecurso(Recurso recurso, int cantidadAQuitar) {
