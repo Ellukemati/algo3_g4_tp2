@@ -18,20 +18,8 @@ public class Inventario {
         this.recursos.compute(recurso, (k, cantidadActual) -> cantidadActual + cantidad);
     }
 
-    public void agregar(Map<Recurso, Integer> recursosNuevos) {
-        for (Map.Entry<Recurso, Integer> entry : recursosNuevos.entrySet()) {
-            this.agregar(entry.getKey(), entry.getValue());
-        }
-    }
-
     public void quitar(Recurso recurso, int cantidad) {
         this.recursos.compute(recurso, (k, cantidadActual) -> Math.max(0, cantidadActual - cantidad));
-    }
-
-    public void quitar(Map<Recurso, Integer> recursosAQuitar) {
-        for (Map.Entry<Recurso, Integer> entry : recursosAQuitar.entrySet()) {
-            this.quitar(entry.getKey(), entry.getValue());
-        }
     }
 
     public int cantidadTotalDeRecursos() {
