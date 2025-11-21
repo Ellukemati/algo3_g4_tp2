@@ -2,11 +2,9 @@ package edu.fiuba.algo3.entrega_1;
 
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
-
 import edu.fiuba.algo3.modelo.*;
-import java.util.List;
 
-public class jugadorTest1 {
+public class JugadorTest1 {
 
     @Test
     public void test01JugadorCon9CartasDescartaLaMitadAlResultarUn7EnLosDados() {
@@ -56,11 +54,11 @@ public class jugadorTest1 {
         Tablero tablero = new Tablero();
         Jugador jugador = new Jugador();
 
-        jugador.construirPoblado(tablero,0, 6);
+        jugador.construirPoblado(tablero, 0, 6);
         int recursosIniciales = jugador.cantidadTotalDeRecursos();
 
         // ACT
-        boolean segundoPobladoColocado = jugador.construirPoblado(tablero,0, 14);
+        jugador.construirPoblado(tablero, 0, 14);
         int recursosFinales = jugador.cantidadTotalDeRecursos();
 
         // ASSERT
