@@ -62,6 +62,7 @@ public class Jugador {
         int acumuladorDescartados = 0;
         Map<Recurso, Integer> copiaRecursos = this.inventario.obtenerCopia();
 
+        // PRIMERA IMPLEMENTACIÓN: Descarta los primeros X recursos que encuentra
         for (Recurso recurso : copiaRecursos.keySet()) {
             int cantidadActual = copiaRecursos.get(recurso);
             int cantidadAQuitarDeEsteRecurso = Math.min(cantidadActual, cantidadADescartar - acumuladorDescartados);
