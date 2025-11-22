@@ -113,7 +113,7 @@ public class Jugador {
         }
         return false;
     }
-
+//Strategy aplicar aca
     public boolean construirCiudad(Tablero tablero, int idVertice) {
         Vertice verticeBuscado = tablero.obtenerVertice(idVertice);
 
@@ -132,6 +132,9 @@ public class Jugador {
         }
         return false;
     }
+
+
+//se puede aplicar command a construir
 
 
     public boolean construirCarretera(Tablero tablero, int idArista) {
