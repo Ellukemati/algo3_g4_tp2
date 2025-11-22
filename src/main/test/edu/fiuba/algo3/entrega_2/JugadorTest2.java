@@ -30,8 +30,8 @@ public class JugadorTest2 {
         assertEquals(1, jugador2.cantidadTotalDeRecursos());
 
         // Invirtieron su inventario oferta/solicitud = Intercambio exitoso
-        assertTrue(jugador1.tieneRecursos(solicitud));
-        assertTrue(jugador2.tieneRecursos(oferta));
+        assertTrue(jugador1.poseeRecursos(solicitud));
+        assertTrue(jugador2.poseeRecursos(oferta));
     }
 
     @Test
@@ -53,7 +53,7 @@ public class JugadorTest2 {
         assertEquals(1, jugador2.cantidadTotalDeRecursos());
 
         // jugador1 no posee los recursos que jugador2 solicita = Intercambio fallido
-        assertFalse(jugador1.tieneRecursos(solicitud));
+        assertFalse(jugador1.poseeRecursos(solicitud));
     }
 
     @Test

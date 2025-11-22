@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import edu.fiuba.algo3.modelo.*;
 import java.util.List;
 
-public class jugadorTest1 {
+public class JugadorTest1 {
 
     @Test
     public void test01JugadorCon9CartasDescartaLaMitadAlResultarUn7EnLosDados() {
@@ -60,7 +60,7 @@ public class jugadorTest1 {
         int recursosIniciales = jugador.cantidadTotalDeRecursos();
 
         // ACT
-        boolean segundoPobladoColocado = jugador.construirPoblado(tablero,20);
+        jugador.construirPoblado(tablero,20);
         int recursosFinales = jugador.cantidadTotalDeRecursos();
 
         // ASSERT
@@ -103,4 +103,3 @@ public class jugadorTest1 {
         assertFalse(ciudadConstruida, "No se debería poder construir una Ciudad en un lugar vacío");
     }
 }
-
