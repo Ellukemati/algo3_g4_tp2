@@ -1,17 +1,18 @@
 package edu.fiuba.algo3.modelo;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
 
 public class Jugador {
-
     private final Inventario inventario;
     private final List<Construccion> construcciones;
+    private final List<Arista> carreteras;
 
     public Jugador() {
         this.inventario = new Inventario();
+        this.carreteras = new ArrayList<>();
         this.construcciones = new ArrayList<>();
     }
 
@@ -80,6 +81,7 @@ public class Jugador {
         this.quitarRecursos(recursosParaDescartar);
     }
 
+
     public void intercambiar(Jugador otroJugador, Map<Recurso, Integer> oferta, Map<Recurso, Integer> solicitud) {
         if (this.poseeRecursos(oferta) && otroJugador.poseeRecursos(solicitud)) {
             this.quitarRecursos(oferta);
@@ -95,26 +97,64 @@ public class Jugador {
     }
 
     // LÓGICA DE CONSTRUCCIÓN
-
-    public boolean construirPoblado(Tablero tablero, int fila, int columna) {
-        Construccion nuevaConstruccion = new Poblado(tablero.obtenerVertice(fila, columna));
-        if (tablero.construirPoblado(fila, columna)) {
+    //Strategy aplicar aca
+    public boolean construirPoblado(Tablero tablero, int idVertice) {
+        Construccion nuevaConstruccion = new Poblado(tablero.obtenerVertice(idVertice));
+        if (tablero.construirPoblado(idVertice)) {
             construcciones.add(nuevaConstruccion);
-
             if (this.construcciones.size() == 2) {
                 List<Recurso> recursosVertice = nuevaConstruccion.cosechar();
 
                 for (Recurso recursoActual : recursosVertice) {
                     this.agregarRecurso(recursoActual, 1);
                 }
+
             }
             return true;
         }
         return false;
     }
 
-    public boolean construirCiudad() {
-        // IMPLEMENTACIÓN PENDIENTE
+    //Str
+    public boolean construirCiudad(Tablero tablero, int idVertice) {
+        Vertice verticeBuscado = tablero.obtenerVertice(idVertice);
+
+        Construccion construccionAActualizar = null;
+
+        for (Construccion c : construcciones) {
+            if (c.obtenerVertice() == verticeBuscado) {
+                construccionAActualizar = c;
+                break;
+            }
+        }
+        if (construccionAActualizar instanceof Poblado) {
+            construcciones.remove(construccionAActualizar);
+            construcciones.add(new Ciudad(verticeBuscado));
+            return true;
+        }
         return false;
     }
+
+
+//se puede aplicar command a construir
+
+
+    public boolean construirCarretera(Tablero tablero, int idArista) {
+        Arista aristaAgregar = tablero.obtenerArista(idArista);
+        if (carreteras.isEmpty()) {
+            carreteras.add(aristaAgregar);
+        } else {
+            List<Arista> aristasAdyacentes = aristaAgregar.verAdyacentes();
+            for (Arista aristaActual : carreteras) {
+                if (aristasAdyacentes.contains(aristaActual)) {
+                    carreteras.add(aristaAgregar);
+                    return true;
+                }
+            }
+            return false;
+        }
+        return true;
+    }
+
+
 }
