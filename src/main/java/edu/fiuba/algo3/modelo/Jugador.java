@@ -81,7 +81,6 @@ public class Jugador {
         this.quitarRecursos(recursosParaDescartar);
     }
 
-
     public void intercambiar(Jugador otroJugador, Map<Recurso, Integer> oferta, Map<Recurso, Integer> solicitud) {
         if (this.poseeRecursos(oferta) && otroJugador.poseeRecursos(solicitud)) {
             this.quitarRecursos(oferta);
@@ -115,10 +114,8 @@ public class Jugador {
         return false;
     }
 
-    //Str
     public boolean construirCiudad(Tablero tablero, int idVertice) {
         Vertice verticeBuscado = tablero.obtenerVertice(idVertice);
-
         Construccion construccionAActualizar = null;
 
         for (Construccion c : construcciones) {
@@ -127,6 +124,7 @@ public class Jugador {
                 break;
             }
         }
+
         if (construccionAActualizar instanceof Poblado) {
             construcciones.remove(construccionAActualizar);
             construcciones.add(new Ciudad(verticeBuscado));
@@ -135,16 +133,16 @@ public class Jugador {
         return false;
     }
 
-
-//se puede aplicar command a construir
-
-
+    //se puede aplicar command a construir
     public boolean construirCarretera(Tablero tablero, int idArista) {
         Arista aristaAgregar = tablero.obtenerArista(idArista);
+
         if (carreteras.isEmpty()) {
             carreteras.add(aristaAgregar);
+
         } else {
             List<Arista> aristasAdyacentes = aristaAgregar.verAdyacentes();
+
             for (Arista aristaActual : carreteras) {
                 if (aristasAdyacentes.contains(aristaActual)) {
                     carreteras.add(aristaAgregar);
@@ -155,6 +153,4 @@ public class Jugador {
         }
         return true;
     }
-
-
 }
