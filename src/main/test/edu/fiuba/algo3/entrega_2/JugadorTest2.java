@@ -1,5 +1,6 @@
 package edu.fiuba.algo3.entrega_2;
 
+import edu.fiuba.algo3.modelo.Tablero;
 import edu.fiuba.algo3.modelo.Banca;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
@@ -30,8 +31,8 @@ public class JugadorTest2 {
         assertEquals(1, jugador2.cantidadTotalDeRecursos());
 
         // Invirtieron su inventario oferta/solicitud = Intercambio exitoso
-        assertTrue(jugador1.tieneRecursos(solicitud));
-        assertTrue(jugador2.tieneRecursos(oferta));
+        assertTrue(jugador1.poseeRecursos(solicitud));
+        assertTrue(jugador2.poseeRecursos(oferta));
     }
 
     @Test
@@ -53,8 +54,57 @@ public class JugadorTest2 {
         assertEquals(1, jugador2.cantidadTotalDeRecursos());
 
         // jugador1 no posee los recursos que jugador2 solicita = Intercambio fallido
-        assertFalse(jugador1.tieneRecursos(solicitud));
+        assertFalse(jugador1.poseeRecursos(solicitud));
     }
+
+    @Test
+    public void test03CreacionCorrectaCarreteras() {
+        //ARRANGE
+        Jugador jugador1 = new Jugador();
+        Tablero tablero = new Tablero();
+
+        //ACT && ASSERT
+        assertTrue(jugador1.construirCarretera(tablero, 0));
+    }
+
+    @Test
+    public void test04NoSePermiteLaCreacionCarreterasNoAdyacentes() {
+        //ARRANGE
+        Jugador jugador = new Jugador();
+        Tablero tablero = new Tablero();
+
+        //ACT
+        jugador.construirCarretera(tablero, 0);
+
+        //ASSERT
+        assertFalse(jugador.construirCarretera(tablero, 70));
+    }
+
+    @Test
+    public void test05CreacionCarreterasSobreOtras() {
+        //ARRANGE
+        Jugador jugador1 = new Jugador();
+        Tablero tablero = new Tablero();
+
+        //ACT
+        jugador1.construirCarretera(tablero, 0);
+
+        // ASSERT
+        assertFalse(jugador1.construirCarretera(tablero, 0));
+    }
+
+        @Test
+        public void test06CreacionCarreterasAdyacentes() {
+            //ARRANGE
+            Jugador jugador1 = new Jugador();
+            Tablero tablero = new Tablero();
+
+            //ACT
+            jugador1.construirCarretera(tablero, 0);
+
+            // ASSERT
+            assertTrue(jugador1.construirCarretera(tablero, 1));
+        }
     @Test
     public void test03ComproCartaDeDesarolloConLosRecursosJustos() {
         Jugador jugador = new Jugador();
