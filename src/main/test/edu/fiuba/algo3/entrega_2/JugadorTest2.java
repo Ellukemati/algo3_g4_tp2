@@ -106,32 +106,36 @@ public class JugadorTest2 {
             assertTrue(jugador1.construirCarretera(tablero, 1));
         }
     @Test
-    public void test03ComproCartaDeDesarolloConLosRecursosJustos() {
+    public void test07ComproCartaDeDesarolloConLosRecursosJustos() {
+        //ARRANGE
         Jugador jugador = new Jugador();
         Banca banca = new Banca();
         int cantidadTotalDeRecursosEsperado = 0;
-
         jugador.agregarRecurso(Recurso.LANA, 1);
         jugador.agregarRecurso(Recurso.GRANO, 1);
         jugador.agregarRecurso(Recurso.MINERAL, 1);
 
+        //ACT
         jugador.comprarCartaDeDesarollo(banca);
 
+        //ASSERT
         assertEquals(cantidadTotalDeRecursosEsperado, jugador.cantidadTotalDeRecursos());
     }
 
     @Test
-    public void test04ComproCartaDeDesarolloConRecursosInsuficientes() {
+    public void test08ComproCartaDeDesarolloConRecursosInsuficientes() {
+        //ARRANGE
         Jugador jugador = new Jugador();
         Banca banca = new Banca();
         int cantidadTotalDeRecursosEsperado = 3;
-
         jugador.agregarRecurso(Recurso.MADERA, 1);
         jugador.agregarRecurso(Recurso.GRANO, 1);
         jugador.agregarRecurso(Recurso.MINERAL, 1);
 
+        //ACT
         jugador.comprarCartaDeDesarollo(banca);
 
+        //ASSERT
         assertEquals(cantidadTotalDeRecursosEsperado, jugador.cantidadTotalDeRecursos());
     }
 }
