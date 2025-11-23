@@ -6,9 +6,11 @@ import java.util.Map;
 import java.util.HashMap;
 
 public class Jugador {
+
     private final Inventario inventario;
     private final List<Construccion> construcciones;
     private final List<Arista> carreteras;
+    private List<CartaDesarollo> cartas = new ArrayList<>();
 
     public Jugador() {
         this.inventario = new Inventario();
@@ -156,5 +158,13 @@ public class Jugador {
         return true;
     }
 
+    public void comprarCartaDeDesarollo(Banca banca){
+        try {
+            cartas.add(banca.comprarCartaDeDesarollo(inventario));
+        } catch(IllegalArgumentException e) {
+            System.out.println(e.getMessage());
+        }
+
+    }
 
 }
