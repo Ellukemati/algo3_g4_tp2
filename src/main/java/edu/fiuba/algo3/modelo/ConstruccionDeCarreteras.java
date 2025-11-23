@@ -1,4 +1,4 @@
 package edu.fiuba.algo3.modelo;
 
-public class ConstruccionDeCarreteras extends CartaDesarollo{
+public class ConstruccionDeCarreteras extends CartaDesarollo {
 }

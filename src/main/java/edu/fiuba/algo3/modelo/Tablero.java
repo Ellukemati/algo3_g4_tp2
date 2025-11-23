@@ -275,5 +275,11 @@ public class Tablero {
     public boolean construirPoblado(int idVertice) {
         return vertices.get(idVertice).construirPoblado();
     }
+
+    public Hexagono moverLadron(int nuevaPosicion) {
+        hexagonos.get(ladron).ladronDesocupar();
+        hexagonos.get(nuevaPosicion).ladronOcupar();
+        return hexagonos.get(ladron);
+    }
 }
 

@@ -10,7 +10,7 @@ public class Jugador {
     private final Inventario inventario;
     private final List<Construccion> construcciones;
     private final List<Arista> carreteras;
-    private List<CartaDesarollo> cartas = new ArrayList<>();
+    private final List<CartaDesarollo> cartas = new ArrayList<>();
 
     public Jugador() {
         this.inventario = new Inventario();
@@ -106,11 +106,9 @@ public class Jugador {
             construcciones.add(nuevaConstruccion);
             if (this.construcciones.size() == 2) {
                 List<Recurso> recursosVertice = nuevaConstruccion.cosechar();
-
                 for (Recurso recursoActual : recursosVertice) {
                     this.agregarRecurso(recursoActual, 1);
                 }
-
             }
             return true;
         }
@@ -167,4 +165,23 @@ public class Jugador {
 
     }
 
+    public Recurso serRobadoPorLadron(Hexagono hexagonoRobar) {
+        for (Construccion c : construcciones) {
+            Vertice vert = c.obtenerVertice();
+            if (vert.obtenerHexagonosAdyacentes().contains(hexagonoRobar)) {
+                // aca habría que hacer un random con los recursos con cantidad mayor a 0
+                // que el jugador tiene, restar el que tocó y devolverlo
+                return null;
+            }
+        }
+        return null;
+    }
+
+    public void moverLadron(Tablero tablero, int posicion) {
+        Hexagono hexagonoRobar = tablero.moverLadron(posicion);
+        // aca es necesario crear una clase que maneje todo, para poder sacarle los recursos
+        // a los demas jugadores
+        // List<Recurso> robar(hexagonoRobar);
+        //luego se agregaran los recursos a este jugador
+    }
 }

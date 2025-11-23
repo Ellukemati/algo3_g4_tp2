@@ -31,6 +31,10 @@ public class Hexagono {
         this.ladron = true;
     }
 
+    public void ladronDesocupar() {
+        this.ladron = false;
+    }
+
     public int getNumero() {
         return this.numero;
     }

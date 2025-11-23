@@ -52,6 +52,9 @@ public class Vertice {
         return recursos;
     }
 
+    public List<Hexagono> obtenerHexagonosAdyacentes() {
+        return this.hexagonosAdyacentes;
+    }
     public List<Vertice> obtenerAdyacentes() {
         return this.verticesAdyacentes;
     }
