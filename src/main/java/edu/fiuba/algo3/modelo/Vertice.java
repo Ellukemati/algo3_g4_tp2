@@ -7,18 +7,31 @@ public class Vertice {
     private int id;
     private final List<Hexagono> hexagonosAdyacentes;
     private final List<Vertice> verticesAdyacentes;
+    private List<Arista> aristas;
+
     private boolean ocupado;
 
     public Vertice(int id) {
         this.id = id;
         this.hexagonosAdyacentes = new ArrayList<>();
         this.verticesAdyacentes = new ArrayList<>();
+        this.aristas = new ArrayList<>();
+
         this.ocupado = false;
     }
     public void agregarHexagono(Hexagono hexagono) {
         hexagonosAdyacentes.add(hexagono);
     }
+    public void agregarArista(Arista arista) {
+        if (!this.aristas.contains(arista)) {
+            this.aristas.add(arista);
+        }
+    }
 
+    // NUEVO: Getter para los tests (devuelve la lista)
+    public List<Arista> obtenerAristas() {
+        return this.aristas;
+    }
     public void agregarVerticeAdyacente(Vertice vertice) {
         verticesAdyacentes.add(vertice);
     }

@@ -37,6 +37,7 @@ public class Tablero {
         conectarVertices();
         conectarVerticesConHexagonos();
         conectarAristas();
+        conectarAristasConVertices();
     }
 
     private void crearVertices() {
@@ -59,6 +60,7 @@ public class Tablero {
         conectarAnilloVertices(0, VERTICES_PRIMER_ANILLO);
         conectarAnilloVerticesConAnterior(30, VERTICES_SEGUNDO_ANILLO, 30, 3);
         conectarAnilloVerticesConAnterior(48, VERTICES_TERCER_ANILLO, 16, 0);
+
     }
 
     private void conectarAnilloVertices(int inicio, int fin) {
@@ -228,6 +230,80 @@ public class Tablero {
         aristas.get(id1).agregarAristaAdyacente(aristas.get(id2));
         aristas.get(id2).agregarAristaAdyacente(aristas.get(id1));
     }
+    private void conectarAristasConVertices() {
+        conectarAristasCirculares(0, 29, 0);
+        conectarRayosExternosLogico();
+        conectarAristasCirculares(30, 47, 42);
+        conectarRayosInternosManual();
+        // 5. TERCER ANILLO
+        conectarAristasCirculares(48, 53, 66);
+    }
+
+    private void conectarRayosExternosLogico() {
+        int idArista = 30;
+        int vExterno = 0;
+        int vMedio = 30;
+        // Son 12 aristas radiales
+        for (int i = 0; i < 12; i++) {
+            // 1. Conectamos los vértices actuales
+            linkearAristaYVertices(aristas.get(idArista), vertices.get(vExterno), vertices.get(vMedio));
+            idArista++;
+
+            // El patrón es alternado: Pasos PARES vs IMPARES
+            if (i % 2 == 0) {
+                // Esto reduce la diferencia en 2 (ej: de 30 a 28)
+                vExterno += 3;
+                vMedio += 1;
+            } else {
+                // Paso IMPAR (Esquina del hexágono)
+                // Esto MANTIENE la diferencia (ej: se queda en 28)
+                vExterno += 2;
+                vMedio += 2;
+            }
+        }
+    }
+    private void conectarRayosInternosManual() {
+        int idArista = 60;
+        int vCentral = 48; // El anillo central empieza en 48
+        int vMedio = 32;   // El anillo medio tiene puntas en 32, 35, 38...
+
+        // Son 6 aristas radiales internas
+        for (int i = 0; i < 6; i++) {
+            Vertice vCent = vertices.get(vCentral);
+            Vertice vMed = vertices.get(vMedio);
+            Arista arista = aristas.get(idArista);
+
+            linkearAristaYVertices(arista, vCent, vMed);
+
+            idArista++;
+            vCentral++;
+            vMedio += 3; // Saltamos 3 posiciones en el anillo medio (de punta a punta)
+        }
+    }
+
+    private void conectarAristasCirculares(int inicioVertice, int finVertice, int inicioArista) {
+        int cantidad = finVertice - inicioVertice + 1;
+        int idArista = inicioArista;
+
+        for (int i = inicioVertice; i <= finVertice; i++) {
+            int siguiente = inicioVertice + ((i - inicioVertice + 1) % cantidad);
+
+            Vertice v1 = vertices.get(i);
+            Vertice v2 = vertices.get(siguiente);
+            Arista arista = aristas.get(idArista);
+
+            linkearAristaYVertices(arista, v1, v2);
+            idArista++;
+        }
+    }
+
+    private void linkearAristaYVertices(Arista arista, Vertice v1, Vertice v2) {
+        arista.agregarVertice(v1);
+        arista.agregarVertice(v2);
+        v1.agregarArista(arista);
+        v2.agregarArista(arista);
+    }
+
 
     private List<Integer> crearNumerosAleatorios() {
         List<Integer> numeros = new ArrayList<>();
