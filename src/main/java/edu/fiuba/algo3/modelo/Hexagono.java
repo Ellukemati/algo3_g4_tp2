@@ -13,8 +13,8 @@ public class Hexagono {
         this.ladron = false;
     }
 
-    public Recurso VerificarNumero(int numero) {
-        if (numero == this.numero && !this.ladron)
+    public Recurso verificarNumero(int numero) {
+        if ((numero == this.numero && !this.ladron) || (numero == -1 && !this.ladron))
             return this.recurso;
         else
             return null;

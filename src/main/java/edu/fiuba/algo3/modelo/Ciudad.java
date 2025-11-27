@@ -10,8 +10,8 @@ public class Ciudad extends Construccion {
     }
 
     @Override
-    public List<Recurso> cosechar() {
-        List<Recurso> recursosBase = vertice.cosecharRecursos();
+    public List<Recurso> cosechar(int numeroDado) {
+        List<Recurso> recursosBase = vertice.cosecharRecursos(numeroDado);
         List<Recurso> recursosDuplicados = new ArrayList<>();
 
         for (Recurso recurso : recursosBase) {
