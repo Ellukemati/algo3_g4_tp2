@@ -10,7 +10,7 @@ Trabajo Práctico número 2 de la materia Paradigmas de la Programación de FIUB
 * **Integrante 1** - [Matias Ezequiel Dundic](https://github.com/Ellukemati)
 * **Integrante 2** - [Franco Romano](https://github.com/FrancoARomano)
 * **Integrante 3** - [Nahuel Giner](https://github.com/Nahueuba)
-* **Integrante 4** - [Goletin Heisen](https://github.com/golheth)
+* **Integrante 4** - [Golheth Acosta](https://github.com/golheth)
 * **Integrante 5** - [Josue Mamani](https://github.com/Daniel-435)
 
 Corrector: **{Santiago Valdez}**
