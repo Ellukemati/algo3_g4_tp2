@@ -8,6 +8,7 @@ public class Vertice {
     private final List<Hexagono> hexagonosAdyacentes;
     private final List<Vertice> verticesAdyacentes;
     private List<Arista> aristas;
+    private Puerto puerto;
 
     private boolean ocupado;
 
@@ -19,6 +20,11 @@ public class Vertice {
 
         this.ocupado = false;
     }
+
+    public void asignarPuerto(Puerto puerto) {
+        this.puerto = puerto;
+    }
+
     public void agregarHexagono(Hexagono hexagono) {
         hexagonosAdyacentes.add(hexagono);
     }
@@ -53,6 +59,12 @@ public class Vertice {
 
     public boolean verificarOcupado() {
         return this.ocupado;
+    }
+
+    public void aplicarEfectosSiCorresponde(Jugador jugador) {
+        if (this.puerto != null) {
+            this.puerto.aplicarBeneficio(jugador);
+        }
     }
 
     public List<Recurso> cosecharRecursos(int numeroDado) {

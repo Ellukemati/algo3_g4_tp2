@@ -38,6 +38,7 @@ public class Tablero {
         conectarVerticesConHexagonos();
         conectarAristas();
         conectarAristasConVertices();
+        asignarPuertos();
     }
 
     private void crearVertices() {
@@ -336,6 +337,45 @@ public class Tablero {
         recursos.add(Recurso.LANA);
 
         return recursos;
+    }
+
+    private void asignarPuertos() {
+        List<Puerto> puertos = crearPuertosAleatorios();
+
+        // Lista de conexiones (IDs de vértices pares)
+        // p1: 1-2, p2: 4-5, p3: 8-9, p4: 11-12, p5: 14-15
+        // p6: 18-19, p7: 21-22, p8: 24-25, p9: 28-29
+        int[][] ubicaciones = {
+                {1, 2}, {4, 5}, {8, 9},
+                {11, 12}, {14, 15}, {18, 19},
+                {21, 22}, {24, 25}, {28, 29}
+        };
+
+        for (int i = 0; i < ubicaciones.length; i++) {
+            Puerto puertoActual = puertos.get(i);
+            int v1 = ubicaciones[i][0];
+            int v2 = ubicaciones[i][1];
+
+            vertices.get(v1).asignarPuerto(puertoActual);
+            vertices.get(v2).asignarPuerto(puertoActual);
+        }
+    }
+
+    private List<Puerto> crearPuertosAleatorios() {
+        List<Puerto> puertos = new ArrayList<>();
+
+        // Un puerto específico por cada tipo de recurso, 5 en total
+        for (Recurso r : Recurso.values()) {
+            puertos.add(new PuertoEspecifico(r));
+        }
+
+        // 4 puertos genéricos
+        for (int i = 0; i < 4; i++) {
+            puertos.add(new PuertoGenerico());
+        }
+
+        Collections.shuffle(puertos);
+        return puertos;
     }
 
     public Vertice obtenerVertice(int idVertice) {
