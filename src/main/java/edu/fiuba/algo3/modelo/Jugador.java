@@ -1,6 +1,9 @@
 package edu.fiuba.algo3.modelo;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 
 public class Jugador {
 
@@ -19,7 +22,6 @@ public class Jugador {
         }
         this.construcciones = new ArrayList<>();
         this.carreteras = new ArrayList<>();
-
     }
 
     // GESTIÓN INTERNA
@@ -132,10 +134,8 @@ public class Jugador {
         return false;
     }
 
-    //Str
     public boolean construirCiudad(Tablero tablero, int idVertice) {
         Vertice verticeBuscado = tablero.obtenerVertice(idVertice);
-
         Construccion construccionAActualizar = null;
 
         for (Construccion c : construcciones) {
@@ -144,18 +144,22 @@ public class Jugador {
                 break;
             }
         }
+
         if (construccionAActualizar instanceof Poblado) {
             construcciones.remove(construccionAActualizar);
             construcciones.add(new Ciudad(verticeBuscado));
             return true;
         }
+
         return false;
     }
 
     public boolean construirCarretera(Tablero tablero, int idArista) {
         Arista aristaAgregar = tablero.obtenerArista(idArista);
+
         if (carreteras.isEmpty()) {
             carreteras.add(aristaAgregar);
+
         } else {
             List<Arista> aristasAdyacentes = aristaAgregar.verAdyacentes();
             for (Arista aristaActual : carreteras) {
