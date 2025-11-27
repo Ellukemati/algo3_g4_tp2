@@ -272,9 +272,7 @@ public class Tablero {
             Vertice vCent = vertices.get(vCentral);
             Vertice vMed = vertices.get(vMedio);
             Arista arista = aristas.get(idArista);
-
             linkearAristaYVertices(arista, vCent, vMed);
-
             idArista++;
             vCentral++;
             vMedio += 3; // Saltamos 3 posiciones en el anillo medio (de punta a punta)
