@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Vertice {
-    private int id;
+    private final int id;
     private final List<Hexagono> hexagonosAdyacentes;
     private final List<Vertice> verticesAdyacentes;
     private boolean ocupado;
@@ -24,7 +24,7 @@ public class Vertice {
     }
 
     public boolean construirPoblado() {
-        if (!ocupado) {
+        if (!verificarOcupado()) {
             ocuparVertice();
             for (Vertice vertice: verticesAdyacentes) {
                 vertice.ocuparVertice();
@@ -42,16 +42,19 @@ public class Vertice {
         return this.ocupado;
     }
 
-    public List<Recurso> cosecharRecursos() {
+    public List<Recurso> cosecharRecursos(int numeroDado) {
         List<Recurso> recursos = new ArrayList<>();
         for (Hexagono hexagonosAdyacente : this.hexagonosAdyacentes) {
-            if (hexagonosAdyacente.obtenerRecurso() != null) {
+            if (hexagonosAdyacente.verificarNumero(numeroDado) != null) {
                 recursos.add(hexagonosAdyacente.obtenerRecurso());
             }
         }
         return recursos;
     }
 
+    public List<Hexagono> obtenerHexagonosAdyacentes() {
+        return this.hexagonosAdyacentes;
+    }
     public List<Vertice> obtenerAdyacentes() {
         return this.verticesAdyacentes;
     }

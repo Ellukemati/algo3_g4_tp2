@@ -12,5 +12,5 @@ public abstract class Construccion {
         this.vertice = vertice;
     }
 
-    public abstract List<Recurso> cosechar();
+    public abstract List<Recurso> cosechar(int numeroDado);
 }

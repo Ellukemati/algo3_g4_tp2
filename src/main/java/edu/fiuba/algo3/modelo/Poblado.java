@@ -9,7 +9,7 @@ public class Poblado extends Construccion {
     }
 
     @Override
-    public List<Recurso> cosechar() {
-        return vertice.cosecharRecursos();
+    public List<Recurso> cosechar(int numeroDado) {
+        return vertice.cosecharRecursos(numeroDado);
     }
 }

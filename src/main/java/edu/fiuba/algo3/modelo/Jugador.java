@@ -1,16 +1,13 @@
 package edu.fiuba.algo3.modelo;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
+import java.util.*;
 
 public class Jugador {
 
     private final Inventario inventario;
     private final List<Construccion> construcciones;
     private final List<Arista> carreteras;
-    private List<CartaDesarollo> cartas = new ArrayList<>();
+    private final List<CartaDesarollo> cartas = new ArrayList<>();
 
     public Jugador() {
         this.inventario = new Inventario();
@@ -49,14 +46,12 @@ public class Jugador {
     // LÓGICA DE JUEGO
 
     public void recibirLanzamientoDeDados(int numeroDado) {
-        if (numeroDado == 7) {
-            int cantidadRecursos = this.cantidadTotalDeRecursos();
-            if (cantidadRecursos > 7) {
-                this.descartarRecursosPorTirada7(cantidadRecursos);
+        for (Construccion c : construcciones) {
+            List<Recurso> recursosCosechados =  c.cosechar(numeroDado);
+            for (Recurso recursoActual : recursosCosechados) {
+                this.agregarRecurso(recursoActual, 1);
             }
-            // ACÁ PODRÍA IR LA LÓGICA DE MOVER AL LADRÓN
         }
-        // ACÁ SE PODRÍA AGREGAR LA LÓGICA DE DELEGARLE A SUS PUEBLOS QUE RECOLECTEN CON EL NÚMERO DEL DADO
     }
 
     private void descartarRecursosPorTirada7(int cantidadRecursosTotales) {
@@ -83,7 +78,6 @@ public class Jugador {
         this.quitarRecursos(recursosParaDescartar);
     }
 
-
     public void intercambiar(Jugador otroJugador, Map<Recurso, Integer> oferta, Map<Recurso, Integer> solicitud) {
         if (this.poseeRecursos(oferta) && otroJugador.poseeRecursos(solicitud)) {
             this.quitarRecursos(oferta);
@@ -100,17 +94,18 @@ public class Jugador {
 
     // LÓGICA DE CONSTRUCCIÓN
     //Strategy aplicar aca
+
+    //considerar para caso de size > 3, es decir para el resto del juego
     public boolean construirPoblado(Tablero tablero, int idVertice) {
         Construccion nuevaConstruccion = new Poblado(tablero.obtenerVertice(idVertice));
         if (tablero.construirPoblado(idVertice)) {
             construcciones.add(nuevaConstruccion);
             if (this.construcciones.size() == 2) {
-                List<Recurso> recursosVertice = nuevaConstruccion.cosechar();
-
+                // pasarle -1 significa que siempre recoge mientras no haya ladron
+                List<Recurso> recursosVertice = nuevaConstruccion.cosechar(-1);
                 for (Recurso recursoActual : recursosVertice) {
                     this.agregarRecurso(recursoActual, 1);
                 }
-
             }
             return true;
         }
@@ -136,9 +131,6 @@ public class Jugador {
         }
         return false;
     }
-
-
-//se puede aplicar command a construir
 
 
     public boolean construirCarretera(Tablero tablero, int idArista) {
@@ -167,4 +159,29 @@ public class Jugador {
 
     }
 
+    public Recurso serRobadoPorLadron(Hexagono hexagonoRobar) {
+        for (Construccion c : construcciones) {
+            Vertice vert = c.obtenerVertice();
+            if (vert.obtenerHexagonosAdyacentes().contains(hexagonoRobar)) {
+                Recurso[] recursos = {Recurso.MADERA, Recurso.LADRILLO,
+                        Recurso.MINERAL, Recurso.LANA, Recurso.GRANO};
+                List<Recurso> recursosRobables = new ArrayList<>();
+                for (Recurso recurso : recursos) {
+                    if (inventario.cantidadDe(recurso) > 0) {
+                        recursosRobables.add(recurso);
+                    }
+                }
+                Random random = new Random();
+                Recurso recursoRobado = recursosRobables.get(random.nextInt(recursosRobables.size()));
+                inventario.quitar(recursoRobado, 1);
+                return recursoRobado;
+            }
+        }
+        return null;
+    }
+
+    // a ser usada cuando toca 7 y por la carta de desarrollo si el jugador la posee
+    public Hexagono moverLadron(Tablero tablero, int posicion) {
+        return tablero.moverLadron(posicion);
+    }
 }
