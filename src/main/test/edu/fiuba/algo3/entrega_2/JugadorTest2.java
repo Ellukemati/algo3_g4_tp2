@@ -1,12 +1,15 @@
 package edu.fiuba.algo3.entrega_2;
 
-import edu.fiuba.algo3.modelo.Tablero;
-import edu.fiuba.algo3.modelo.Banca;
+import edu.fiuba.algo3.modelo.*;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.when;
 
-import edu.fiuba.algo3.modelo.Jugador;
-import edu.fiuba.algo3.modelo.Recurso;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 public class JugadorTest2 {
@@ -137,5 +140,48 @@ public class JugadorTest2 {
 
         //ASSERT
         assertEquals(cantidadTotalDeRecursosEsperado, jugador.cantidadTotalDeRecursos());
+    }
+
+    @Test
+    void test09UsoUnaCartaDeDesarolloDescubrimientoEnElMismoTurnoQueFueCompradaYNoSurgeElEfecto() {
+        //ARRANGE
+        Jugador jugador = new Jugador();
+        List<Jugador> jugadores = new ArrayList<>();
+        jugadores.add(jugador);
+        CartaDesarollo carta = new Descubrimiento();
+        Tablero tablero = new Tablero();
+        Banca bancaMock = Mockito.mock(Banca.class);
+        when(bancaMock.comprarCartaDeDesarollo(Mockito.any(Inventario.class))).thenReturn(new Descubrimiento());
+        int cantidadDeRecursosEsperada = 0;
+        jugador.comprarCartaDeDesarollo(bancaMock);
+
+        //ACT
+        jugador.usarCartaDeDesarollo(carta, tablero, jugadores);
+
+        //ASSERT
+        assertEquals(cantidadDeRecursosEsperada, jugador.cantidadTotalDeRecursos());
+    }
+
+    @Test
+    void test10UsoUnaCartaDeDesarolloEnUnturnoValido() {
+        //ARRANGE
+        Jugador jugador = new Jugador();
+        List<Jugador> jugadores = new ArrayList<>();
+        jugadores.add(jugador);
+        CartaDesarollo carta = new Descubrimiento();
+        Tablero tablero = new Tablero();
+        Banca bancaMock = Mockito.mock(Banca.class);
+        when(bancaMock.comprarCartaDeDesarollo(Mockito.any(Inventario.class))).thenReturn(new Descubrimiento());
+        int cantidadDeRecursosEsperada = 2;
+        jugador.comprarCartaDeDesarollo(bancaMock);
+
+
+        //ACT
+        jugador.usarCartaDeDesarollo(carta, tablero, jugadores);
+        jugador.finalizarTurno();
+        jugador.usarCartaDeDesarollo(carta, tablero, jugadores);
+
+        //ASSERT
+        assertEquals(cantidadDeRecursosEsperada, jugador.cantidadTotalDeRecursos());
     }
 }
