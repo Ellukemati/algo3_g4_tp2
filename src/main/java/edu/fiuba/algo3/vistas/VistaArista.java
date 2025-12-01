@@ -15,7 +15,7 @@ public class VistaArista extends Line {
         actualizarVisualizacion();
 
         this.setOnMouseClicked(e -> {
-            System.out.println("Click en Arista"); // ID no expuesto, podrías agregarlo
+            System.out.println("Click en Arista");
         });
     }
 

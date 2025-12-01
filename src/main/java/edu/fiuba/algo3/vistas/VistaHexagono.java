@@ -22,7 +22,7 @@ public class VistaHexagono extends StackPane {
 
     private void dibujarForma() {
         Polygon forma = new Polygon();
-        // Crear los 6 puntos matemáticos del hexágono
+        // Crear los 6 puntos del hexágono
         for (int i = 0; i < 6; i++) {
             double angulo = Math.toRadians(60 * i + 30); // +30 para que quede plano arriba/abajo
             double x = radio * Math.cos(angulo);
@@ -50,10 +50,6 @@ public class VistaHexagono extends StackPane {
             Text textoNumero = new Text(String.valueOf(numero));
             textoNumero.setFont(Font.font("Verdana", 14));
 
-            // Números rojos si son 6 u 8 (regla de Catan común, opcional)
-            if (numero == 6 || numero == 8) {
-                textoNumero.setFill(Color.RED);
-            }
 
             this.getChildren().addAll(fichaFondo, textoNumero);
         }

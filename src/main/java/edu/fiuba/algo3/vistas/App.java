@@ -13,19 +13,13 @@ public class App extends Application {
 
     @Override
     public void start(Stage stage) {
-        // Esto dispara tu InicializadorTablero y crea hexágonos, vértices, etc.
         Tablero modelo = new Tablero();
 
-        // 2. Creamos la Vista Principal
-        // (Le pasamos el modelo para que sepa qué dibujar)
         VistaTablero vistaCentral = new VistaTablero(modelo);
 
-        // Usamos un StackPane o BorderPane como raíz visual
         StackPane raiz = new StackPane(vistaCentral);
 
-        // 3. Configuramos la Escena (El lienzo)
-        // Tamaño sugerido: 800x600 o maximizado
-        Scene scene = new Scene(raiz, 800, 640);
+        Scene scene = new Scene(raiz, 800, 600);
 
         stage.setTitle("AlgoCatan - TP2");
         stage.setScene(scene);

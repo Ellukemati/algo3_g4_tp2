@@ -19,13 +19,12 @@ public class VistaVertice extends Group {
         this.forma.setCenterX(x);
         this.forma.setCenterY(y);
 
-        // Estado inicial (Vacío = Transparente con borde, Ocupado = Solido)
         actualizarVisualizacion();
 
         // Evento de click (para construir)
         this.forma.setOnMouseClicked(e -> {
             System.out.println("Click en Vértice ID: " + vertice.getId());
-            // Aquí llamarías al controlador: controlador.construirPoblado(vertice.getId());
+            // aca llamar al controlador
         });
 
         this.getChildren().add(forma);
