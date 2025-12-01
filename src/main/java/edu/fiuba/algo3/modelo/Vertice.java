@@ -83,6 +83,9 @@ public class Vertice {
     public List<Vertice> obtenerAdyacentes() {
         return this.verticesAdyacentes;
     }
+    public Puerto obtenerPuerto() {
+        return this.puerto;
+    }
     public int getId() {
         return this.id;
     }
