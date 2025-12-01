@@ -1,4 +1,18 @@
 package edu.fiuba.algo3.modelo;
 
-public class Monopolio extends CartaDesarollo {
+import java.util.List;
+
+public class Monopolio extends CartaDesarolloGeneral {
+    @Override
+    public void usar(Jugador jugador, Tablero tablero, List<Jugador> jugadores) {
+        // deve ser recibido por imput
+        Recurso recursoSeleccionado = Recurso.MADERA;
+        int cantidadTotalDeRecurso = 0;
+        for (Jugador jugador1 : jugadores) {
+            if (!jugador1.equals(jugador)) {
+                cantidadTotalDeRecurso += jugador1.quitarCantidadTotalDeRecursos(recursoSeleccionado);
+            }
+        }
+        jugador.agregarRecurso(recursoSeleccionado, cantidadTotalDeRecurso);
+    }
 }
