@@ -1,6 +1,7 @@
 package edu.fiuba.algo3.vistas; // Ojo: chequeá si tu carpeta se llama 'vista' o 'vistas'
 
 import edu.fiuba.algo3.modelo.Tablero;
+import edu.fiuba.algo3.modelo.Jugador;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.layout.StackPane;
@@ -14,9 +15,8 @@ public class App extends Application {
     @Override
     public void start(Stage stage) {
         Tablero modelo = new Tablero();
-
-        VistaTablero vistaCentral = new VistaTablero(modelo);
-
+        Jugador jugador = new Jugador();
+        VistaTablero vistaCentral = new VistaTablero(modelo, jugador);
         StackPane raiz = new StackPane(vistaCentral);
 
         Scene scene = new Scene(raiz, 800, 600);

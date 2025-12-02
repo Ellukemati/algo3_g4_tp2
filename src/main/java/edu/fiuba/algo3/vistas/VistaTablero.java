@@ -1,9 +1,8 @@
 package edu.fiuba.algo3.vistas;
 
-import edu.fiuba.algo3.modelo.Arista;
-import edu.fiuba.algo3.modelo.Hexagono;
-import edu.fiuba.algo3.modelo.Tablero;
-import edu.fiuba.algo3.modelo.Vertice;
+import edu.fiuba.algo3.controllers.ControladorArista;
+import edu.fiuba.algo3.controllers.ControladorVertice;
+import edu.fiuba.algo3.modelo.*;
 import javafx.geometry.Point2D;
 import javafx.scene.Group;
 import javafx.scene.layout.Pane;
@@ -14,18 +13,19 @@ import java.util.Map;
 
 public class VistaTablero extends Pane {
     private final Tablero tablero;
-
+    private final Jugador jugador;
     private final double RADIO = 40;
     private final double CENTRO_X = 400;
     private final double CENTRO_Y = 350;
-
+    private final Map<Integer, VistaVertice> vistasVertices = new HashMap<>();
     private final double DX = RADIO * Math.sqrt(3) / 2;
     private final double DY = RADIO / 2;
 
     private final Map<Integer, Point2D> mapaVertices = new HashMap<>();
 
-    public VistaTablero(Tablero tablero) {
+    public VistaTablero(Tablero tablero, Jugador jugador) {
         this.tablero = tablero;
+        this.jugador = jugador;
         inicializarCoordenadas();
         dibujarHexagonos();
         dibujarAristas();
@@ -126,24 +126,57 @@ public class VistaTablero extends Pane {
         for (Map.Entry<Integer, Point2D> entry : mapaVertices.entrySet()) {
             Vertice v = tablero.obtenerVertice(entry.getKey());
             Point2D p = entry.getValue();
-            this.getChildren().add(new VistaVertice(v, p.getX(), p.getY()));
+
+            VistaVertice vistaV = new VistaVertice(v, p.getX(), p.getY());
+
+            vistaV.setOnMouseClicked(new ControladorVertice(tablero, v, this)); // OJO: Pasamos 'this' (la vistaTablero) en vez de 'jugador' temporalmente para debug, o ambos.
+
+            this.getChildren().add(vistaV);
+
+            vistasVertices.put(entry.getKey(), vistaV);
         }
     }
+    public void iluminarVecinos(Vertice verticeCentral) {
+        for (VistaVertice v : vistasVertices.values()) {
+            v.desiluminar();
+        }
+
+        List<Vertice> vecinos = verticeCentral.obtenerAdyacentes();
+
+        System.out.println("--- DEBUG ADYACENTES ---");
+        System.out.println("Vertice Click: " + verticeCentral.getId());
+        System.out.print("Vecinos Modelo: ");
+
+        for (Vertice vecino : vecinos) {
+            System.out.print(vecino.getId() + ", ");
+            if (vistasVertices.containsKey(vecino.getId())) {
+                vistasVertices.get(vecino.getId()).iluminar();
+            }
+        }
+        System.out.println("\n------------------------");
+    }
+
 
     private void dibujarAristas() {
         for (int i = 0; i < 72; i++) {
             try {
                 Arista arista = tablero.obtenerArista(i);
                 List<Vertice> pares = arista.obtenerVertices();
+
                 if (pares.size() == 2) {
                     Point2D p1 = mapaVertices.get(pares.get(0).getId());
                     Point2D p2 = mapaVertices.get(pares.get(1).getId());
+
                     if (p1 != null && p2 != null) {
-                        this.getChildren().add(new VistaArista(arista, p1.getX(), p1.getY(), p2.getX(), p2.getY()));
+                        VistaArista vistaArista = new VistaArista(arista, p1.getX(), p1.getY(), p2.getX(), p2.getY());
+
+                        vistaArista.setOnMouseClicked(new ControladorArista(tablero, arista, jugador));
+
+                        this.getChildren().add(vistaArista);
                     }
                 }
             } catch (Exception e) {
-                // Ignorar aristas no válidas o fuera de rango
+
             }
         }
     }

@@ -3,12 +3,13 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Vertice {
+public class Vertice implements Observable {
     private final int id;
     private final List<Hexagono> hexagonosAdyacentes;
     private final List<Vertice> verticesAdyacentes;
     private List<Arista> aristas;
     private Puerto puerto;
+    private List<Observador> observadores = new ArrayList<>(); // Lista de interesados
 
     private boolean ocupado;
 
@@ -19,6 +20,21 @@ public class Vertice {
         this.aristas = new ArrayList<>();
 
         this.ocupado = false;
+
+    }
+    @Override
+    public void agregarObservador(Observador observador) {
+        this.observadores.add(observador);
+    }
+    @Override
+    public void notificarObservadores() {
+        for (Observador observador : observadores) {
+            observador.actualizar();
+        }
+    }
+    public void ocuparVertice() {
+        this.ocupado = true;
+        notificarObservadores(); // <--- ¡AVISO IMPORTANTE!
     }
 
     public void asignarPuerto(Puerto puerto) {
@@ -54,9 +70,7 @@ public class Vertice {
         return false;
     }
 
-    public void ocuparVertice() {
-        this.ocupado = true;
-    }
+
 
     public boolean verificarOcupado() {
         return this.ocupado;
