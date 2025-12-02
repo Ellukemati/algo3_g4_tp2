@@ -24,7 +24,7 @@ public class VistaArista extends Line {
             this.setStroke(Color.BLUE); // Carretera construida
         } else {
             this.setStroke(Color.LIGHTGRAY); // Camino disponible (vacío)
-            this.setOpacity(0.5); // Un poco transparente para no molestar
+            this.setOpacity(0.5); // trasparente
         }
     }
 }
