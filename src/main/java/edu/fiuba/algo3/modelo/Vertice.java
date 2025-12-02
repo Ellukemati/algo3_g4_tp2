@@ -34,10 +34,11 @@ public class Vertice {
         }
     }
 
-    // NUEVO: Getter para los tests (devuelve la lista)
+    // getter para los tests (devuelve la lista)
     public List<Arista> obtenerAristas() {
         return this.aristas;
     }
+
     public void agregarVerticeAdyacente(Vertice vertice) {
         verticesAdyacentes.add(vertice);
     }
@@ -82,6 +83,9 @@ public class Vertice {
     }
     public List<Vertice> obtenerAdyacentes() {
         return this.verticesAdyacentes;
+    }
+    public Puerto obtenerPuerto() {
+        return this.puerto;
     }
     public int getId() {
         return this.id;

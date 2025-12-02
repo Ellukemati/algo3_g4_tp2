@@ -1,13 +1,15 @@
-package edu.fiuba.algo3.vistas;
+package edu.fiuba.algo3.vistas; // Ojo: chequeá si tu carpeta se llama 'vista' o 'vistas'
 
-import edu.fiuba.algo3.SystemInfo;
+import edu.fiuba.algo3.modelo.Tablero;
 import javafx.application.Application;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import javafx.scene.shape.Rectangle;
@@ -15,15 +17,22 @@ import javafx.scene.paint.Color;
 
 
 /**
- * JavaFX App
+ * JavaFX App - Punto de entrada del Catan
  */
 public class App extends Application {
 
     @Override
     public void start(Stage stage) {
-        var javaVersion = SystemInfo.javaVersion();
-        var javafxVersion = SystemInfo.javafxVersion();
 
+        Tablero modelo = new Tablero();
+
+        VistaTablero vistaCentral = new VistaTablero(modelo);
+
+        StackPane raiz = new StackPane(vistaCentral);
+
+        //Scene scene = new Scene(raiz, 800, 600);
+
+        stage.setTitle("AlgoCatan - TP2");
         //var label = new Label("Hello, JavaFX " + javafxVersion + ", running on Java " + javaVersion + ".");
 
         Button btn1 = new Button("boton1");
@@ -43,7 +52,7 @@ public class App extends Application {
 
         BorderPane root = new BorderPane();
 
-        root.setCenter(btn1);
+        root.setCenter(raiz);
         btn1.setMaxWidth(Double.MAX_VALUE);
         btn1.setMaxHeight(Double.MAX_VALUE);
 
@@ -76,5 +85,4 @@ public class App extends Application {
     public static void main(String[] args) {
         launch();
     }
-
 }
