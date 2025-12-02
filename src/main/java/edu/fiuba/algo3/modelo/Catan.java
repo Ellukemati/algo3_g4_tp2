@@ -7,6 +7,7 @@ public class Catan {
     private final Tablero tablero;
     private final List<Jugador>  jugadores;
     private final Dado dado;
+    private int posicionJugadorActual;
 
     public Catan() {
         this.tablero = new Tablero();
@@ -15,6 +16,9 @@ public class Catan {
     }
 
     public void agregarJugador(Jugador jugador) {
+        if (jugadores.isEmpty()) {
+            posicionJugadorActual = 0;
+        }
         jugadores.add(jugador);
     }
 
@@ -26,7 +30,8 @@ public class Catan {
         return dado.tirar();
     }
 
-    public void jugarTurno(Jugador jugadorActual) {
+    public void jugarTurno() {
+        Jugador jugadorActual = jugadores.get(posicionJugadorActual);
         int numeroDado = dado.tirar();
         if (numeroDado == 7) {
             //luego cambiar posicion ladron por el input que decida el jugador
@@ -46,5 +51,24 @@ public class Catan {
                 jugador.recibirLanzamientoDeDados(numeroDado);
             }
         }
+    }
+
+    public void cambiarTurno() {
+        posicionJugadorActual = posicionJugadorActual + 1;
+        if (posicionJugadorActual == jugadores.size()) {
+            posicionJugadorActual = 0;
+        }
+    }
+
+    public int obtenerPosicionJugadorActual() {
+        return posicionJugadorActual;
+    }
+
+    public Jugador obtenerJugadorActual() {
+        return jugadores.get(posicionJugadorActual);
+    }
+
+    public Tablero obtenerTablero() {
+        return tablero;
     }
 }

@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.HashMap;
 
 public class Jugador {
-
+    private final String nombre;
     private final Inventario inventario;
     private final List<CartaDesarollo> cartasNuevas;
     private final List<CartaDesarollo> cartasUsables;
@@ -14,7 +14,8 @@ public class Jugador {
     private final List<Construccion> construcciones;
     private final List<Arista> carreteras;
 
-    public Jugador() {
+    public Jugador(String nombre) {
+        this.nombre = (nombre != null) ? nombre : "";
         this.inventario = new Inventario();
         this.cartasNuevas = new ArrayList<>();
         this.cartasUsables = new ArrayList<>();
@@ -24,6 +25,10 @@ public class Jugador {
         }
         this.construcciones = new ArrayList<>();
         this.carreteras = new ArrayList<>();
+    }
+
+    public Jugador() {
+        this(null);
     }
 
     // GESTIÓN INTERNA
@@ -192,5 +197,11 @@ public class Jugador {
     public void finalizarTurno() {
         cartasUsables.addAll(cartasNuevas);
         cartasNuevas.clear();
+    }
+
+    public String obtenerNombre() { return nombre; }
+
+    public int CantidadRecurso(Recurso recurso) {
+        return inventario.cantidadDe(recurso);
     }
 }
