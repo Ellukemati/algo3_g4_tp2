@@ -8,14 +8,16 @@ import java.util.HashMap;
 public class Jugador {
 
     private final Inventario inventario;
-    private final List<CartaDesarollo> cartas;
+    private final List<CartaDesarollo> cartasNuevas;
+    private final List<CartaDesarollo> cartasUsables;
     private final Map<Recurso, Integer> tasasDeIntercambioConBanca;
     private final List<Construccion> construcciones;
     private final List<Arista> carreteras;
 
     public Jugador() {
         this.inventario = new Inventario();
-        this.cartas = new ArrayList<>();
+        this.cartasNuevas = new ArrayList<>();
+        this.cartasUsables = new ArrayList<>();
         this.tasasDeIntercambioConBanca = new HashMap<>();
         for (Recurso r : Recurso.values()) {
             this.tasasDeIntercambioConBanca.put(r, 4);
@@ -44,6 +46,12 @@ public class Jugador {
 
     public void activarDescuentoPara(Recurso recurso) {
         this.tasasDeIntercambioConBanca.put(recurso, 2);
+    }
+
+    public int quitarCantidadTotalDeRecursos(Recurso recurso) {
+        int cantidadRecurso = this.inventario.cantidadDe(recurso);
+        this.inventario.quitar(recurso, cantidadRecurso);
+        return cantidadRecurso;
     }
 
     // LÓGICA DE JUEGO
@@ -82,10 +90,18 @@ public class Jugador {
 
     public void comprarCartaDeDesarollo(Banca banca) {
         try {
-            cartas.add(banca.comprarCartaDeDesarollo(inventario));
+            cartasNuevas.add(banca.comprarCartaDeDesarollo(inventario));
         } catch (IllegalArgumentException e) {
             System.out.println(e.getMessage());
         }
+    }
+
+    public void usarCartaDeDesarollo(CartaDesarollo carta, Tablero tablero, List<Jugador> jugadores) {
+        CartaDesarollo cartaDeDesarollo = cartasUsables.stream()
+                .filter((cd) -> cd.equals(carta))
+                .findFirst()
+                .orElse(new NullCartaDesarollo());
+        cartaDeDesarollo.usar(this, tablero, jugadores);
     }
 
     // a ser usada cuando toca 7 en la tirada y por la carta de desarrollo si el jugador la posee y usa
@@ -171,5 +187,10 @@ public class Jugador {
             return false;
         }
         return true;
+    }
+
+    public void finalizarTurno() {
+        cartasUsables.addAll(cartasNuevas);
+        cartasNuevas.clear();
     }
 }
