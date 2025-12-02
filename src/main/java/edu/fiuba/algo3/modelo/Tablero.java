@@ -19,8 +19,11 @@ public class Tablero {
         this.ladron = inicializador.inicializar();
     }
 
-    // --- MÉTODOS PÚBLICOS DEL JUEGO ---
 
+    // --- MÉTODOS PÚBLICOS DEL JUEGO ---
+    public List<Hexagono> obtenerHexagonos() {
+        return this.hexagonos;
+    }
     public Vertice obtenerVertice(int idVertice) {
         return vertices.get(idVertice);
     }
