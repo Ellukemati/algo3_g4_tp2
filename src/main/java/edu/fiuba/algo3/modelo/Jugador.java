@@ -136,7 +136,7 @@ public class Jugador {
 
         if (tablero.construirPoblado(idVertice)) {
             construcciones.add(nuevaConstruccion);
-            vertice.aplicarEfectosSiCorresponde(this);
+            vertice.aplicarEfectos(this);
 
             if (this.construcciones.size() == 2) {
                 // pasarle -1 significa que siempre recoge mientras no haya ladron
