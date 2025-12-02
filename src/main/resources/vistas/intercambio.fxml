@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Spinner?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<VBox alignment="CENTER" spacing="10"
+      style="-fx-background-color: rgba(255, 255, 255, 0.9); -fx-background-radius: 15; -fx-border-color: black; -fx-border-radius: 15; -fx-border-width: 2; -fx-padding: 20;"
+      xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+      fx:controller="edu.fiuba.algo3.controlador.IntercambioController">
+
+    <Label text="INTERCAMBIO">
+        <font><Font name="System Bold" size="20.0"/></font>
+    </Label>
+
+    <!-- HBOX PRINCIPAL: Contiene las 5 columnas de recursos -->
+    <HBox spacing="15" alignment="CENTER">
+
+        <!-- RECURSO 1: MADERA -->
+        <VBox alignment="CENTER" spacing="5" style="-fx-border-color: #8B4513; -fx-border-radius: 5; -fx-padding: 5; -fx-border-width: 2;">
+            <Label text="DAR" textFill="RED" style="-fx-font-size: 10px; -fx-font-weight: bold;"/>
+            <Spinner fx:id="spinMaderaDar" prefWidth="60" min="0" max="19" initialValue="0"/>
+
+            <Label text="MADERA" style="-fx-font-weight: bold; -fx-font-size: 14px;"/>
+
+            <Spinner fx:id="spinMaderaRecibir" prefWidth="60" min="0" max="19" initialValue="0"/>
+            <Label text="RECIBIR" textFill="GREEN" style="-fx-font-size: 10px; -fx-font-weight: bold;"/>
+        </VBox>
+
+        <!-- RECURSO 2: LADRILLO -->
+        <VBox alignment="CENTER" spacing="5" style="-fx-border-color: #B22222; -fx-border-radius: 5; -fx-padding: 5; -fx-border-width: 2;">
+            <Label text="DAR" textFill="RED" style="-fx-font-size: 10px; -fx-font-weight: bold;"/>
+            <Spinner fx:id="spinLadrilloDar" prefWidth="60" min="0" max="19" initialValue="0"/>
+
+            <Label text="LADRILLO" style="-fx-font-weight: bold; -fx-font-size: 14px;"/>
+
+            <Spinner fx:id="spinLadrilloRecibir" prefWidth="60" min="0" max="19" initialValue="0"/>
+            <Label text="RECIBIR" textFill="GREEN" style="-fx-font-size: 10px; -fx-font-weight: bold;"/>
+        </VBox>
+
+        <!-- RECURSO 3: LANA -->
+        <VBox alignment="CENTER" spacing="5" style="-fx-border-color: #D3D3D3; -fx-border-radius: 5; -fx-padding: 5; -fx-border-width: 2;">
+            <Label text="DAR" textFill="RED" style="-fx-font-size: 10px; -fx-font-weight: bold;"/>
+            <Spinner fx:id="spinLanaDar" prefWidth="60" min="0" max="19" initialValue="0"/>
+
+            <Label text="LANA" style="-fx-font-weight: bold; -fx-font-size: 14px;"/>
+
+            <Spinner fx:id="spinLanaRecibir" prefWidth="60" min="0" max="19" initialValue="0"/>
+            <Label text="RECIBIR" textFill="GREEN" style="-fx-font-size: 10px; -fx-font-weight: bold;"/>
+        </VBox>
+
+        <!-- RECURSO 4: GRANO -->
+        <VBox alignment="CENTER" spacing="5" style="-fx-border-color: #DAA520; -fx-border-radius: 5; -fx-padding: 5; -fx-border-width: 2;">
+            <Label text="DAR" textFill="RED" style="-fx-font-size: 10px; -fx-font-weight: bold;"/>
+            <Spinner fx:id="spinGranoDar" prefWidth="60" min="0" max="19" initialValue="0"/>
+
+            <Label text="GRANO" style="-fx-font-weight: bold; -fx-font-size: 14px;"/>
+
+            <Spinner fx:id="spinGranoRecibir" prefWidth="60" min="0" max="19" initialValue="0"/>
+            <Label text="RECIBIR" textFill="GREEN" style="-fx-font-size: 10px; -fx-font-weight: bold;"/>
+        </VBox>
+
+        <!-- RECURSO 5: MINERAL -->
+        <VBox alignment="CENTER" spacing="5" style="-fx-border-color: #696969; -fx-border-radius: 5; -fx-padding: 5; -fx-border-width: 2;">
+            <Label text="DAR" textFill="RED" style="-fx-font-size: 10px; -fx-font-weight: bold;"/>
+            <Spinner fx:id="spinMineralDar" prefWidth="60" min="0" max="19" initialValue="0"/>
+
+            <Label text="MINERAL" style="-fx-font-weight: bold; -fx-font-size: 14px;"/>
+
+            <Spinner fx:id="spinMineralRecibir" prefWidth="60" min="0" max="19" initialValue="0"/>
+            <Label text="RECIBIR" textFill="GREEN" style="-fx-font-size: 10px; -fx-font-weight: bold;"/>
+        </VBox>
+
+    </HBox>
+
+    <HBox spacing="20" alignment="CENTER">
+        <Button text="CANCELAR" onAction="#cancelar" style="-fx-base: #FFCDD2; -fx-font-weight: bold;"/>
+        <Button text="CONFIRMAR CANJE" onAction="#confirmar" style="-fx-base: #C8E6C9; -fx-font-weight: bold;"/>
+    </HBox>
+</VBox>
