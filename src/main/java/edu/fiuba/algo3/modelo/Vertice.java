@@ -17,6 +17,7 @@ public class Vertice {
         this.hexagonosAdyacentes = new ArrayList<>();
         this.verticesAdyacentes = new ArrayList<>();
         this.aristas = new ArrayList<>();
+        this.puerto = new SinPuerto();
 
         this.ocupado = false;
     }
@@ -28,16 +29,18 @@ public class Vertice {
     public void agregarHexagono(Hexagono hexagono) {
         hexagonosAdyacentes.add(hexagono);
     }
+
     public void agregarArista(Arista arista) {
         if (!this.aristas.contains(arista)) {
             this.aristas.add(arista);
         }
     }
 
-    // NUEVO: Getter para los tests (devuelve la lista)
+    // getter para los tests (devuelve la lista)
     public List<Arista> obtenerAristas() {
         return this.aristas;
     }
+
     public void agregarVerticeAdyacente(Vertice vertice) {
         verticesAdyacentes.add(vertice);
     }
@@ -45,7 +48,7 @@ public class Vertice {
     public boolean construirPoblado() {
         if (!verificarOcupado()) {
             ocuparVertice();
-            for (Vertice vertice: verticesAdyacentes) {
+            for (Vertice vertice : verticesAdyacentes) {
                 vertice.ocuparVertice();
             }
             return true;
@@ -61,10 +64,8 @@ public class Vertice {
         return this.ocupado;
     }
 
-    public void aplicarEfectosSiCorresponde(Jugador jugador) {
-        if (this.puerto != null) {
-            this.puerto.aplicarBeneficio(jugador);
-        }
+    public void aplicarEfectos(Jugador jugador) {
+        this.puerto.aplicarBeneficio(jugador);
     }
 
     public List<Recurso> cosecharRecursos(int numeroDado) {
@@ -80,12 +81,19 @@ public class Vertice {
     public List<Hexagono> obtenerHexagonosAdyacentes() {
         return this.hexagonosAdyacentes;
     }
+
     public List<Vertice> obtenerAdyacentes() {
         return this.verticesAdyacentes;
     }
+
+    public Puerto obtenerPuerto() {
+        return this.puerto;
+    }
+
     public int getId() {
         return this.id;
     }
+
     @Override
     public String toString() {
         return "Vertice " + this.id;
