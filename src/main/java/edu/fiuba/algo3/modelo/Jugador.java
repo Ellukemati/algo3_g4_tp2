@@ -26,6 +26,16 @@ public class Jugador {
         this.carreteras = new ArrayList<>();
     }
 
+    // GETTERS
+
+    public int cantidadDe(Recurso recurso) {
+        return this.inventario.cantidadDe(recurso);
+    }
+
+    public int obtenerTasaDe(Recurso recurso) {
+        return this.tasasDeIntercambioConBanca.get(recurso);
+    }
+
     // GESTIÓN INTERNA
 
     public void agregarRecurso(Recurso recurso, int cantidadAAgregar) {
@@ -74,7 +84,6 @@ public class Jugador {
     public void intercambiar(Jugador otroJugador, Map<Recurso, Integer> oferta, Map<Recurso, Integer> solicitud) {
         if (this.poseeRecursos(oferta) && otroJugador.poseeRecursos(solicitud)) {
             this.inventario.realizarTransferencia(oferta, solicitud);
-
             otroJugador.confirmarIntercambio(oferta, solicitud);
         }
     }
@@ -83,9 +92,30 @@ public class Jugador {
         this.inventario.realizarTransferencia(recursosDados, recursosRecibidos);
     }
 
-    public void comerciarConBanca(Recurso recursoAEntregar, Recurso recursoAPedir) {
-        int costo = this.tasasDeIntercambioConBanca.get(recursoAEntregar);
-        this.inventario.canjear(recursoAEntregar, costo, recursoAPedir, 1);
+    public void comerciarConBanca(Map<Recurso, Integer> oferta, Map<Recurso, Integer> solicitud) {
+        if (esIntercambioConBancaValido(oferta, solicitud)) {
+            this.inventario.canjear(oferta, solicitud);
+        }
+    }
+
+    private boolean esIntercambioConBancaValido(Map<Recurso, Integer> oferta, Map<Recurso, Integer> solicitud) {
+        int capacidadDeCompra = 0;
+
+        for (Map.Entry<Recurso, Integer> entry : oferta.entrySet()) {
+            Recurso recurso = entry.getKey();
+            int cantidadOfrecida = entry.getValue();
+
+            int tasa = this.tasasDeIntercambioConBanca.get(recurso);
+            if (cantidadOfrecida % tasa != 0) {
+                return false;
+            }
+
+            capacidadDeCompra += (cantidadOfrecida / tasa);
+        }
+
+        int cantidadSolicitada = solicitud.values().stream().mapToInt(Integer::intValue).sum();
+
+        return capacidadDeCompra == cantidadSolicitada;
     }
 
     public void comprarCartaDeDesarollo(Banca banca) {

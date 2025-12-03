@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import edu.fiuba.algo3.modelo.*;
+import java.util.Map;
 
 public class ComercioMaritimoTest {
 
@@ -16,10 +17,10 @@ public class ComercioMaritimoTest {
         jugador.agregarRecurso(Recurso.MADERA, 4);
 
         // ACT
-        jugador.comerciarConBanca(Recurso.MADERA, Recurso.LADRILLO);
+        jugador.comerciarConBanca(Map.of(Recurso.MADERA, 4), Map.of(Recurso.LADRILLO, 1));
 
         // ASSERT
-        assertEquals(1, jugador.cantidadTotalDeRecursos());
+        assertEquals(1, jugador.cantidadTotalDeRecursos()); // Gastó 4, recibió 1
     }
 
     @Test
@@ -37,10 +38,10 @@ public class ComercioMaritimoTest {
         jugador.agregarRecurso(Recurso.MADERA, 3);
 
         // ACT
-        jugador.comerciarConBanca(Recurso.MADERA, Recurso.LADRILLO);
+        jugador.comerciarConBanca(Map.of(Recurso.MADERA, 3), Map.of(Recurso.LADRILLO, 1));
 
         // ASSERT
-        assertEquals(1, jugador.cantidadTotalDeRecursos());
+        assertEquals(1, jugador.cantidadTotalDeRecursos()); // Gastó 3, recibió 1
     }
 
     @Test
@@ -58,10 +59,10 @@ public class ComercioMaritimoTest {
         jugador.agregarRecurso(Recurso.MADERA, 2);
 
         // ACT
-        jugador.comerciarConBanca(Recurso.MADERA, Recurso.LANA);
+        jugador.comerciarConBanca(Map.of(Recurso.MADERA, 2), Map.of(Recurso.LANA, 1));
 
         // ASSERT
-        assertEquals(1, jugador.cantidadTotalDeRecursos());
+        assertEquals(1, jugador.cantidadTotalDeRecursos()); // Gastó 2, recibió 1
     }
 
     @Test
@@ -79,10 +80,10 @@ public class ComercioMaritimoTest {
         jugador.agregarRecurso(Recurso.LANA, 3);
 
         // ACT
-        jugador.comerciarConBanca(Recurso.LANA, Recurso.MINERAL);
+        jugador.comerciarConBanca(Map.of(Recurso.LANA, 3), Map.of(Recurso.MINERAL, 1));
 
         // ASSERT
-        // Como su puerto específico es de Madera, tiene coste genérico de 4 para intercambiar Lana y no hay intercambio
+        // Como su puerto específico es de Madera tiene coste genérico de 4 para intercambiar Lana, entonces no hay intercambio
         assertEquals(3, jugador.cantidadTotalDeRecursos());
     }
 }
