@@ -131,6 +131,7 @@ public class App extends Application {
             }
             resultadoDado.setText("Dado: " + nuevoResultado);
             nombreJugador.setText(juego.obtenerJugadorActual().obtenerNombre());
+            recursos.actualizarRecursos(juego.obtenerJugadorActual());
         });
         raiz.getChildren().add(btnPasarTurno);
         StackPane.setAlignment(btnPasarTurno, Pos.TOP_RIGHT);
