@@ -11,9 +11,17 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
+
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import javafx.scene.shape.Rectangle;
+import javafx.scene.paint.Color;
+
 
 import java.io.IOException;
 
@@ -23,6 +31,7 @@ public class App extends Application {
 
     @Override
     public void start(Stage stage) {
+
         this.stage = stage;
         stage.setTitle("AlgoCatan - TP2");
 
@@ -75,6 +84,11 @@ public class App extends Application {
 
         IntercambioController intercambioController = loader.getController();
         configurarPanelIntercambio(panelIntercambio, intercambioController, juego);
+
+        // 5. carga vista de los recursos
+        VistaCartaDeRecursos recursos = new VistaCartaDeRecursos();
+        HBox hBox = recursos.inicializarVistaCarta();
+        raiz.getChildren().add(hBox);
 
         // Observer: Actualizar controlador cuando cambia el turno
         juego.agregarObservador(() -> {
