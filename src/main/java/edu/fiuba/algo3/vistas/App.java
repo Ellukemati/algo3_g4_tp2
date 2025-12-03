@@ -11,8 +11,11 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -51,7 +54,7 @@ public class App extends Application {
         Catan juego = new Catan();
 
         for (int i = 1; i <= cantidadJugadores; i++) {
-            Jugador nuevoJugador = new Jugador();
+            Jugador nuevoJugador = new Jugador("jugador" + i);
 
             // --- RECURSOS DE PRUEBA (SOLO PARA DEBUG) ---
             // Le damos suficiente para 2 caminos, 1 poblado y 1 ciudad
@@ -83,6 +86,22 @@ public class App extends Application {
 
         raiz.getChildren().add(panelIntercambio);
 
+        // Labels
+        Label resultadoDado = new Label();
+        resultadoDado.setFont(Font.font("Arial", FontWeight.BOLD, 28));
+        int resultadoInicial = juego.lanzarDado();
+        resultadoDado.setText("Dado: " + resultadoInicial);
+        raiz.getChildren().add(resultadoDado);
+        StackPane.setAlignment(resultadoDado, Pos.TOP_CENTER);
+        StackPane.setMargin(resultadoDado, new Insets(10));
+
+        Label nombreJugador = new Label();
+        nombreJugador.setFont(Font.font("Arial", FontWeight.BOLD, 28));
+        nombreJugador.setText(juego.obtenerJugadorActual().obtenerNombre());
+        raiz.getChildren().add(nombreJugador);
+        StackPane.setAlignment(nombreJugador, Pos.TOP_LEFT);
+        StackPane.setMargin(nombreJugador, new Insets(10));
+
         // Botones de UI
         Button btnAbrirComercio = crearBotonAbrirComercio(panelIntercambio);
         raiz.getChildren().add(btnAbrirComercio);
@@ -90,10 +109,20 @@ public class App extends Application {
         StackPane.setMargin(btnAbrirComercio, new Insets(10));
 
         Button btnPasarTurno = new Button("Pasar Turno");
-        btnPasarTurno.setOnAction(e -> juego.siguienteTurno());
+        btnPasarTurno.setOnAction(e -> {
+            juego.siguienteTurno();
+            int nuevoResultado = 0;
+
+            if (juego.obtenerTurno() >= (juego.obtenerJugadores().size() * 2)) {
+                nuevoResultado = juego.lanzarDado();
+            }
+            resultadoDado.setText("Dado: " + nuevoResultado);
+            nombreJugador.setText(juego.obtenerJugadorActual().obtenerNombre());
+        });
         raiz.getChildren().add(btnPasarTurno);
         StackPane.setAlignment(btnPasarTurno, Pos.TOP_RIGHT);
         StackPane.setMargin(btnPasarTurno, new Insets(10));
+
 
         // Cambio de Escena
         Scene scene = new Scene(raiz, 800, 600);

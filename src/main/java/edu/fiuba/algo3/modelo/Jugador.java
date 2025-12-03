@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 public class Jugador implements Observable {
-
+    private final String nombre;
     private final Inventario inventario;
     private final List<CartaDesarollo> cartasNuevas;
     private final List<CartaDesarollo> cartasUsables;
@@ -16,7 +16,8 @@ public class Jugador implements Observable {
 
     private List<Observador> observadores = new ArrayList<>();
 
-    public Jugador() {
+    public Jugador(String nombre) {
+        this.nombre = nombre;
         this.inventario = new Inventario();
         this.cartasNuevas = new ArrayList<>();
         this.cartasUsables = new ArrayList<>();
@@ -26,6 +27,10 @@ public class Jugador implements Observable {
         }
         this.construcciones = new ArrayList<>();
         this.carreteras = new ArrayList<>();
+    }
+
+    public Jugador() {
+        this("");
     }
 
     // --- IMPLEMENTACIÓN OBSERVER ---
@@ -299,5 +304,9 @@ public class Jugador implements Observable {
     public void finalizarTurno() {
         cartasUsables.addAll(cartasNuevas);
         cartasNuevas.clear();
+    }
+
+    public String obtenerNombre() {
+        return nombre;
     }
 }

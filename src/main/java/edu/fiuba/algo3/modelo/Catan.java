@@ -12,8 +12,10 @@ public class Catan implements Observable {
     // Estado del juego
     private int indiceJugadorActual;
     private boolean juegoIniciado;
+    private int contadorTurnos;
 
     public Catan() {
+        this.contadorTurnos = 0;
         this.tablero = new Tablero();
         this.jugadores = new ArrayList<>();
         this.dado = new Dado();
@@ -42,6 +44,7 @@ public class Catan implements Observable {
     // --- Lógica de Turnos ---
 
     public void siguienteTurno() {
+        contadorTurnos++;
         // Finaliza el turno del jugador anterior
         obtenerJugadorActual().finalizarTurno();
 
@@ -102,5 +105,9 @@ public class Catan implements Observable {
         for (Observador observador : observadores) {
             observador.actualizar();
         }
+    }
+
+    public int obtenerTurno() {
+        return contadorTurnos;
     }
 }
