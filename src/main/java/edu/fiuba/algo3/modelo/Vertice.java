@@ -5,6 +5,7 @@ import java.util.List;
 
 public class Vertice implements Observable {
     private final int id;
+    private boolean tieneEdificio;
     private final List<Hexagono> hexagonosAdyacentes;
     private final List<Vertice> verticesAdyacentes;
     private List<Arista> aristas;
@@ -19,7 +20,7 @@ public class Vertice implements Observable {
         this.verticesAdyacentes = new ArrayList<>();
         this.aristas = new ArrayList<>();
         this.puerto = new SinPuerto();
-
+        this.tieneEdificio = false;
         this.ocupado = false;
 
     }
@@ -62,16 +63,24 @@ public class Vertice implements Observable {
     }
 
     public boolean construirPoblado() {
-        if (!verificarOcupado()) {
-            ocuparVertice();
-            for (Vertice vertice : verticesAdyacentes) {
-                vertice.ocuparVertice();
-            }
-            return true;
+        if (verificarOcupado()) {
+            return false;
         }
-        return false;
+
+        this.ocupado = true;
+        this.tieneEdificio = true;
+
+        for (Vertice vertice : verticesAdyacentes) {
+            vertice.ocuparVertice();
+        }
+
+        notificarObservadores();
+        return true;
     }
 
+    public boolean tieneEdificio() {
+        return this.tieneEdificio;
+    }
 
 
     public boolean verificarOcupado() {

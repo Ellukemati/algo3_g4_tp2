@@ -1,9 +1,9 @@
-package edu.fiuba.algo3.vistas; // Ojo: chequeá si tu carpeta se llama 'vista' o 'vistas'
+package edu.fiuba.algo3.vistas;
 
 import edu.fiuba.algo3.controllers.IntercambioController;
+import edu.fiuba.algo3.modelo.Catan;
 import edu.fiuba.algo3.modelo.Jugador;
 import edu.fiuba.algo3.modelo.Recurso;
-import edu.fiuba.algo3.modelo.Tablero;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -19,49 +19,96 @@ import java.io.IOException;
 
 public class App extends Application {
 
+    private Stage stage;
+
     @Override
-    public void start(Stage stage) throws IOException {
-        Tablero modelo = new Tablero();
-        Jugador jugador = new Jugador();
-        VistaTablero vistaCentral = new VistaTablero(modelo, jugador);
-        StackPane raiz = new StackPane(vistaCentral);
-        Jugador jugadorActivo = crearJugadorPrueba(modelo);
+    public void start(Stage stage) {
+        this.stage = stage;
+        stage.setTitle("AlgoCatan - TP2");
 
-        VistaTablero vistaTablero = new VistaTablero(modelo,jugador);
+        // Iniciamos mostrando el menú
+        mostrarMenuInicio();
 
-        // Carga del Panel de Intercambio
+        stage.show();
+    }
+
+    private void mostrarMenuInicio() {
+        // Pasamos una expresión lambda que dice qué hacer cuando se elija la cantidad
+        VistaMenuInicio vistaMenu = new VistaMenuInicio(cantidad -> {
+            try {
+                iniciarJuego(cantidad);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
+
+        Scene scene = new Scene(vistaMenu, 800, 600);
+        stage.setScene(scene);
+    }
+
+    private void iniciarJuego(int cantidadJugadores) throws IOException {
+        // 1. Instanciamos la Facade
+        Catan juego = new Catan();
+
+        for (int i = 1; i <= cantidadJugadores; i++) {
+            Jugador nuevoJugador = new Jugador();
+
+            // --- RECURSOS DE PRUEBA (SOLO PARA DEBUG) ---
+            // Le damos suficiente para 2 caminos, 1 poblado y 1 ciudad
+            nuevoJugador.agregarRecurso(Recurso.MADERA, 5);
+            nuevoJugador.agregarRecurso(Recurso.LADRILLO, 5);
+            nuevoJugador.agregarRecurso(Recurso.LANA, 5);
+            nuevoJugador.agregarRecurso(Recurso.GRANO, 5);
+            nuevoJugador.agregarRecurso(Recurso.MINERAL, 5);
+            // ---------------------------------------------
+
+            juego.agregarJugador(nuevoJugador);
+        }
+
+        // 3. Creamos la vista del tablero
+        VistaTablero vistaTablero = new VistaTablero(juego);
+        StackPane raiz = new StackPane(vistaTablero);
+
+        // 4. Carga del Panel de Intercambio
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/vistas/intercambio.fxml"));
         Region panelIntercambio = loader.load();
-        configurarPanelIntercambio(panelIntercambio, loader.getController(), jugadorActivo);
 
-        raiz.getChildren().addAll(vistaTablero, panelIntercambio);
+        IntercambioController intercambioController = loader.getController();
+        configurarPanelIntercambio(panelIntercambio, intercambioController, juego);
 
+        // Observer: Actualizar controlador cuando cambia el turno
+        juego.agregarObservador(() -> {
+            intercambioController.setJugador(juego.obtenerJugadorActual());
+        });
+
+        raiz.getChildren().add(panelIntercambio);
+
+        // Botones de UI
         Button btnAbrirComercio = crearBotonAbrirComercio(panelIntercambio);
         raiz.getChildren().add(btnAbrirComercio);
         StackPane.setAlignment(btnAbrirComercio, Pos.BOTTOM_RIGHT);
         StackPane.setMargin(btnAbrirComercio, new Insets(10));
 
+        Button btnPasarTurno = new Button("Pasar Turno");
+        btnPasarTurno.setOnAction(e -> juego.siguienteTurno());
+        raiz.getChildren().add(btnPasarTurno);
+        StackPane.setAlignment(btnPasarTurno, Pos.TOP_RIGHT);
+        StackPane.setMargin(btnPasarTurno, new Insets(10));
+
+        // Cambio de Escena
         Scene scene = new Scene(raiz, 800, 600);
-        scene.getStylesheets().add(getClass().getResource("/estilos/intercambio.css").toExternalForm());
+        try {
+            scene.getStylesheets().add(getClass().getResource("/estilos/intercambio.css").toExternalForm());
+        } catch (Exception e) {
+            System.out.println("No se encontró CSS, continuando sin estilos.");
+        }
 
-        stage.setTitle("AlgoCatan - TP2");
         stage.setScene(scene);
-        stage.show();
+        // Opcional: stage.setFullScreen(true);
     }
 
-    // JUGADOR SIMULADO PARA PRUEBAS, HAY QUE IMPLEMENTAR LOS TURNOS Y EL JUGADOR ACTIVO
-    private Jugador crearJugadorPrueba(Tablero modelo) {
-        Jugador j = new Jugador();
-        j.agregarRecurso(Recurso.MADERA, 10);
-        j.agregarRecurso(Recurso.LADRILLO, 5);
-        j.agregarRecurso(Recurso.LANA, 3);
-        j.agregarRecurso(Recurso.GRANO, 2);
-        j.construirPoblado(modelo, 1);
-        return j;
-    }
-
-    private void configurarPanelIntercambio(Region panel, IntercambioController controlador, Jugador jugador) {
-        controlador.setJugador(jugador);
+    private void configurarPanelIntercambio(Region panel, IntercambioController controlador, Catan juego) {
+        controlador.setJugador(juego.obtenerJugadorActual());
         panel.setMaxSize(650, 400);
         panel.setVisible(false);
     }
