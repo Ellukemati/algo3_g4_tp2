@@ -4,18 +4,20 @@ import javafx.geometry.Insets;
 import javafx.scene.layout.*;
 import javafx.scene.image.Image;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class VistaCartaDeRecursos {
 
+    private List<VistaCartaRecurso> cartas;
     public HBox inicializarVistaCarta() {
-
+        this.cartas = new ArrayList<>();
         List<String> imagenes = List.of(
-                "/ladrillo.png",
-                "/lana.png",
-                "/mineral.png",
-                "/madera.png",
-                "/trigo.png"
+                "/recursos/ladrillo.png",
+                "/recursos/lana.png",
+                "/recursos/mineral.png",
+                "/recursos/madera.png",
+                "/recursos/trigo.png"
         );
 
         HBox contenedor = new HBox();
@@ -24,6 +26,7 @@ public class VistaCartaDeRecursos {
         imagenes.forEach(ruta -> {
             VistaCartaRecurso carta = new VistaCartaRecurso(ruta, "0");
             contenedor.getChildren().add(carta);
+            cartas.add(carta);
         });
 
         contenedor.setMinHeight(50);
@@ -35,7 +38,7 @@ public class VistaCartaDeRecursos {
     }
 
     private void aplicarFondo(HBox contenedor) {
-        Image img = new Image(getClass().getResource("/fondo_cremita.jpg").toExternalForm());
+        Image img = new Image(getClass().getResource("/recursos/fondo_cremita.jpg").toExternalForm());
 
         BackgroundImage bg = new BackgroundImage(
                 img,
