@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Spinner?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox fx:id="panelPrincipal" alignment="CENTER" spacing="10"
+      styleClass="panel-intercambio"
+      stylesheets="@../estilos/intercambio.css"
+      xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="edu.fiuba.algo3.controllers.IntercambioController">
+
+    <Label text="INTERCAMBIO" styleClass="titulo"/>
+
+    <HBox alignment="CENTER" spacing="10">
+        <Label text="Comerciar con:" styleClass="label-bold"/>
+        <Button fx:id="btnDestinatario" text="BANCA" onAction="#alternarDestinatario"
+                styleClass="btn-toggle-base, btn-toggle-banca"/>
+    </HBox>
+
+    <HBox spacing="15" alignment="CENTER">
+
+        <VBox styleClass="card-recurso, card-madera" spacing="5">
+            <Label text="DAR" styleClass="lbl-dar"/>
+            <Spinner fx:id="spinMaderaDar" prefWidth="60" min="0" max="19" initialValue="0"/>
+
+            <ImageView fitWidth="50" fitHeight="50" preserveRatio="true">
+                <Image url="@../imagenes/recursos/madera_minecraft.png"/>
+            </ImageView>
+
+            <Label text="MADERA" styleClass="lbl-nombre-recurso"/>
+
+            <Spinner fx:id="spinMaderaRecibir" prefWidth="60" min="0" max="19" initialValue="0"/>
+            <Label text="RECIBIR" styleClass="lbl-recibir"/>
+        </VBox>
+
+        <VBox styleClass="card-recurso, card-ladrillo" spacing="5">
+            <Label text="DAR" styleClass="lbl-dar"/>
+            <Spinner fx:id="spinLadrilloDar" prefWidth="60" min="0" max="19" initialValue="0"/>
+
+            <ImageView fitWidth="50" fitHeight="50" preserveRatio="true">
+                <Image url="@../imagenes/recursos/ladrillo_minecraft.png"/>
+            </ImageView>
+
+            <Label text="LADRILLO" styleClass="lbl-nombre-recurso"/>
+
+            <Spinner fx:id="spinLadrilloRecibir" prefWidth="60" min="0" max="19" initialValue="0"/>
+            <Label text="RECIBIR" styleClass="lbl-recibir"/>
+        </VBox>
+
+        <VBox styleClass="card-recurso, card-lana" spacing="5">
+            <Label text="DAR" styleClass="lbl-dar"/>
+            <Spinner fx:id="spinLanaDar" prefWidth="60" min="0" max="19" initialValue="0"/>
+
+            <ImageView fitWidth="50" fitHeight="50" preserveRatio="true">
+                <Image url="@../imagenes/recursos/lana_minecraft.png"/>
+            </ImageView>
+
+            <Label text="LANA" styleClass="lbl-nombre-recurso"/>
+
+            <Spinner fx:id="spinLanaRecibir" prefWidth="60" min="0" max="19" initialValue="0"/>
+            <Label text="RECIBIR" styleClass="lbl-recibir"/>
+        </VBox>
+
+        <VBox styleClass="card-recurso, card-grano" spacing="5">
+            <Label text="DAR" styleClass="lbl-dar"/>
+            <Spinner fx:id="spinGranoDar" prefWidth="60" min="0" max="19" initialValue="0"/>
+
+            <ImageView fitWidth="50" fitHeight="50" preserveRatio="true">
+                <Image url="@../imagenes/recursos/grano_minecraft.png"/>
+            </ImageView>
+
+            <Label text="GRANO" styleClass="lbl-nombre-recurso"/>
+
+            <Spinner fx:id="spinGranoRecibir" prefWidth="60" min="0" max="19" initialValue="0"/>
+            <Label text="RECIBIR" styleClass="lbl-recibir"/>
+        </VBox>
+
+        <VBox styleClass="card-recurso, card-mineral" spacing="5">
+            <Label text="DAR" styleClass="lbl-dar"/>
+            <Spinner fx:id="spinMineralDar" prefWidth="60" min="0" max="19" initialValue="0"/>
+
+            <ImageView fitWidth="50" fitHeight="50" preserveRatio="true">
+                <Image url="@../imagenes/recursos/mineral_minecraft.png"/>
+            </ImageView>
+
+            <Label text="MINERAL" styleClass="lbl-nombre-recurso"/>
+
+            <Spinner fx:id="spinMineralRecibir" prefWidth="60" min="0" max="19" initialValue="0"/>
+            <Label text="RECIBIR" styleClass="lbl-recibir"/>
+        </VBox>
+
+    </HBox>
+
+    <Label fx:id="lblBalance" text="Balance: 0 / 0" styleClass="feedback-neutro"/>
+
+    <HBox spacing="20" alignment="CENTER">
+        <Button text="CANCELAR" onAction="#cancelar" styleClass="btn-base, btn-cancelar"/>
+        <Button fx:id="btnConfirmar" text="CONFIRMAR CANJE" onAction="#confirmar" styleClass="btn-base, btn-confirmar"/>
+    </HBox>
+</VBox>

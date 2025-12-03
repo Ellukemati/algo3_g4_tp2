@@ -12,9 +12,9 @@ public class MapaDeColores {
         colores = new HashMap<>();
         colores.put(Recurso.MADERA, Color.SADDLEBROWN);
         colores.put(Recurso.LADRILLO, Color.FIREBRICK);
-        colores.put(Recurso.LANA, Color.LIGHTGREEN);
+        colores.put(Recurso.LANA, Color.YELLOWGREEN);
         colores.put(Recurso.GRANO, Color.GOLDENROD);
-        colores.put(Recurso.MINERAL, Color.DARKGRAY);
+        colores.put(Recurso.MINERAL, Color.DIMGRAY);
     }
 
     public static Color obtenerColor(Recurso recurso) {
