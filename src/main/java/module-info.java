@@ -4,6 +4,9 @@ module edu.fiuba.algo3 {
     requires json.simple;
     requires jdk.jfr;
 
+    requires java.desktop;
+    requires javafx.graphics;
+
     exports edu.fiuba.algo3;
     exports edu.fiuba.algo3.vistas;
 
