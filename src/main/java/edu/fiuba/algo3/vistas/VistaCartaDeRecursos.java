@@ -1,5 +1,7 @@
 package edu.fiuba.algo3.vistas;
 
+import edu.fiuba.algo3.modelo.Jugador;
+import edu.fiuba.algo3.modelo.Recurso;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.layout.*;
@@ -56,6 +58,15 @@ public class VistaCartaDeRecursos {
         );
 
         contenedor.setBackground(new Background(bg));
+    }
+
+    public void actualizarRecursos(Jugador jugador) {
+
+        cartas.get(0).actualizarValor(jugador.cantidadDe(Recurso.LADRILLO));
+        cartas.get(1).actualizarValor(jugador.cantidadDe(Recurso.LANA));
+        cartas.get(2).actualizarValor(jugador.cantidadDe(Recurso.MINERAL));
+        cartas.get(3).actualizarValor(jugador.cantidadDe(Recurso.MADERA));
+        cartas.get(4).actualizarValor(jugador.cantidadDe(Recurso.GRANO));
     }
 }
 
