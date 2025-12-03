@@ -1,6 +1,7 @@
 package edu.fiuba.algo3.vistas;
 
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.layout.*;
 import javafx.scene.image.Image;
 
@@ -30,9 +31,12 @@ public class VistaCartaDeRecursos {
         });
 
         contenedor.setMinHeight(50);
-        contenedor.setMaxWidth(140);
+        contenedor.setMaxHeight(50);
+        contenedor.setMaxWidth(100);
 
-        BorderPane.setMargin(contenedor, new Insets(0, 0, 0, 30));
+        StackPane.setAlignment(contenedor, Pos.BOTTOM_LEFT);
+        StackPane.setMargin(contenedor, new Insets(0, 0, 0, 30));
+
 
         return contenedor;
     }

@@ -8,15 +8,17 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.FontWeight;
+import edu.fiuba.algo3.modelo.Observador;
+import javafx.scene.paint.Color;
 
-public class VistaVertice extends Group {
+public class VistaVertice extends Group implements Observador {
     private final Vertice vertice;
     private final Circle forma;
     private final double radio = 10;
 
     public VistaVertice(Vertice vertice, double x, double y) {
         this.vertice = vertice;
-
+        this.vertice.agregarObservador(this);
         // 1. Dibujar el punto del vértice
         this.forma = new Circle(radio);
         this.forma.setCenterX(x);
@@ -24,14 +26,12 @@ public class VistaVertice extends Group {
 
         actualizarVisualizacion();
 
-        // Evento de click
         this.forma.setOnMouseClicked(e -> {
             System.out.println("Click en Vértice ID: " + vertice.getId());
         });
 
         this.getChildren().add(forma);
 
-        // 2. Dibujar Barco/Puerto si existe
         if (vertice.obtenerPuerto() != null) {
             Rectangle barco = new Rectangle(10, 10);
             barco.setX(x + 8);
@@ -40,7 +40,6 @@ public class VistaVertice extends Group {
             this.getChildren().add(barco);
         }
 
-        // --- DEBUG: MOSTRAR ID ---
         Text textoId = new Text(String.valueOf(vertice.getId()));
         textoId.setX(x - 6); // Ajuste para centrar aprox
         textoId.setY(y + 4);
@@ -51,16 +50,24 @@ public class VistaVertice extends Group {
         this.getChildren().add(textoId);
         // -------------------------
     }
-
-    public void actualizarVisualizacion() {
+    public void iluminar() {
+        this.forma.setFill(Color.YELLOW);
+        this.forma.setStroke(Color.ORANGE);
+        this.forma.setStrokeWidth(4);
+    }
+    public void desiluminar() {
+        actualizarVisualizacion();
+    }
+    @Override
+    public void actualizar() {
+        actualizarVisualizacion();
+    }
+    private void actualizarVisualizacion() {
         if (vertice.verificarOcupado()) {
             this.forma.setFill(Color.RED);
-            this.forma.setStroke(Color.DARKRED);
         } else {
-            this.forma.setFill(Color.WHITE); // Fondo blanco
-            this.forma.setOpacity(0.7);      // transparente
+            this.forma.setFill(Color.TRANSPARENT);
             this.forma.setStroke(Color.GRAY);
-            this.forma.setStrokeWidth(2);
         }
     }
 }
