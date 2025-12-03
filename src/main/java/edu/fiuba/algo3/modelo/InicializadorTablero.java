@@ -17,167 +17,111 @@ public class InicializadorTablero {
     }
 
     public int inicializar() {
-        List<Integer> numeros = crearNumerosAleatorios();
-        List<Recurso> recursos = crearRecursos();
+        // 1. Crear objetos básicos
+        crearComponentesBasicos();
+        inicializarHexagonos();
 
-        for (int i = 0; i < 18; i++) {
-            hexagonos.add(new Hexagono(recursos.get(i), numeros.get(i)));
-        }
-        hexagonos.add(new Hexagono(null, 0)); // Desierto
-        Collections.shuffle(hexagonos);
-
+        // 2. Asignar Ladrón
         Random random = new Random();
         int ladronIndex = random.nextInt(19);
         hexagonos.get(ladronIndex).ladronOcupar();
 
-        crearVertices();
-        crearAristas();
-
-        conectarVertices();
-        conectarVerticesConHexagonos();
-        conectarAristas();
         conectarAristasConVertices();
+
+        // Como ya conectamos las aristas, ahora los vértices saben quiénes son sus vecinos
+        conectarVerticesDesdeAristas();
+
+        conectarAristas();
+
+        conectarVerticesConHexagonos();
         asignarPuertos();
 
         return ladronIndex;
     }
 
-    // --- MÉTODOS DE CREACIÓN BÁSICA ---
+    private void conectarVerticesDesdeAristas() {
+        for (Vertice vertice : vertices) {
+            List<Arista> aristasDelVertice = vertice.obtenerAristas();
 
-    private void crearVertices() {
-        for (int i = 0; i < 54; i++) {
-            vertices.add(new Vertice(i));
-        }
-    }
+            for (Arista arista : aristasDelVertice) {
+                List<Vertice> conectados = arista.obtenerVertices();
+                for (Vertice vecino : conectados) {
+                    if (!vecino.equals(vertice)) {
 
-    private void crearAristas() {
-        for (int i = 0; i < 72; i++) {
-            aristas.add(new Arista(i));
-        }
-    }
-
-    private List<Integer> crearNumerosAleatorios() {
-        List<Integer> numeros = new ArrayList<>();
-        Random random = new Random();
-        int[] numerosPermitidos = {2, 3, 4, 5, 6, 8, 9, 10, 11, 12};
-        for (int num : numerosPermitidos) numeros.add(num);
-        while (numeros.size() < 18) {
-            numeros.add(numerosPermitidos[random.nextInt(numerosPermitidos.length)]);
-        }
-        Collections.shuffle(numeros);
-        return numeros;
-    }
-
-    private List<Recurso> crearRecursos() {
-        List<Recurso> recursos = new ArrayList<>();
-        for (int i = 0; i < 3; i++) {
-            recursos.add(Recurso.MADERA); recursos.add(Recurso.LADRILLO);
-            recursos.add(Recurso.LANA); recursos.add(Recurso.GRANO);
-            recursos.add(Recurso.MINERAL);
-        }
-        recursos.add(Recurso.MADERA); recursos.add(Recurso.GRANO); recursos.add(Recurso.LANA);
-        return recursos;
-    }
-
-    // --- LÓGICA DE CONEXIÓN DE VÉRTICES ---
-
-    private void conectarVertices() {
-        final int VERTICES_PRIMER_ANILLO = 30;
-        final int VERTICES_SEGUNDO_ANILLO = 48;
-        final int VERTICES_TERCER_ANILLO = 54;
-
-        conectarAnilloVertices(0, VERTICES_PRIMER_ANILLO);
-        conectarAnilloVerticesConAnterior(30, VERTICES_SEGUNDO_ANILLO, 30, 3);
-        conectarAnilloVerticesConAnterior(48, VERTICES_TERCER_ANILLO, 16, 0);
-    }
-
-    private void conectarAnilloVertices(int inicio, int fin) {
-        int cantidad = fin - inicio;
-        for (int i = inicio; i < fin; i++) {
-            int anterior = inicio + ((i - inicio - 1 + cantidad) % cantidad);
-            int siguiente = inicio + ((i - inicio + 1) % cantidad);
-            conectarVerticesBidireccional(i, anterior);
-            conectarVerticesBidireccional(i, siguiente);
-        }
-    }
-
-    private void conectarAnilloVerticesConAnterior(int inicio, int fin, int diferenciaInicial, int contadorReset) {
-        conectarAnilloVertices(inicio, fin);
-        int diferencia = diferenciaInicial;
-        int contador = 0;
-        for (int i = inicio; i < fin; i++) {
-            if (contador == contadorReset) {
-                diferencia -= 2;
-                contador = 0;
-            } else {
-                conectarVerticesBidireccional(i, i - diferencia);
-                contador++;
+                        vertice.agregarVerticeAdyacente(vecino);
+                    }
+                }
             }
         }
     }
 
-    private void conectarVerticesBidireccional(int id1, int id2) {
-        if (!(vertices.get(id1).obtenerAdyacentes()).contains(vertices.get(id2))) {
-            vertices.get(id1).agregarVerticeAdyacente(vertices.get(id2));
-        }
-        if (!(vertices.get(id2).obtenerAdyacentes()).contains(vertices.get(id1))) {
-            vertices.get(id2).agregarVerticeAdyacente(vertices.get(id1));
-        }
+    // --- MÉTODOS DE CREACIÓN ---
+    private void crearComponentesBasicos() {
+        for (int i = 0; i < 54; i++) vertices.add(new Vertice(i));
+        for (int i = 0; i < 72; i++) aristas.add(new Arista(i));
     }
 
-    // --- LÓGICA DE CONEXIÓN DE HEXÁGONOS ---
-
-    private void conectarVerticesConHexagonos() {
-        conectarPrimerAnilloHexagonos();
-        conectarSegundoAnilloHexagonos();
-        conectarTercerAnilloHexagonos();
+    private void inicializarHexagonos() {
+        List<Integer> numeros = crearNumerosAleatorios();
+        List<Recurso> recursos = crearRecursos();
+        for (int i = 0; i < 18; i++) {
+            hexagonos.add(new Hexagono(recursos.get(i), numeros.get(i)));
+        }
+        hexagonos.add(new Hexagono(null, 0)); // Desierto
+        Collections.shuffle(hexagonos);
     }
 
-    private void conectarPrimerAnilloHexagonos() {
-        int hexagonoActual = 0, contador = 0;
-        vertices.get(0).agregarHexagono(hexagonos.get(11));
-        for (int i = 0; i < 30; i++) {
-            vertices.get(i).agregarHexagono(hexagonos.get(hexagonoActual));
-            boolean cambiarHexagono = (hexagonoActual % 2 == 0 && contador == 3) ||
-                    (hexagonoActual % 2 != 0 && contador == 2);
-            if (cambiarHexagono) {
-                hexagonoActual++;
-                vertices.get(i).agregarHexagono(hexagonos.get(hexagonoActual));
-                contador = 0;
+    // --- CONEXIÓN GEOMÉTRICA (ARISTAS <-> VÉRTICES) ---
+
+    private void conectarAristasConVertices() {
+        conectarAristasCirculares(0, 29, 0);
+        conectarRayosExternosLogico();
+        conectarAristasCirculares(30, 47, 42);
+        conectarRayosInternosManual();
+        conectarAristasCirculares(48, 53, 66);
+    }
+
+    private void conectarRayosExternosLogico() {
+        int idArista = 30;
+        int vExterno = 0;
+        int vMedio = 30;
+        for (int i = 0; i < 12; i++) {
+            linkearAristaYVertices(aristas.get(idArista), vertices.get(vExterno), vertices.get(vMedio));
+            idArista++;
+            if (i % 2 == 0) { // Paso PAR (+3 Ext, +1 Med)
+                vExterno += 3; vMedio += 1;
+            } else { // Paso IMPAR (+2 Ext, +2 Med)
+                vExterno += 2; vMedio += 2;
             }
-            contador++;
         }
     }
 
-    private void conectarSegundoAnilloHexagonos() {
-        int hexagonoActual = 12, hexagonoPrimerAnillo = 11, contador = 2;
-        for (int i = 30; i < 48; i++) {
-            vertices.get(i).agregarHexagono(hexagonos.get(hexagonoActual));
-            vertices.get(i).agregarHexagono(hexagonos.get(hexagonoPrimerAnillo));
-            if (contador == 1 && hexagonoPrimerAnillo % 2 != 0) {
-                hexagonoActual++;
-                vertices.get(i).agregarHexagono(hexagonos.get(hexagonoActual));
-            } else {
-                hexagonoPrimerAnillo++;
-                if (hexagonoPrimerAnillo == 12) hexagonoPrimerAnillo = 0;
-                vertices.get(i).agregarHexagono(hexagonos.get(hexagonoPrimerAnillo));
-                contador = 0;
-            }
-            contador++;
+    private void conectarRayosInternosManual() {
+        int idArista = 60;
+        int vCentral = 48;
+        int vMedio = 32;
+        for (int i = 0; i < 6; i++) {
+            linkearAristaYVertices(aristas.get(idArista), vertices.get(vCentral), vertices.get(vMedio));
+            idArista++; vCentral++; vMedio += 3;
         }
     }
 
-    private void conectarTercerAnilloHexagonos() {
-        int hexagonoSegundoAnillo = 12, hexagonoActual = 18;
-        for (int i = 48; i < 54; i++) {
-            vertices.get(i).agregarHexagono(hexagonos.get(hexagonoActual));
-            vertices.get(i).agregarHexagono(hexagonos.get(hexagonoSegundoAnillo));
-            hexagonoSegundoAnillo++;
-            vertices.get(i).agregarHexagono(hexagonos.get(hexagonoSegundoAnillo));
+    private void conectarAristasCirculares(int inicioVertice, int finVertice, int inicioArista) {
+        int cantidad = finVertice - inicioVertice + 1;
+        int idArista = inicioArista;
+        for (int i = inicioVertice; i <= finVertice; i++) {
+            int siguiente = inicioVertice + ((i - inicioVertice + 1) % cantidad);
+            linkearAristaYVertices(aristas.get(idArista), vertices.get(i), vertices.get(siguiente));
+            idArista++;
         }
     }
 
-    // --- LÓGICA DE CONEXIÓN DE ARISTAS ---
+    private void linkearAristaYVertices(Arista arista, Vertice v1, Vertice v2) {
+        arista.agregarVertice(v1); arista.agregarVertice(v2);
+        v1.agregarArista(arista); v2.agregarArista(arista);
+    }
+
+    // --- RESTO DE CONEXIONES (ARISTAS-ARISTAS, HEXÁGONOS, PUERTOS) ---
 
     private void conectarAristas() {
         conectarAristasAnillo(0, 29);
@@ -225,56 +169,58 @@ public class InicializadorTablero {
         aristas.get(id2).agregarAristaAdyacente(aristas.get(id1));
     }
 
-
-    private void conectarAristasConVertices() {
-        conectarAristasCirculares(0, 29, 0);
-        conectarRayosExternosLogico();         // Tu lógica corregida
-        conectarAristasCirculares(30, 47, 42);
-        conectarRayosInternosManual();         // Tu lógica corregida
-        conectarAristasCirculares(48, 53, 66);
+    private void conectarVerticesConHexagonos() {
+        conectarPrimerAnilloHexagonos();
+        conectarSegundoAnilloHexagonos();
+        conectarTercerAnilloHexagonos();
     }
 
-    private void conectarRayosExternosLogico() {
-        int idArista = 30;
-        int vExterno = 0;
-        int vMedio = 30;
-        for (int i = 0; i < 12; i++) {
-            linkearAristaYVertices(aristas.get(idArista), vertices.get(vExterno), vertices.get(vMedio));
-            idArista++;
-            if (i % 2 == 0) { // Paso PAR
-                vExterno += 3; vMedio += 1;
-            } else { // Paso IMPAR
-                vExterno += 2; vMedio += 2;
+    private void conectarPrimerAnilloHexagonos() {
+        int hexagonoActual = 0, contador = 0;
+        Vertice v0 = vertices.get(0);
+        Hexagono h11 = hexagonos.get(11);
+        v0.agregarHexagono(h11);
+
+        for (int i = 0; i < 30; i++) {
+            vertices.get(i).agregarHexagono(hexagonos.get(hexagonoActual));
+            boolean cambiarHexagono = (hexagonoActual % 2 == 0 && contador == 3) ||
+                    (hexagonoActual % 2 != 0 && contador == 2);
+            if (cambiarHexagono) {
+                hexagonoActual++;
+                vertices.get(i).agregarHexagono(hexagonos.get(hexagonoActual));
+                contador = 0;
             }
+            contador++;
         }
     }
 
-    private void conectarRayosInternosManual() {
-        int idArista = 60;
-        int vCentral = 48;
-        int vMedio = 32;
-        for (int i = 0; i < 6; i++) {
-            linkearAristaYVertices(aristas.get(idArista), vertices.get(vCentral), vertices.get(vMedio));
-            idArista++; vCentral++; vMedio += 3;
+    private void conectarSegundoAnilloHexagonos() {
+        int hexagonoActual = 12, hexagonoPrimerAnillo = 11, contador = 2;
+        for (int i = 30; i < 48; i++) {
+            vertices.get(i).agregarHexagono(hexagonos.get(hexagonoActual));
+            vertices.get(i).agregarHexagono(hexagonos.get(hexagonoPrimerAnillo));
+            if (contador == 1 && hexagonoPrimerAnillo % 2 != 0) {
+                hexagonoActual++;
+                vertices.get(i).agregarHexagono(hexagonos.get(hexagonoActual));
+            } else {
+                hexagonoPrimerAnillo++;
+                if (hexagonoPrimerAnillo == 12) hexagonoPrimerAnillo = 0;
+                vertices.get(i).agregarHexagono(hexagonos.get(hexagonoPrimerAnillo));
+                contador = 0;
+            }
+            contador++;
         }
     }
 
-    private void conectarAristasCirculares(int inicioVertice, int finVertice, int inicioArista) {
-        int cantidad = finVertice - inicioVertice + 1;
-        int idArista = inicioArista;
-        for (int i = inicioVertice; i <= finVertice; i++) {
-            int siguiente = inicioVertice + ((i - inicioVertice + 1) % cantidad);
-            linkearAristaYVertices(aristas.get(idArista), vertices.get(i), vertices.get(siguiente));
-            idArista++;
+    private void conectarTercerAnilloHexagonos() {
+        int hexagonoSegundoAnillo = 12, hexagonoActual = 18;
+        for (int i = 48; i < 54; i++) {
+            vertices.get(i).agregarHexagono(hexagonos.get(hexagonoActual));
+            vertices.get(i).agregarHexagono(hexagonos.get(hexagonoSegundoAnillo));
+            hexagonoSegundoAnillo++;
+            vertices.get(i).agregarHexagono(hexagonos.get(hexagonoSegundoAnillo));
         }
     }
-
-    private void linkearAristaYVertices(Arista arista, Vertice v1, Vertice v2) {
-        arista.agregarVertice(v1); arista.agregarVertice(v2);
-        v1.agregarArista(arista); v2.agregarArista(arista);
-    }
-
-    // --- PUERTOS ---
 
     private void asignarPuertos() {
         List<Puerto> puertos = crearPuertosAleatorios();
@@ -292,5 +238,28 @@ public class InicializadorTablero {
         for (int i = 0; i < 4; i++) puertos.add(new PuertoGenerico());
         Collections.shuffle(puertos);
         return puertos;
+    }
+
+    private List<Integer> crearNumerosAleatorios() {
+        List<Integer> numeros = new ArrayList<>();
+        Random random = new Random();
+        int[] numerosPermitidos = {2, 3, 4, 5, 6, 8, 9, 10, 11, 12};
+        for (int num : numerosPermitidos) numeros.add(num);
+        while (numeros.size() < 18) {
+            numeros.add(numerosPermitidos[random.nextInt(numerosPermitidos.length)]);
+        }
+        Collections.shuffle(numeros);
+        return numeros;
+    }
+
+    private List<Recurso> crearRecursos() {
+        List<Recurso> recursos = new ArrayList<>();
+        for (int i = 0; i < 3; i++) {
+            recursos.add(Recurso.MADERA); recursos.add(Recurso.LADRILLO);
+            recursos.add(Recurso.LANA); recursos.add(Recurso.GRANO);
+            recursos.add(Recurso.MINERAL);
+        }
+        recursos.add(Recurso.MADERA); recursos.add(Recurso.GRANO); recursos.add(Recurso.LANA);
+        return recursos;
     }
 }

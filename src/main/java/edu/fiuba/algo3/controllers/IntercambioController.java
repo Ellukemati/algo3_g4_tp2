@@ -7,8 +7,8 @@ import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 import java.util.HashMap;
 import java.util.Map;
-
-public class IntercambioController {
+import edu.fiuba.algo3.modelo.Observador;
+public class IntercambioController implements Observador {
     @FXML
     private VBox panelPrincipal;
     @FXML
@@ -62,6 +62,7 @@ public class IntercambioController {
 
     public void setJugador(Jugador jugador) {
         this.jugadorActual = jugador;
+        this.jugadorActual.agregarObservador(this);
         refrescarVista();
     }
 
@@ -74,7 +75,11 @@ public class IntercambioController {
         actualizarLogicaSpinners();
         validarEstado();
     }
-
+    @Override
+    public void actualizar() {
+        // duando el jugador cambia (ej: gastó madera), recargamos los spinners
+        refrescarVista();
+    }
     // TOGGLE
     @FXML
     public void alternarDestinatario() {

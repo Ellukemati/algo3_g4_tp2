@@ -3,12 +3,14 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Vertice {
+public class Vertice implements Observable {
     private final int id;
+    private boolean tieneEdificio;
     private final List<Hexagono> hexagonosAdyacentes;
     private final List<Vertice> verticesAdyacentes;
     private List<Arista> aristas;
     private Puerto puerto;
+    private List<Observador> observadores = new ArrayList<>(); // Lista de interesados
 
     private boolean ocupado;
 
@@ -18,8 +20,23 @@ public class Vertice {
         this.verticesAdyacentes = new ArrayList<>();
         this.aristas = new ArrayList<>();
         this.puerto = new SinPuerto();
-
+        this.tieneEdificio = false;
         this.ocupado = false;
+
+    }
+    @Override
+    public void agregarObservador(Observador observador) {
+        this.observadores.add(observador);
+    }
+    @Override
+    public void notificarObservadores() {
+        for (Observador observador : observadores) {
+            observador.actualizar();
+        }
+    }
+    public void ocuparVertice() {
+        this.ocupado = true;
+        notificarObservadores(); // <--- ¡AVISO IMPORTANTE!
     }
 
     public void asignarPuerto(Puerto puerto) {
@@ -46,19 +63,25 @@ public class Vertice {
     }
 
     public boolean construirPoblado() {
-        if (!verificarOcupado()) {
-            ocuparVertice();
-            for (Vertice vertice : verticesAdyacentes) {
-                vertice.ocuparVertice();
-            }
-            return true;
+        if (verificarOcupado()) {
+            return false;
         }
-        return false;
+
+        this.ocupado = true;
+        this.tieneEdificio = true;
+
+        for (Vertice vertice : verticesAdyacentes) {
+            vertice.ocuparVertice();
+        }
+
+        notificarObservadores();
+        return true;
     }
 
-    public void ocuparVertice() {
-        this.ocupado = true;
+    public boolean tieneEdificio() {
+        return this.tieneEdificio;
     }
+
 
     public boolean verificarOcupado() {
         return this.ocupado;

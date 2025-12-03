@@ -1,37 +1,52 @@
 package edu.fiuba.algo3.vistas;
 
-import edu.fiuba.algo3.modelo.Arista;
-import edu.fiuba.algo3.modelo.Hexagono;
-import edu.fiuba.algo3.modelo.Tablero;
-import edu.fiuba.algo3.modelo.Vertice;
+import edu.fiuba.algo3.controllers.ControladorArista;
+import edu.fiuba.algo3.controllers.ControladorVertice;
+import edu.fiuba.algo3.modelo.*;
 import javafx.geometry.Point2D;
 import javafx.scene.Group;
+import javafx.scene.control.Button;
 import javafx.scene.layout.Pane;
-
+import edu.fiuba.algo3.modelo.Catan;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class VistaTablero extends Pane {
     private final Tablero tablero;
-
+    private final Catan juego;
     private final double RADIO = 40;
     private final double CENTRO_X = 400;
     private final double CENTRO_Y = 350;
-
+    private final Map<Integer, VistaVertice> vistasVertices = new HashMap<>();
     private final double DX = RADIO * Math.sqrt(3) / 2;
-    private final double DY = RADIO / 2;
-
+    private final double DY = RADIO / 2;private final Group panelAcciones = new Group();
     private final Map<Integer, Point2D> mapaVertices = new HashMap<>();
 
-    public VistaTablero(Tablero tablero) {
-        this.tablero = tablero;
+    public VistaTablero(Catan juego) {
+        this.juego = juego;
+        this.tablero = juego.obtenerTablero();
+
         inicializarCoordenadas();
         dibujarHexagonos();
         dibujarAristas();
         dibujarVertices();
+        this.getChildren().add(panelAcciones);
+        this.setOnMouseClicked(e -> limpiarAcciones());
     }
+    public void mostrarBotonAccion(Button boton, double x, double y) {
+        limpiarAcciones(); // Borra botones anteriores
 
+        boton.setLayoutX(x);
+        boton.setLayoutY(y);
+        // Estilo base para que se vea bien
+        boton.setStyle("-fx-background-color: white; -fx-border-color: black; -fx-cursor: hand; -fx-font-size: 10px;");
+
+        panelAcciones.getChildren().add(boton);
+    }
+    public void limpiarAcciones() {
+        panelAcciones.getChildren().clear();
+    }
     private void inicializarCoordenadas() {
         // === ANILLO EXTERIOR (0-29) ===
         mapa(0,  -3 * DX, -5 * DY);
@@ -126,24 +141,38 @@ public class VistaTablero extends Pane {
         for (Map.Entry<Integer, Point2D> entry : mapaVertices.entrySet()) {
             Vertice v = tablero.obtenerVertice(entry.getKey());
             Point2D p = entry.getValue();
-            this.getChildren().add(new VistaVertice(v, p.getX(), p.getY()));
+
+            VistaVertice vistaV = new VistaVertice(v, p.getX(), p.getY());
+
+            // Pasamos 'juego' y 'this' (la vista) al controlador
+            vistaV.setOnMouseClicked(new ControladorVertice(tablero, v, this, juego));
+            this.getChildren().add(vistaV);
+            vistasVertices.put(entry.getKey(), vistaV);
         }
     }
+
+
 
     private void dibujarAristas() {
         for (int i = 0; i < 72; i++) {
             try {
                 Arista arista = tablero.obtenerArista(i);
                 List<Vertice> pares = arista.obtenerVertices();
+
                 if (pares.size() == 2) {
                     Point2D p1 = mapaVertices.get(pares.get(0).getId());
                     Point2D p2 = mapaVertices.get(pares.get(1).getId());
+
                     if (p1 != null && p2 != null) {
-                        this.getChildren().add(new VistaArista(arista, p1.getX(), p1.getY(), p2.getX(), p2.getY()));
+                        VistaArista vistaArista = new VistaArista(arista, p1.getX(), p1.getY(), p2.getX(), p2.getY());
+
+                        vistaArista.setOnMouseClicked(e -> {vistaArista.setOnMouseClicked(new ControladorArista(tablero, arista, this, juego));                        });
+
+                        this.getChildren().add(vistaArista);
                     }
                 }
             } catch (Exception e) {
-                // Ignorar aristas no válidas o fuera de rango
+
             }
         }
     }

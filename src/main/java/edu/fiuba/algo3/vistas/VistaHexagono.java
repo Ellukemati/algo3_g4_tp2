@@ -24,13 +24,13 @@ public class VistaHexagono extends StackPane {
         Polygon forma = new Polygon();
         // Crear los 6 puntos del hexágono
         for (int i = 0; i < 6; i++) {
-            double angulo = Math.toRadians(60 * i + 30); // +30 para que quede plano arriba/abajo
+            double angulo = Math.toRadians(60 * i + 30);
             double x = radio * Math.cos(angulo);
             double y = radio * Math.sin(angulo);
             forma.getPoints().addAll(x, y);
         }
 
-        // Obtener color según el recurso del modelo
+        //  color según el recurso del modelo
         forma.setFill(MapaDeColores.obtenerColor(hexagono.obtenerRecurso()));
         forma.setStroke(Color.BLACK);
         forma.setStrokeWidth(2);
@@ -41,7 +41,7 @@ public class VistaHexagono extends StackPane {
     private void dibujarFichaNumero() {
         int numero = hexagono.getNumero();
 
-        // El desierto tiene número 0, no mostramos ficha
+
         if (numero != 0) {
             Circle fichaFondo = new Circle(radio * 0.4);
             fichaFondo.setFill(Color.BEIGE);
