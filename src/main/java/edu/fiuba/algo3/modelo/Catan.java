@@ -7,23 +7,21 @@ public class Catan {
     private final Tablero tablero;
     private final List<Jugador>  jugadores;
     private final Dado dado;
+    private final GranCaballeria granCaballeria;
+    private final GranRutaComercial granRutaComercial;
+    private final AdministradorDeTurnos administrador;
 
-    public Catan() {
+    public Catan(List<Jugador> jugadores) {
         this.tablero = new Tablero();
-        this.jugadores = new ArrayList<>();
+        this.jugadores = jugadores;
         this.dado = new Dado();
+        this.granCaballeria = new GranCaballeria();
+        this.granRutaComercial = new GranRutaComercial();
+        this.administrador = new AdministradorDeTurnos(jugadores);
     }
 
     public void agregarJugador(Jugador jugador) {
         jugadores.add(jugador);
-    }
-
-    public List<Jugador> obtenerJugadores() {
-        return jugadores;
-    }
-
-    public int lanzarDado() {
-        return dado.tirar();
     }
 
     public void jugarTurno(Jugador jugadorActual) {
@@ -47,4 +45,34 @@ public class Catan {
             }
         }
     }
+    
+    public void jugadorColocarCarretera(Jugador jugador, Arista carretera) throws ConstruccionInvalidaException {
+    	jugador.agregarCarretera(carretera);
+        granRutaComercial.actualizar(jugador);
+    }
+    
+    public void jugadorUsarCartaDeDesarrollo(Jugador jugador, CartaDesarollo carta) {
+        jugador.usarCartaDeDesarrollo(carta, tablero, jugadores);
+        granCaballeria.actualizar(jugador);
+    }
+    
+    public Boolean verificarSiGanó(Jugador jugador) {
+        int puntosVisibles = jugador.obtenerPuntage();
+        int puntosDeVictoria = jugador.obtenerPuntosVictoriaOcultos();
+        
+        if (puntosVisibles + puntosDeVictoria >= 10) {
+            return true;
+       
+        }else {
+        	return false;
+        }
+    }
+    
+    public Jugador obtenerJugadorActual() {
+		return administrador.obtenerJugadorActual();
+	}
+    
+    public void pasarTurno() {
+		administrador.siguienteTurno();
+	}
 }

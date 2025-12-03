@@ -35,4 +35,9 @@ public class Arista {
     public void agregarAristaAdyacente(Arista arista) {
         aristasAdyacentes.add(arista);
     }
+
+
+	public int obtenerId() {
+		return id;
+	}
 }

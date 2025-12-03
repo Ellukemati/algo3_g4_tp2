@@ -3,11 +3,10 @@ package edu.fiuba.algo3.entrega_2;
 import edu.fiuba.algo3.modelo.*;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-
-import org.mockito.Mock;
 import org.mockito.Mockito;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -156,7 +155,7 @@ public class JugadorTest2 {
         jugador.comprarCartaDeDesarollo(bancaMock);
 
         //ACT
-        jugador.usarCartaDeDesarollo(carta, tablero, jugadores);
+        jugador.usarCartaDeDesarrollo(carta, tablero, jugadores);
 
         //ASSERT
         assertEquals(cantidadDeRecursosEsperada, jugador.cantidadTotalDeRecursos());
@@ -177,11 +176,144 @@ public class JugadorTest2 {
 
 
         //ACT
-        jugador.usarCartaDeDesarollo(carta, tablero, jugadores);
+        jugador.usarCartaDeDesarrollo(carta, tablero, jugadores);
         jugador.finalizarTurno();
-        jugador.usarCartaDeDesarollo(carta, tablero, jugadores);
+        jugador.usarCartaDeDesarrollo(carta, tablero, jugadores);
 
         //ASSERT
         assertEquals(cantidadDeRecursosEsperada, jugador.cantidadTotalDeRecursos());
     }
+    
+    @Test
+    public void test11jugadorConstruyeCarreterasEnCadenaYCalculaRutaMasLarga() {
+        Tablero tablero = new Tablero();
+        Jugador jugador = new Jugador();
+        
+        jugador.construirPoblado(tablero, 5);
+        jugador.agregarCarretera(tablero.obtenerArista(5));
+        jugador.agregarCarretera(tablero.obtenerArista(6));
+        jugador.agregarCarretera(tablero.obtenerArista(7));
+        jugador.construirPoblado(tablero, 12);
+        jugador.agregarCarretera(tablero.obtenerArista(12));
+        jugador.agregarCarretera(tablero.obtenerArista(13));
+        jugador.agregarCarretera(tablero.obtenerArista(14));
+        jugador.agregarCarretera(tablero.obtenerArista(15));
+
+        assertEquals(4, jugador.obtenerRutaMasLarga());
+    }
+    
+    @Test
+    public void test12caminosSeFusionanCuandoUnaCarreteraUneDosComponentes() {
+        //ARRANGE
+        Tablero tablero = new Tablero();
+        Jugador jugador = new Jugador();
+
+        //ACT
+        jugador.construirPoblado(tablero, 2);
+        jugador.agregarCarretera(tablero.obtenerArista(2));
+        jugador.agregarCarretera(tablero.obtenerArista(3));
+        jugador.construirPoblado(tablero, 5);
+        jugador.agregarCarretera(tablero.obtenerArista(5));
+        jugador.agregarCarretera(tablero.obtenerArista(6));
+        jugador.agregarCarretera(tablero.obtenerArista(4));
+
+        //ASSERT
+        assertEquals(5, jugador.obtenerRutaMasLarga());
+    }
+    
+    @Test
+    void test13granCaballeriaDaPuntosCuandoJugadorSupera() {
+        // ARRANGE
+        GranCaballeria granCaballeria = new GranCaballeria();
+        Jugador jugador = Mockito.mock(Jugador.class);
+        when(jugador.obtenerCaballerosUsados()).thenReturn(3);
+
+        // ACT
+        granCaballeria.actualizar(jugador);
+
+        // ASSERT
+        verify(jugador).sumarPuntos(2);
+    }
+    
+    @Test
+    public void test14granRutaComercialDaPuntosCuandoJugadorSupera() {
+        //ARRANGE
+    	GranRutaComercial granRutaComercial = new GranRutaComercial();
+        Jugador jugador = Mockito.mock(Jugador.class);
+        when(jugador.obtenerRutaMasLarga()).thenReturn(5);
+
+        //ACT
+        granRutaComercial.actualizar(jugador);
+
+        //ASSERT
+        verify(jugador).sumarPuntos(2);
+    }
+    
+    @Test
+    void test15granCaballeriaSeActualizaCorrectamente() {
+        // ARRANGE
+        GranCaballeria granCaballeria = new GranCaballeria();
+        Jugador jugador = Mockito.mock(Jugador.class);
+        Jugador jugador2 = Mockito.mock(Jugador.class);
+        when(jugador.obtenerCaballerosUsados()).thenReturn(3);
+        when(jugador2.obtenerCaballerosUsados()).thenReturn(6);
+
+        // ACT
+        granCaballeria.actualizar(jugador);
+        granCaballeria.actualizar(jugador2);
+
+        // ASSERT
+        verify(jugador).restarPuntos(2);
+        verify(jugador2).sumarPuntos(2);
+        
+    }
+    
+    @Test
+    void test16granRutaComercialSeActualizaCorrectamente() {
+        // ARRANGE
+    	GranRutaComercial granRutaComercial = new GranRutaComercial();
+        Jugador jugador = Mockito.mock(Jugador.class);
+        Jugador jugador2 = Mockito.mock(Jugador.class);
+        when(jugador.obtenerRutaMasLarga()).thenReturn(5);
+        when(jugador2.obtenerRutaMasLarga()).thenReturn(6);
+
+        // ACT
+        granRutaComercial.actualizar(jugador);
+        granRutaComercial.actualizar(jugador2);
+
+        // ASSERT
+        verify(jugador).restarPuntos(2);
+        verify(jugador2).sumarPuntos(2);
+        
+    }
+    
+    @Test
+    void test17granCaballeriaNoDaPuntosCuandoJugadorNoSupera() {
+        // ARRANGE
+        GranCaballeria granCaballeria = new GranCaballeria();
+        Jugador jugador = Mockito.mock(Jugador.class);
+        when(jugador.obtenerCaballerosUsados()).thenReturn(2);
+
+        // ACT
+        granCaballeria.actualizar(jugador);
+
+        // ASSERT
+        verify(jugador, never()).sumarPuntos(2);
+    }
+    
+    @Test
+    public void test18granRutaComercialnODaPuntosCuandoJugadorNoSupera() {
+        //ARRANGE
+    	GranRutaComercial granRutaComercial = new GranRutaComercial();
+        Jugador jugador = Mockito.mock(Jugador.class);
+        when(jugador.obtenerRutaMasLarga()).thenReturn(1);
+
+        //ACT
+        granRutaComercial.actualizar(jugador);
+
+        //ASSERT
+        verify(jugador, never()).sumarPuntos(2);
+    }
+    
+
 }
