@@ -165,17 +165,30 @@ public class Jugador {
         Construccion nuevaConstruccion = new Poblado(vertice);
 
         if (tablero.construirPoblado(idVertice)) {
-            construcciones.add(nuevaConstruccion);
-            vertice.aplicarEfectos(this);
+            if (this.construcciones.size() <= 2) {
+                construcciones.add(nuevaConstruccion);
+                vertice.aplicarEfectos(this);
 
-            if (this.construcciones.size() == 2) {
-                // pasarle -1 significa que siempre recoge mientras no haya ladron
-                List<Recurso> recursosVertice = nuevaConstruccion.cosechar(-1);
-                for (Recurso recursoActual : recursosVertice) {
-                    this.agregarRecurso(recursoActual, 1);
+                if (this.construcciones.size() == 2) {
+                    // pasarle -1 significa que siempre recoge mientras no haya ladron
+                    List<Recurso> recursosVertice = nuevaConstruccion.cosechar(-1);
+                    for (Recurso recursoActual : recursosVertice) {
+                        this.agregarRecurso(recursoActual, 1);
+                    }
+                }
+                return true;
+            } else {
+                if ((inventario.cantidadDe(Recurso.MADERA) >= 1) && (inventario.cantidadDe(Recurso.LADRILLO) <= 1) &&
+                    (inventario.cantidadDe(Recurso.LANA) >= 1) && (inventario.cantidadDe(Recurso.GRANO) <= 1)) {
+                    construcciones.add(nuevaConstruccion);
+                    vertice.aplicarEfectos(this);
+                    inventario.quitar(Recurso.MADERA, 1);
+                    inventario.quitar(Recurso.LADRILLO, 1);
+                    inventario.quitar(Recurso.LANA, 1);
+                    inventario.quitar(Recurso.GRANO, 1);
+                    return true;
                 }
             }
-            return true;
         }
         return false;
     }
@@ -191,9 +204,12 @@ public class Jugador {
             }
         }
 
-        if (construccionAActualizar instanceof Poblado) {
+        if ((construccionAActualizar instanceof Poblado) && (inventario.cantidadDe(Recurso.GRANO) >= 2) &&
+                (inventario.cantidadDe(Recurso.MINERAL) >= 3)) {
             construcciones.remove(construccionAActualizar);
             construcciones.add(new Ciudad(verticeBuscado));
+            inventario.quitar(Recurso.GRANO, 2);
+            inventario.quitar(Recurso.MINERAL, 3);
             return true;
         }
 
@@ -206,11 +222,13 @@ public class Jugador {
         if (carreteras.isEmpty()) {
             carreteras.add(aristaAgregar);
 
-        } else {
+        } else if ((inventario.cantidadDe(Recurso.MADERA) >= 1) && (inventario.cantidadDe(Recurso.LADRILLO) >= 1)) {
             List<Arista> aristasAdyacentes = aristaAgregar.verAdyacentes();
             for (Arista aristaActual : carreteras) {
                 if (aristasAdyacentes.contains(aristaActual)) {
                     carreteras.add(aristaAgregar);
+                    inventario.quitar(Recurso.MADERA, 1);
+                    inventario.quitar(Recurso.LADRILLO, 1);
                     return true;
                 }
             }
