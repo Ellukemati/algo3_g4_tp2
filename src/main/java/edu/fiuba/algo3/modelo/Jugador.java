@@ -1,9 +1,9 @@
 package edu.fiuba.algo3.modelo;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
 
 public class Jugador implements Observable {
 
@@ -13,7 +13,6 @@ public class Jugador implements Observable {
     private final Map<Recurso, Integer> tasasDeIntercambioConBanca;
     private final List<Construccion> construcciones;
     private final List<Arista> carreteras;
-
 
     private List<Observador> observadores = new ArrayList<>();
 
@@ -53,11 +52,11 @@ public class Jugador implements Observable {
         return this.tasasDeIntercambioConBanca.get(recurso);
     }
 
-    // --- GESTIÓN INTERNA (Con Notificaciones) ---
+    // --- GESTIÓN INTERNA ---
 
     public void agregarRecurso(Recurso recurso, int cantidadAAgregar) {
         this.inventario.agregar(recurso, cantidadAAgregar);
-        notificarObservadores(); // <--- AVISAR CAMBIO
+        notificarObservadores();
     }
 
     public int cantidadTotalDeRecursos() {
@@ -79,7 +78,7 @@ public class Jugador implements Observable {
     public int quitarCantidadTotalDeRecursos(Recurso recurso) {
         int cantidadRecurso = this.inventario.cantidadDe(recurso);
         this.inventario.quitar(recurso, cantidadRecurso);
-        notificarObservadores(); // <--- AVISAR CAMBIO (Al ser robado por Monopolio)
+        notificarObservadores();
         return cantidadRecurso;
     }
 
@@ -88,14 +87,14 @@ public class Jugador implements Observable {
     public void recibirLanzamientoDeDados(int numeroDado) {
         if (numeroDado == 7) {
             this.inventario.descartarMitad();
-            notificarObservadores(); // <--- AVISAR CAMBIO (Descarte por 7)
-            // AÚN NO IMPLEMENTA moverLadron(). Iría acá?
+            notificarObservadores();
+            // La lógica de mover ladrón suele ser iniciada por el controlador/turno.
         }
 
         for (Construccion c : construcciones) {
             List<Recurso> recursosCosechados = c.cosechar(numeroDado);
             for (Recurso recursoActual : recursosCosechados) {
-                this.agregarRecurso(recursoActual, 1); // Este método ya notifica
+                this.agregarRecurso(recursoActual, 1);
             }
         }
     }
@@ -104,7 +103,6 @@ public class Jugador implements Observable {
         if (this.poseeRecursos(oferta) && otroJugador.poseeRecursos(solicitud)) {
             this.inventario.realizarTransferencia(oferta, solicitud);
             notificarObservadores();
-
             otroJugador.confirmarIntercambio(oferta, solicitud);
         }
     }
@@ -132,18 +130,15 @@ public class Jugador implements Observable {
             if (cantidadOfrecida % tasa != 0) {
                 return false;
             }
-
             capacidadDeCompra += (cantidadOfrecida / tasa);
         }
 
         int cantidadSolicitada = solicitud.values().stream().mapToInt(Integer::intValue).sum();
-
         return capacidadDeCompra == cantidadSolicitada;
     }
 
     public void comprarCartaDeDesarollo(Banca banca) {
         try {
-            // Comprar modifica el inventario (pago), así que notificamos
             cartasNuevas.add(banca.comprarCartaDeDesarollo(inventario));
             notificarObservadores();
         } catch (IllegalArgumentException e) {
@@ -157,8 +152,6 @@ public class Jugador implements Observable {
                 .findFirst()
                 .orElse(new NullCartaDesarollo());
         cartaDeDesarollo.usar(this, tablero, jugadores);
-        // Nota: Algunas cartas modifican recursos (Monopolio, Descubrimiento)
-        // y llamarán a métodos que ya notifican.
     }
 
     public Hexagono moverLadron(Tablero tablero, int posicion) {
@@ -167,7 +160,6 @@ public class Jugador implements Observable {
 
     public Recurso serRobadoPorLadron(Hexagono hexagonoRobar) {
         boolean soyVictima = false;
-
         for (Construccion c : construcciones) {
             Vertice vert = c.obtenerVertice();
             if (vert.obtenerHexagonosAdyacentes().contains(hexagonoRobar)) {
@@ -179,7 +171,7 @@ public class Jugador implements Observable {
         if (soyVictima) {
             Recurso robado = this.inventario.extraerRecursoAlAzar();
             if (robado != null) {
-                notificarObservadores(); // <--- AVISAR CAMBIO (Me robaron)
+                notificarObservadores();
                 return robado;
             }
         }
@@ -189,21 +181,41 @@ public class Jugador implements Observable {
     // --- LÓGICA DE CONSTRUCCIÓN ---
 
     public boolean construirPoblado(Tablero tablero, int idVertice) {
-        Vertice vertice = tablero.obtenerVertice(idVertice);
-        Construccion nuevaConstruccion = new Poblado(vertice);
+        // Definir costo
+        Map<Recurso, Integer> costo = new HashMap<>();
+        costo.put(Recurso.MADERA, 1);
+        costo.put(Recurso.LADRILLO, 1);
+        costo.put(Recurso.LANA, 1);
+        costo.put(Recurso.GRANO, 1);
 
+        // Lógica de fase inicial (los primeros 2 son gratis)
+        boolean esFaseInicial = (this.construcciones.size() < 2);
+
+        // 1. Verificación de Recursos (solo si no es fase inicial)
+        if (!esFaseInicial && !poseeRecursos(costo)) {
+            return false;
+        }
+
+        // 2. Intentar construir en el tablero (validaciones de reglas)
         if (tablero.construirPoblado(idVertice)) {
-            // ACÁ FALTA DESCONTAR RECURSOS (Próximamente)
-            // Cuando lo agregues: this.inventario.quitar(...); notificarObservadores();
+            Vertice vertice = tablero.obtenerVertice(idVertice);
+            Construccion nuevaConstruccion = new Poblado(vertice);
 
+            // 3. Pagar (si corresponde)
+            if (!esFaseInicial) {
+                this.inventario.quitar(costo);
+                notificarObservadores();
+            }
+
+            // 4. Actualizar estado del jugador
             construcciones.add(nuevaConstruccion);
-            vertice.aplicarEfectos(this);
+            vertice.aplicarEfectos(this); // Activa puertos si los hay
 
-            if (this.construcciones.size() == 2) {
-                // Recursos iniciales (Setup)
+            // Regla especial: Recibir recursos del segundo poblado inicial
+            if (construcciones.size() == 2) {
                 List<Recurso> recursosVertice = nuevaConstruccion.cosechar(-1);
                 for (Recurso recursoActual : recursosVertice) {
-                    this.agregarRecurso(recursoActual, 1); // Ya notifica
+                    this.agregarRecurso(recursoActual, 1);
                 }
             }
             return true;
@@ -212,6 +224,14 @@ public class Jugador implements Observable {
     }
 
     public boolean construirCiudad(Tablero tablero, int idVertice) {
+        Map<Recurso, Integer> costo = new HashMap<>();
+        costo.put(Recurso.GRANO, 2);
+        costo.put(Recurso.MINERAL, 3);
+
+        if (!poseeRecursos(costo)) {
+            return false;
+        }
+
         Vertice verticeBuscado = tablero.obtenerVertice(idVertice);
         Construccion construccionAActualizar = null;
 
@@ -222,8 +242,10 @@ public class Jugador implements Observable {
             }
         }
 
+        // Verificar que sea un Poblado antes de convertirlo
         if (construccionAActualizar instanceof Poblado) {
-            // ACÁ FALTA DESCONTAR RECURSOS (Próximamente)
+            this.inventario.quitar(costo);
+            notificarObservadores();
 
             construcciones.remove(construccionAActualizar);
             construcciones.add(new Ciudad(verticeBuscado));
@@ -234,24 +256,44 @@ public class Jugador implements Observable {
     }
 
     public boolean construirCarretera(Tablero tablero, int idArista) {
+        Map<Recurso, Integer> costo = new HashMap<>();
+        costo.put(Recurso.MADERA, 1);
+        costo.put(Recurso.LADRILLO, 1);
+
+        // Fase inicial: asumimos que las primeras carreteras son gratis si acompañan al poblado
+        // Ojo: Si tu lógica de juego maneja carreteras iniciales aparte, ajusta esto.
+        boolean esGratis = carreteras.isEmpty();
+
+        if (!esGratis && !poseeRecursos(costo)) {
+            return false;
+        }
+
         Arista aristaAgregar = tablero.obtenerArista(idArista);
+        boolean conectaConRutaPropia = false;
 
+        // Verificar adyacencia (salvo que sea la primera ruta del juego para este jugador)
         if (carreteras.isEmpty()) {
-            carreteras.add(aristaAgregar);
-            aristaAgregar.ocupar();
-            return true;
-
+            conectaConRutaPropia = true; // Simplificación para la primera ruta
         } else {
             List<Arista> aristasAdyacentes = aristaAgregar.verAdyacentes();
             for (Arista aristaActual : carreteras) {
                 if (aristasAdyacentes.contains(aristaActual)) {
-                    carreteras.add(aristaAgregar);
-                    aristaAgregar.ocupar();
-                    return true;
+                    conectaConRutaPropia = true;
+                    break;
                 }
             }
-            return false;
         }
+
+        if (conectaConRutaPropia && !aristaAgregar.verificarOcupado()) {
+            if (!esGratis) {
+                this.inventario.quitar(costo);
+                notificarObservadores();
+            }
+            carreteras.add(aristaAgregar);
+            aristaAgregar.ocupar();
+            return true;
+        }
+        return false;
     }
 
     public void finalizarTurno() {
