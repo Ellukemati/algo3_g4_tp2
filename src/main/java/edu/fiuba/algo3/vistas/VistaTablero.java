@@ -25,7 +25,6 @@ public class VistaTablero extends Pane {
     private final Group panelAcciones = new Group();
     private final Map<Integer, Point2D> mapaVertices = new HashMap<>();
 
-    // LISTA IMPORTANTE: Guardamos las vistas para poder iterarlas fácil
     private final List<VistaHexagono> listaHexagonosVisuales = new ArrayList<>();
 
     private Runnable avanzarTurnoCallback;
@@ -43,7 +42,6 @@ public class VistaTablero extends Pane {
         this.setOnMouseClicked(e -> limpiarAcciones());
     }
 
-    // --- LÓGICA DE LADRÓN CON BOTONES ---
     public void activarSeleccionLadron(Consumer<Hexagono> onHexagonoSeleccionado) {
         System.out.println("Activando botones de ladrón en " + listaHexagonosVisuales.size() + " hexágonos.");
         for (VistaHexagono vHex : listaHexagonosVisuales) {
@@ -66,7 +64,6 @@ public class VistaTablero extends Pane {
             }
         }
     }
-    // ------------------------------------
 
     public void mostrarBotonAccion(Button boton, double x, double y) {
         limpiarAcciones();
@@ -126,7 +123,6 @@ public class VistaTablero extends Pane {
             hex.setLayoutX(x - (Math.sqrt(3) * RADIO)/2); // Ajuste fino de centrado
             hex.setLayoutY(y - RADIO);
 
-            // AGREGAMOS A LA LISTA
             listaHexagonosVisuales.add(hex);
             grupo.getChildren().add(hex);
         }

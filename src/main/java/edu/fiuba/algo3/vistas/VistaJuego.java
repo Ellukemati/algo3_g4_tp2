@@ -27,7 +27,7 @@ public class VistaJuego extends StackPane implements Observador {
     private final VistaCartaDeRecursos vistaRecursos;
     private IntercambioController intercambioController;
     private Region panelIntercambio;
-    private VistaTablero vistaTablero; // Atributo
+    private VistaTablero vistaTablero;
 
     private Label lblDado;
     private Label lblJugador;
@@ -40,7 +40,6 @@ public class VistaJuego extends StackPane implements Observador {
         this.juego = juego;
         this.vistaRecursos = new VistaCartaDeRecursos();
 
-        // IMPORTANTE: Asignar al atributo, no declarar variable local
         this.vistaTablero = new VistaTablero(juego, null);
 
         HBox panelRecursos = vistaRecursos.inicializarVistaCarta();

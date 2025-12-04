@@ -47,10 +47,8 @@ public class VistaHexagono extends StackPane {
 
         this.imagenLadron = crearImagenLadron();
 
-        // --- CONFIGURACIÓN DEL BOTÓN ---
         this.btnMover = new Button("ROBAR AQUÍ");
         this.btnMover.setVisible(false); // Oculto por defecto
-        // Estilo rojo semi-transparente para que se note
         this.btnMover.setStyle("-fx-background-color: rgba(255, 0, 0, 0.7); -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand; -fx-font-size: 10px;");
         this.btnMover.setMaxSize(80, 30);
 
@@ -58,7 +56,7 @@ public class VistaHexagono extends StackPane {
         this.dibujarFichaNumero();
 
         this.getChildren().add(imagenLadron);
-        this.getChildren().add(btnMover); // Agregamos el botón al StackPane
+        this.getChildren().add(btnMover);
 
         verificarLadronInicial();
     }

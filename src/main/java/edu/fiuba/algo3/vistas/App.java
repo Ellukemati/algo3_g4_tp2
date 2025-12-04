@@ -85,26 +85,21 @@ public class App extends Application {
 
         raiz.getChildren().add(interfaz);
 
-        // Capa 3: HUD (Lateral Derecho)
         raiz.getChildren().add(panelControl);
         StackPane.setAlignment(panelControl, Pos.BOTTOM_RIGHT);
         StackPane.setMargin(panelControl, new Insets(10, 10, 10, 10));
         panelControl.setMaxSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
 
-        // Capa 4: Panel Flotante de Intercambio
         raiz.getChildren().add(panelIntercambio);
 
-        // 4. Configurar Observadores
         configurarObservadoresJuego();
         actualizarControladoresJugadorActual();
 
-        // 5. Mostrar Escena
         Scene scene = new Scene(raiz, 800, 600);
         cargarEstilos(scene);
         stage.setScene(scene);
     }
 
-    // --- MÉTODOS AUXILIARES ---
 
     private void configurarModelo(int cantidadJugadores) {
         juego = new Catan();

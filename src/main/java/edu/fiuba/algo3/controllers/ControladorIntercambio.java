@@ -80,7 +80,7 @@ public class ControladorIntercambio implements Observador {
         // duando el jugador cambia (ej: gastó madera), recargamos los spinners
         refrescarVista();
     }
-    // TOGGLE
+
     @FXML
     public void alternarDestinatario() {
         this.modoBanca = !this.modoBanca;
@@ -101,7 +101,6 @@ public class ControladorIntercambio implements Observador {
         }
     }
 
-    // LÓGICA DE SPINNERS
     private void actualizarLogicaSpinners() {
         for (Map.Entry<Recurso, ParSpinners> entry : mapaSpinners.entrySet()) {
             configurarSpinnerRecurso(entry.getValue().dar, entry.getValue().recibir, entry.getKey());
@@ -120,7 +119,6 @@ public class ControladorIntercambio implements Observador {
             }
         }
 
-        // Configurar DAR
         dar.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, maximoPermitido, 0, paso));
         dar.setDisable(maximoPermitido == 0);
 
@@ -153,7 +151,6 @@ public class ControladorIntercambio implements Observador {
         }
     }
 
-    // VALIDACIÓN
     private void validarEstado() {
         if (jugadorActual == null) return;
 
@@ -244,7 +241,6 @@ public class ControladorIntercambio implements Observador {
         limpiarFormulario();
     }
 
-    // ARMAR MAPAS
     private Map<Recurso, Integer> armarMapa(boolean esDar) {
         Map<Recurso, Integer> mapa = new HashMap<>();
 
