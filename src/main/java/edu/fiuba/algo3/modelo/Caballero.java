@@ -1,5 +1,7 @@
 package edu.fiuba.algo3.modelo;
 
+import edu.fiuba.algo3.vistas.CartaDesarolloRenderizador;
+
 import java.util.List;
 
 public class Caballero extends CartaDesarolloGeneral {
@@ -20,5 +22,10 @@ public class Caballero extends CartaDesarolloGeneral {
             }
             indice++;
         }
+    }
+
+    @Override
+    public void mostrar(CartaDesarolloRenderizador renderizador) {
+        renderizador.caballeroRenderizar(this);
     }
 }

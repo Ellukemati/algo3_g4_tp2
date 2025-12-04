@@ -8,6 +8,7 @@ public class Catan implements Observable {
     private final List<Jugador> jugadores;
     private final Dado dado;
     private final List<Observador> observadores;
+    private final Banca banca;
 
     // Estado del juego
     private int indiceJugadorActual;
@@ -22,6 +23,7 @@ public class Catan implements Observable {
         this.observadores = new ArrayList<>();
         this.indiceJugadorActual = 0;
         this.juegoIniciado = false;
+        this.banca = new Banca();
     }
 
     // --- Gestión de Jugadores ---
@@ -53,6 +55,11 @@ public class Catan implements Observable {
 
         // Notificamos a la vista que el turno cambió (para actualizar labels, inventarios, etc.)
         notificarObservadores();
+    }
+
+    public void jugadorActualComprarCartaDeDesarrollo() {
+        Jugador jugadorActual = obtenerJugadorActual();
+        jugadorActual.comprarCartaDeDesarollo(banca);
     }
 
     public int lanzarDado() {

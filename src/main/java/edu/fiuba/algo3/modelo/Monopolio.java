@@ -1,5 +1,7 @@
 package edu.fiuba.algo3.modelo;
 
+import edu.fiuba.algo3.vistas.CartaDesarolloRenderizador;
+
 import java.util.List;
 
 public class Monopolio extends CartaDesarolloGeneral {
@@ -14,5 +16,10 @@ public class Monopolio extends CartaDesarolloGeneral {
             }
         }
         jugador.agregarRecurso(recursoSeleccionado, cantidadTotalDeRecurso);
+    }
+
+    @Override
+    public void mostrar(CartaDesarolloRenderizador renderizador) {
+        renderizador.monopolioRenderizar(this);
     }
 }

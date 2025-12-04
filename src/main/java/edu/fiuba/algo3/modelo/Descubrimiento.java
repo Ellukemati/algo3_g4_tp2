@@ -1,5 +1,7 @@
 package edu.fiuba.algo3.modelo;
 
+import edu.fiuba.algo3.vistas.CartaDesarolloRenderizador;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -12,5 +14,10 @@ public class Descubrimiento extends CartaDesarolloGeneral {
         for (int i = 0; i < recursos.size(); i++) {
             jugador.agregarRecurso(recursos.get(i), 1);
         }
+    }
+
+    @Override
+    public void mostrar(CartaDesarolloRenderizador renderizador) {
+        renderizador.descubrimientoRenderizar(this);
     }
 }

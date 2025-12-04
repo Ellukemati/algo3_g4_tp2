@@ -57,6 +57,12 @@ public class Jugador implements Observable {
         return this.tasasDeIntercambioConBanca.get(recurso);
     }
 
+    public List<CartaDesarollo> obtenerCartasDeDesarollo() {
+        List<CartaDesarollo> cartasTotales = new ArrayList<>(cartasUsables);
+        cartasTotales.addAll(cartasNuevas);
+        return cartasTotales;
+    }
+
     // --- GESTIÓN INTERNA ---
 
     public void agregarRecurso(Recurso recurso, int cantidadAAgregar) {

@@ -1,5 +1,7 @@
 package edu.fiuba.algo3.modelo;
 
+import edu.fiuba.algo3.vistas.CartaDesarolloRenderizador;
+
 import java.util.List;
 
 public class ConstruccionDeCarreteras extends CartaDesarolloGeneral {
@@ -11,5 +13,10 @@ public class ConstruccionDeCarreteras extends CartaDesarolloGeneral {
         int idArista2 = 1;
         jugador.construirCarretera(tablero, idArista1);
         jugador.construirCarretera(tablero, idArista2);
+    }
+
+    @Override
+    public void mostrar(CartaDesarolloRenderizador renderizador) {
+        renderizador.contruccionDeCarreterasRenderizar(this);
     }
 }

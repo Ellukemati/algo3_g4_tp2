@@ -1,5 +1,7 @@
 package edu.fiuba.algo3.modelo;
 
+import edu.fiuba.algo3.vistas.CartaDesarolloRenderizador;
+
 public abstract class CartaDesarolloGeneral implements CartaDesarollo{
 
     @Override
