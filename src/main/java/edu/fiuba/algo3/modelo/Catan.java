@@ -7,27 +7,32 @@ public class Catan implements Observable {
     private final Tablero tablero;
     private final List<Jugador> jugadores;
     private final Dado dado;
+
     private final GranCaballeria granCaballeria;
     private final GranRutaComercial granRutaComercial;
+
     private final List<Observador> observadores;
+
     private int indiceJugadorActual;
     private int contadorTurnos;
     private boolean juegoIniciado;
-    private int contadorTurnos;
+    private boolean faseInicial;
 
     public Catan() {
         this.contadorTurnos = 0;
         this.tablero = new Tablero();
         this.jugadores = new ArrayList<>();
         this.dado = new Dado();
+
         this.granCaballeria = new GranCaballeria();
         this.granRutaComercial = new GranRutaComercial();
+
         this.observadores = new ArrayList<>();
         this.indiceJugadorActual = 0;
         this.juegoIniciado = false;
+        this.faseInicial = true;
     }
 
-    // --- Gestión de Jugadores ---
 
     public void agregarJugador(Jugador jugador) {
         if (!juegoIniciado) {
@@ -44,16 +49,18 @@ public class Catan implements Observable {
         return jugadores.get(indiceJugadorActual);
     }
 
-    // --- Lógica de Turnos ---
 
     public void siguienteTurno() {
         contadorTurnos++;
+
+        if (contadorTurnos >= jugadores.size() * 2) {
+            faseInicial = false;
+        }
+
         obtenerJugadorActual().finalizarTurno();
 
-        // Avanza al siguiente (circular)
         indiceJugadorActual = (indiceJugadorActual + 1) % jugadores.size();
 
-        // Notificamos a la vista que el turno cambió (para actualizar labels, inventarios, etc.)
         notificarObservadores();
     }
 
@@ -61,9 +68,18 @@ public class Catan implements Observable {
         return contadorTurnos;
     }
 
+    public boolean esFaseInicial() {
+        return faseInicial;
+    }
+
     public int lanzarDado() {
+        // En fase inicial no se tiran dados
+        if (faseInicial) {
+            return 0;
+        }
+
         int resultado = dado.tirar();
-        jugarTurno(resultado); // Tu lógica existente de mover ladrón o cobrar recursos
+        jugarTurno(resultado);
         return resultado;
     }
 
@@ -71,7 +87,6 @@ public class Catan implements Observable {
         Jugador jugadorActual = obtenerJugadorActual();
 
         if (numeroDado == 7) {
-            // Lógica simplificada del ladrón (puedes expandirla luego)
             int posicionLadron = 10; // TODO: Esto debería venir de la vista/input
             Hexagono hexagonoRobar = jugadorActual.moverLadron(tablero, posicionLadron);
 
@@ -84,7 +99,6 @@ public class Catan implements Observable {
                 }
             }
         } else {
-            // Repartir recursos a todos
             for (Jugador j : jugadores) {
                 j.recibirLanzamientoDeDados(numeroDado);
             }
@@ -92,35 +106,31 @@ public class Catan implements Observable {
         notificarObservadores();
     }
 
-    public void jugadorColocarCarretera(Jugador jugador, int idArista) throws ConstruccionInvalidaException {
-    	jugador.construirCarretera(tablero, idArista);
-        granRutaComercial.actualizar(jugador);
+
+    public void jugadorColocarCarretera(Jugador jugador, int idArista) {
+        boolean construyo = jugador.construirCarretera(tablero, idArista, this.faseInicial);
+
+        if (construyo) {
+            granRutaComercial.actualizar(jugador);
+        }
     }
-    
+
     public void jugadorUsarCartaDeDesarrollo(Jugador jugador, CartaDesarollo carta) {
         jugador.usarCartaDeDesarrollo(carta, tablero, jugadores);
         granCaballeria.actualizar(jugador);
     }
-    
+
     public Boolean verificarSiGanó(Jugador jugador) {
         int puntosVisibles = jugador.obtenerPuntage();
         int puntosDeVictoria = jugador.obtenerPuntosVictoriaOcultos();
-        
-        if (puntosVisibles + puntosDeVictoria >= 10) {
-            return true;
-       
-        }else {
-        	return false;
-        }
-    }
 
-    // --- Getters para la Vista ---
+        return (puntosVisibles + puntosDeVictoria) >= 10;
+    }
 
     public Tablero obtenerTablero() {
         return this.tablero;
     }
 
-    // --- Implementación de Observable ---
 
     @Override
     public void agregarObservador(Observador observador) {
@@ -134,4 +144,3 @@ public class Catan implements Observable {
         }
     }
 }
-

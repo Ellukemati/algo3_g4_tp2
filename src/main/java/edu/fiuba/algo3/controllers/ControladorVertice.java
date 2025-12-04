@@ -31,29 +31,24 @@ public class ControladorVertice implements EventHandler<MouseEvent> {
         mouseEvent.consume();
         vistaTablero.limpiarAcciones();
         Jugador jugadorActual = juego.obtenerJugadorActual();
+        boolean esFaseInicial = juego.esFaseInicial();
 
-        // CASO 1: Vértice libre -> Construir Poblado
         if (!vertice.verificarOcupado()) {
-            if (puedePagarPoblado(jugadorActual)) {
-                // ... lógica de botón construir poblado ...
+            if (esFaseInicial || puedePagarPoblado(jugadorActual)) {
                 Button btnConstruir = new Button("Construir Poblado");
                 btnConstruir.setOnAction(e -> {
-                    if (jugadorActual.construirPoblado(tablero, vertice.getId())) {
+                    if (jugadorActual.construirPoblado(tablero, vertice.getId(), esFaseInicial)) {
                         vistaTablero.limpiarAcciones();
-                        // El modelo ya notifica observadores
                     }
                 });
                 vistaTablero.mostrarBotonAccion(btnConstruir, mouseEvent.getX(), mouseEvent.getY());
             }
         }
-        // CASO 2: Vértice Ocupado -> Verificar si TIENE EDIFICIO para mejorar
         else {
-            // CAMBIO CLAVE: Usamos vertice.tieneEdificio() en vez de solo 'else'
             if (vertice.tieneEdificio()) {
                 if (puedePagarCiudad(jugadorActual)) {
                     Button btnMejorar = new Button("Mejorar a Ciudad");
                     btnMejorar.setOnAction(e -> {
-                        // ... lógica de mejora ...
                         if (jugadorActual.construirCiudad(tablero, vertice.getId())) {
                             vistaTablero.limpiarAcciones();
                         }
@@ -63,7 +58,7 @@ public class ControladorVertice implements EventHandler<MouseEvent> {
                     System.out.println("No tienes recursos para mejorar a Ciudad");
                 }
             } else {
-                System.out.println("Este vértice está bloqueado por un poblado cercano.");
+                System.out.println("Este vértice está bloqueado.");
             }
         }
     }

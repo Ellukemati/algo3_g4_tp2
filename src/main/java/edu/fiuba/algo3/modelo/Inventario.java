@@ -76,7 +76,6 @@ public class Inventario {
         int cantidadADescartar = total / 2;
         int acumuladorDescartados = 0;
 
-        // PRIMERA IMPLEMENTACIÓN: Descarta los primeros X recursos que encuentra
         for (Recurso recurso : Recurso.values()) {
             int cantidadActual = this.recursos.get(recurso);
 
