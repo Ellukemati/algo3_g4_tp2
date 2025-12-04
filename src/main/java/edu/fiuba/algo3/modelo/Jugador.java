@@ -374,7 +374,7 @@ public class Jugador implements Observable, Bonificacion {
         cartasUsables.addAll(cartasNuevas);
         cartasNuevas.clear();
     }
-    
+
     public String obtenerNombre() {
         return nombre;
     }

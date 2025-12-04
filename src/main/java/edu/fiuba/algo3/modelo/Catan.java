@@ -13,6 +13,7 @@ public class Catan implements Observable {
     private int indiceJugadorActual;
     private int contadorTurnos;
     private boolean juegoIniciado;
+    private int contadorTurnos;
 
     public Catan() {
         this.contadorTurnos = 0;
