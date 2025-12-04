@@ -1,12 +1,14 @@
 package edu.fiuba.algo3.modelo;
 
+import edu.fiuba.algo3.vistas.CartaDesarolloRenderizador;
+
 import java.util.List;
 
 public class Caballero extends CartaDesarolloGeneral {
     @Override
-    public void usar(Jugador jugador, Tablero tablero, List<Jugador> jugadores) {
+    public void usar(Jugador jugador, Tablero tablero, List<Jugador> jugadores, ParametrosCarta parametrosCarta) {
         // la posicion del ladron deve ser ingresada por imput
-        int posicionLadron = 10;
+        int posicionLadron = parametrosCarta.getPosicionLadron();
         Hexagono hexagonoRobar = jugador.moverLadron(tablero, posicionLadron);
         Recurso recursoRobado;
         int indice = 0;
@@ -20,5 +22,10 @@ public class Caballero extends CartaDesarolloGeneral {
             }
             indice++;
         }
+    }
+
+    @Override
+    public void mostrar(CartaDesarolloRenderizador renderizador) {
+        renderizador.caballeroRenderizar(this);
     }
 }

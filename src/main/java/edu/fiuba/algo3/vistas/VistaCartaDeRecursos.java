@@ -1,9 +1,11 @@
 package edu.fiuba.algo3.vistas;
 
+import edu.fiuba.algo3.modelo.CartaDesarollo;
 import edu.fiuba.algo3.modelo.Jugador;
 import edu.fiuba.algo3.modelo.Recurso;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.control.Button;
 import javafx.scene.layout.*;
 import javafx.scene.image.Image;
 
@@ -13,6 +15,13 @@ import java.util.List;
 public class VistaCartaDeRecursos {
 
     private List<VistaCartaRecurso> cartas;
+    private List<Button> botones;
+    private HBox contenedor;
+
+    public VistaCartaDeRecursos() {
+        this.botones = new ArrayList<>();
+    }
+
     public HBox inicializarVistaCarta() {
         this.cartas = new ArrayList<>();
         List<String> imagenes = List.of(
@@ -23,7 +32,7 @@ public class VistaCartaDeRecursos {
                 "/recursos/trigo.png"
         );
 
-        HBox contenedor = new HBox();
+        this.contenedor = new HBox();
         aplicarFondo(contenedor);
 
         imagenes.forEach(ruta -> {
@@ -67,6 +76,26 @@ public class VistaCartaDeRecursos {
         cartas.get(2).actualizarValor(jugador.cantidadDe(Recurso.MINERAL));
         cartas.get(3).actualizarValor(jugador.cantidadDe(Recurso.MADERA));
         cartas.get(4).actualizarValor(jugador.cantidadDe(Recurso.GRANO));
+    }
+
+    public void actulizarCartaDesarollo(Jugador jugador) {
+        BotonCartaDesarolloVista renderizador = new BotonCartaDesarolloVista();
+        List<CartaDesarollo> cartasDesarollo = jugador.obtenerCartasDeDesarollo();
+        for (Button boton : botones) {
+            contenedor.getChildren().remove(boton);
+        }
+        for (CartaDesarollo carta : cartasDesarollo) {
+
+            carta.mostrar(renderizador);
+            Button boton = renderizador.getBoton();
+            // aca iria la implemenentacion de cada boton
+//            boton.setOnAction(e -> {
+//                System.out.println("implemente el evenHandler");
+//            });
+            contenedor.getChildren().add(boton);
+            botones.add(boton);
+        }
+
     }
 }
 

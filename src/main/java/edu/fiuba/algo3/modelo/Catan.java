@@ -10,6 +10,7 @@ public class Catan implements Observable {
     private final GranCaballeria granCaballeria;
     private final GranRutaComercial granRutaComercial;
     private final List<Observador> observadores;
+    private final Banca banca;
 
     private int indiceJugadorActual;
     private int contadorTurnos;
@@ -25,6 +26,8 @@ public class Catan implements Observable {
         this.observadores = new ArrayList<>();
         this.indiceJugadorActual = 0;
         this.juegoIniciado = false;
+        this.banca = new Banca();
+        this.faseInicial = true;
     }
 
     // Gestión de Jugadores
@@ -63,8 +66,15 @@ public class Catan implements Observable {
         notificarObservadores();
     }
 
+
+    public void jugadorActualComprarCartaDeDesarrollo() {
+        Jugador jugadorActual = obtenerJugadorActual();
+        jugadorActual.comprarCartaDeDesarollo(banca);
+    }
+
     public int obtenerTurno() {
         return contadorTurnos;
+
     }
 
     public int lanzarDado() {
@@ -123,8 +133,8 @@ public class Catan implements Observable {
         }
     }
 
-    public void jugadorUsarCartaDeDesarrollo(Jugador jugador, CartaDesarollo carta) {
-        jugador.usarCartaDeDesarrollo(carta, tablero, jugadores);
+    public void jugadorUsarCartaDeDesarrollo(Jugador jugador, CartaDesarollo carta, ParametrosCarta parametrosCarta) {
+        jugador.usarCartaDeDesarrollo(carta, tablero, jugadores, parametrosCarta);
         granCaballeria.actualizar(jugador);
         notificarObservadores();
     }

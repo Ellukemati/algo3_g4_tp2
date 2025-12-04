@@ -79,6 +79,13 @@ public class Jugador implements Observable, Bonificacion {
     }
 
     // --- BONIFICACIONES ---
+    public List<CartaDesarollo> obtenerCartasDeDesarollo() {
+        List<CartaDesarollo> cartasTotales = new ArrayList<>(cartasUsables);
+        cartasTotales.addAll(cartasNuevas);
+        return cartasTotales;
+    }
+
+    // --- GESTIÓN INTERNA ---
 
     @Override
     public void asignarGranRuta(boolean tiene) {
@@ -212,16 +219,15 @@ public class Jugador implements Observable, Bonificacion {
         } catch (Exception ignored) {}
     }
 
-    public void usarCartaDeDesarrollo(CartaDesarollo carta, Tablero tablero, List<Jugador> jugadores) {
-        CartaDesarollo encontrada = cartasUsables.stream()
-                .filter(cd -> cd.equals(carta))
+    public void usarCartaDeDesarrollo(CartaDesarollo carta, Tablero tablero, List<Jugador> jugadores,
+                                      ParametrosCarta parametrosCarta) {
+        CartaDesarollo cartaDeDesarollo = cartasUsables.stream()
+                .filter((cd) -> cd.equals(carta))
                 .findFirst()
                 .orElse(new NullCartaDesarollo());
-
-        encontrada.usar(this, tablero, jugadores);
-
-        cartasUsables.remove(encontrada);
-        cartasUsadas.add(encontrada);
+        cartaDeDesarollo.usar(this, tablero, jugadores, parametrosCarta);
+        cartasUsables.remove(cartaDeDesarollo);
+        cartasUsadas.add(cartaDeDesarollo);
     }
 
     public void finalizarTurno() {

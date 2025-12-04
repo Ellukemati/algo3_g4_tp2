@@ -6,6 +6,8 @@ module edu.fiuba.algo3 {
 
     requires java.desktop;
     requires javafx.graphics;
+    requires java.smartcardio;
+    //requires edu.fiuba.algo3;
 
     exports edu.fiuba.algo3;
     exports edu.fiuba.algo3.vistas;
