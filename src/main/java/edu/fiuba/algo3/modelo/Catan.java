@@ -15,6 +15,7 @@ public class Catan implements Observable {
     private int indiceJugadorActual;
     private int contadorTurnos;
     private boolean juegoIniciado;
+    private boolean faseInicial;
 
     public Catan() {
         this.contadorTurnos = 0;
@@ -63,13 +64,16 @@ public class Catan implements Observable {
         // Avanza al siguiente (circular)
         indiceJugadorActual = (indiceJugadorActual + 1) % jugadores.size();
 
+        if (contadorTurnos == (jugadores.size() * 2)) {
+            faseInicial = false;
+        }
         notificarObservadores();
     }
 
 
     public void jugadorActualComprarCartaDeDesarrollo() {
         Jugador jugadorActual = obtenerJugadorActual();
-        jugadorActual.comprarCartaDeDesarollo(banca);
+        jugadorActual.comprarCartaDeDesarrollo(banca);
     }
 
     public int obtenerTurno() {
@@ -151,6 +155,10 @@ public class Catan implements Observable {
 
     public Tablero obtenerTablero() {
         return this.tablero;
+    }
+
+    public boolean obtenerFaseInicial() {
+        return faseInicial;
     }
 
     @Override

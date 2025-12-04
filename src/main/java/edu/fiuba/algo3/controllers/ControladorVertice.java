@@ -18,23 +18,39 @@ public class ControladorVertice implements EventHandler<MouseEvent> {
     private final Vertice vertice;
     private final VistaTablero vistaTablero;
     private final Catan juego;
+    private final Runnable avanzarTurnoCallback;
 
-    public ControladorVertice(Tablero tablero, Vertice vertice, VistaTablero vistaTablero, Catan juego) {
+    public ControladorVertice(Tablero tablero, Vertice vertice, VistaTablero vistaTablero,
+                              Catan juego, Runnable avanzarTurnoCallback) {
         this.tablero = tablero;
         this.vertice = vertice;
         this.vistaTablero = vistaTablero;
         this.juego = juego;
+        this.avanzarTurnoCallback = avanzarTurnoCallback;
     }
 
     @Override
     public void handle(MouseEvent mouseEvent) {
         mouseEvent.consume();
         vistaTablero.limpiarAcciones();
+        boolean faseInicial = juego.obtenerFaseInicial();
         Jugador jugadorActual = juego.obtenerJugadorActual();
 
         // CASO 1: Vértice libre -> Construir Poblado
         if (!vertice.verificarOcupado()) {
-            if (puedePagarPoblado(jugadorActual)) {
+            if (faseInicial) {
+                Button btnConstruir = new Button("Construir Poblado (Gratis)");
+                btnConstruir.setOnAction(e -> {
+                    if (jugadorActual.construirPoblado(tablero, vertice.getId())) {
+                        vistaTablero.limpiarAcciones();
+
+                        if (avanzarTurnoCallback != null) {
+                            avanzarTurnoCallback.run();
+                        }
+                    }
+                });
+                vistaTablero.mostrarBotonAccion(btnConstruir, mouseEvent.getX(), mouseEvent.getY());
+            } else if (puedePagarPoblado(jugadorActual)) {
                 // ... lógica de botón construir poblado ...
                 Button btnConstruir = new Button("Construir Poblado");
                 btnConstruir.setOnAction(e -> {

@@ -8,6 +8,8 @@ import javafx.scene.Group;
 import javafx.scene.control.Button;
 import javafx.scene.layout.Pane;
 import edu.fiuba.algo3.modelo.Catan;
+import org.junit.internal.runners.statements.RunAfters;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,10 +24,12 @@ public class VistaTablero extends Pane {
     private final double DX = RADIO * Math.sqrt(3) / 2;
     private final double DY = RADIO / 2;private final Group panelAcciones = new Group();
     private final Map<Integer, Point2D> mapaVertices = new HashMap<>();
+    private Runnable avanzarTurnoCallback;
 
-    public VistaTablero(Catan juego) {
+    public VistaTablero(Catan juego, Runnable avanzarTurnoCallback) {
         this.juego = juego;
         this.tablero = juego.obtenerTablero();
+        this.avanzarTurnoCallback = avanzarTurnoCallback;
 
         inicializarCoordenadas();
         dibujarHexagonos();
@@ -34,6 +38,7 @@ public class VistaTablero extends Pane {
         this.getChildren().add(panelAcciones);
         this.setOnMouseClicked(e -> limpiarAcciones());
     }
+
     public void mostrarBotonAccion(Button boton, double x, double y) {
         limpiarAcciones(); // Borra botones anteriores
 
@@ -145,7 +150,9 @@ public class VistaTablero extends Pane {
             VistaVertice vistaV = new VistaVertice(v, p.getX(), p.getY());
 
             // Pasamos 'juego' y 'this' (la vista) al controlador
-            vistaV.setOnMouseClicked(new ControladorVertice(tablero, v, this, juego));
+            vistaV.setOnMouseClicked(new ControladorVertice(
+                    tablero, v, this, juego, avanzarTurnoCallback
+            ));
             this.getChildren().add(vistaV);
             vistasVertices.put(entry.getKey(), vistaV);
         }
