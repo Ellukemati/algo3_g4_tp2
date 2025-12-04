@@ -1,15 +1,22 @@
 package edu.fiuba.algo3.modelo;
 
+import edu.fiuba.algo3.vistas.CartaDesarolloRenderizador;
+
 import java.util.List;
 
 public class ConstruccionDeCarreteras extends CartaDesarolloGeneral {
 
     @Override
-    public void usar(Jugador jugador, Tablero tablero, List<Jugador> jugadores) {
-        int idArista1 = 0;
-        int idArista2 = 1;
+    public void usar(Jugador jugador, Tablero tablero, List<Jugador> jugadores, ParametrosCarta parametrosCarta) {
+        // debe recibir los valores del id por imput
+        int idArista1 = parametrosCarta.getIdArista1();
+        int idArista2 = parametrosCarta.getIdArista2();
+        jugador.construirCarretera(tablero, idArista1);
+        jugador.construirCarretera(tablero, idArista2);
+    }
 
-        jugador.construirCarretera(tablero, idArista1, true);
-        jugador.construirCarretera(tablero, idArista2, true);
+    @Override
+    public void mostrar(CartaDesarolloRenderizador renderizador) {
+        renderizador.contruccionDeCarreterasRenderizar(this);
     }
 }

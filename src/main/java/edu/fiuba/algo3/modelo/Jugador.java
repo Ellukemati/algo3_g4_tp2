@@ -63,6 +63,12 @@ public class Jugador implements Observable, Bonificacion {
         return this.tasasDeIntercambioConBanca.get(recurso);
     }
 
+    public List<CartaDesarollo> obtenerCartasDeDesarollo() {
+        List<CartaDesarollo> cartasTotales = new ArrayList<>(cartasUsables);
+        cartasTotales.addAll(cartasNuevas);
+        return cartasTotales;
+    }
+
     // --- GESTIÓN INTERNA ---
 
     public void agregarRecurso(Recurso recurso, int cantidadAAgregar) {
@@ -156,12 +162,13 @@ public class Jugador implements Observable, Bonificacion {
         }
     }
 
-    public void usarCartaDeDesarrollo(CartaDesarollo carta, Tablero tablero, List<Jugador> jugadores) {
+    public void usarCartaDeDesarrollo(CartaDesarollo carta, Tablero tablero, List<Jugador> jugadores,
+                                      ParametrosCarta parametrosCarta) {
         CartaDesarollo cartaDeDesarollo = cartasUsables.stream()
                 .filter((cd) -> cd.equals(carta))
                 .findFirst()
                 .orElse(new NullCartaDesarollo());
-        cartaDeDesarollo.usar(this, tablero, jugadores);
+        cartaDeDesarollo.usar(this, tablero, jugadores, parametrosCarta);
         cartasUsables.remove(cartaDeDesarollo);
         cartasUsadas.add(cartaDeDesarollo);
     }

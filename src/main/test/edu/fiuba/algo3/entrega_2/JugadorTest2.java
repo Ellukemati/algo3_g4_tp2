@@ -156,7 +156,7 @@ public class JugadorTest2 {
         jugador.comprarCartaDeDesarollo(bancaMock);
 
         //ACT
-        jugador.usarCartaDeDesarrollo(carta, tablero, jugadores);
+        jugador.usarCartaDeDesarrollo(carta, tablero, jugadores, new ParametrosCarta());
 
         //ASSERT
         assertEquals(cantidadDeRecursosEsperada, jugador.cantidadTotalDeRecursos());
@@ -177,9 +177,9 @@ public class JugadorTest2 {
 
 
         //ACT
-        jugador.usarCartaDeDesarrollo(carta, tablero, jugadores);
+        jugador.usarCartaDeDesarrollo(carta, tablero, jugadores, new ParametrosCarta());
         jugador.finalizarTurno();
-        jugador.usarCartaDeDesarrollo(carta, tablero, jugadores);
+        jugador.usarCartaDeDesarrollo(carta, tablero, jugadores, new ParametrosCarta());
 
         //ASSERT
         assertEquals(cantidadDeRecursosEsperada, jugador.cantidadTotalDeRecursos());
