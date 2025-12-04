@@ -263,7 +263,7 @@ public class Jugador implements Observable, Bonificacion {
         if (construcciones.size() == 2) {
             poblado.cosechar(-1).forEach(r -> agregarRecurso(r, 1));
         }
-
+        vertice.establecerDueño(this);
         notificarObservadores();
         return true;
     }
@@ -296,35 +296,47 @@ public class Jugador implements Observable, Bonificacion {
         Map<Recurso, Integer> costo = new HashMap<>();
         costo.put(Recurso.MADERA, 1);
         costo.put(Recurso.LADRILLO, 1);
-
-        boolean esGratis = carreteras.size() <= 1;
-
-        if (!esGratis && !poseeRecursos(costo)) {
+        if ( (!poseeRecursos(costo) && (this.construcciones.size() > 2 ) )){
             return false;
         }
 
         Arista aristaAgregar = tablero.obtenerArista(idArista);
-        boolean conectaConRutaPropia = false;
+        if (aristaAgregar.verificarOcupado()) return false;
 
-        if (carreteras.isEmpty()) {
-            conectaConRutaPropia = true;
-        } else {
-            List<Arista> aristasAdyacentes = aristaAgregar.verAdyacentes();
-            for (Arista aristaActual : carreteras) {
-                if (aristasAdyacentes.contains(aristaActual)) {
-                    conectaConRutaPropia = true;
+        boolean conectaConLoSuyo = false;
+
+        List<Arista> aristasVecinas = aristaAgregar.verAdyacentes();
+        for (Arista vecina : aristasVecinas) {
+            if (vecina.obtenerDueño() == this) {
+                conectaConLoSuyo = true;
+                break;
+            }
+        }
+
+        if (!conectaConLoSuyo) {
+            List<Vertice> verticesDeArista = aristaAgregar.obtenerVertices();
+            for (Vertice v : verticesDeArista) {
+                if (v.obtenerDueño() == this) {
+                    conectaConLoSuyo = true;
                     break;
                 }
             }
         }
 
-        if (conectaConRutaPropia && !aristaAgregar.verificarOcupado()) {
-            if (!esGratis) {
+        if (carreteras.isEmpty()) {
+            if (construcciones.isEmpty()) conectaConLoSuyo = true;
+        }
+
+        if (conectaConLoSuyo) {
+            if (caminos.isEmpty()) {
                 this.inventario.quitar(costo);
                 notificarObservadores();
             }
+
+            aristaAgregar.establecerDueño(this);
             aristaAgregar.ocupar();
             carreteras.add(aristaAgregar);
+
 
             List<Camino> tocadas = new ArrayList<>();
             for (Camino c : caminos) {
@@ -348,6 +360,7 @@ public class Jugador implements Observable, Bonificacion {
 
         return false;
     }
+
 
     // --- MÉTRICAS ---
     public int obtenerRutaMasLarga() {

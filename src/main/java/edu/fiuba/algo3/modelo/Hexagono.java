@@ -6,6 +6,7 @@ public class Hexagono {
     private final Recurso recurso;
     private final int numero;
     private boolean ladron;
+    private int id;
 
     public Hexagono(Recurso recurso, int numero) {
         this.recurso = recurso;
@@ -27,6 +28,10 @@ public class Hexagono {
         return this.recurso;
     }
 
+    public void asignarId(int id) {
+        id = id;
+    }
+
     public void ladronOcupar() {
         this.ladron = true;
     }
@@ -39,4 +44,5 @@ public class Hexagono {
         return this.numero;
     }
 
+    public int obtenerId() { return id; }
 }
