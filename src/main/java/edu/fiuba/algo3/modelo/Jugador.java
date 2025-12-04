@@ -5,14 +5,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class Jugador implements Observable {
+public class Jugador implements Observable, Bonificacion {
+
     private final String nombre;
     private final Inventario inventario;
     private final List<CartaDesarollo> cartasNuevas;
     private final List<CartaDesarollo> cartasUsables;
+    private final List<CartaDesarollo> cartasUsadas;
     private final Map<Recurso, Integer> tasasDeIntercambioConBanca;
     private final List<Construccion> construcciones;
     private final List<Arista> carreteras;
+    private final List<Camino> caminos;
+    private int puntosDeVictoria; 
+    private int puntosDeVictoriaOcultos; 
 
     private List<Observador> observadores = new ArrayList<>();
 
@@ -21,12 +26,16 @@ public class Jugador implements Observable {
         this.inventario = new Inventario();
         this.cartasNuevas = new ArrayList<>();
         this.cartasUsables = new ArrayList<>();
+        this.cartasUsadas = new ArrayList<>();
         this.tasasDeIntercambioConBanca = new HashMap<>();
         for (Recurso r : Recurso.values()) {
             this.tasasDeIntercambioConBanca.put(r, 4);
         }
         this.construcciones = new ArrayList<>();
+        this.caminos = new ArrayList<>();
         this.carreteras = new ArrayList<>();
+        this.puntosDeVictoria = 0;  
+        this.puntosDeVictoriaOcultos = 0; 
     }
 
     public Jugador() {
@@ -151,12 +160,14 @@ public class Jugador implements Observable {
         }
     }
 
-    public void usarCartaDeDesarollo(CartaDesarollo carta, Tablero tablero, List<Jugador> jugadores) {
+    public void usarCartaDeDesarrollo(CartaDesarollo carta, Tablero tablero, List<Jugador> jugadores) {
         CartaDesarollo cartaDeDesarollo = cartasUsables.stream()
                 .filter((cd) -> cd.equals(carta))
                 .findFirst()
                 .orElse(new NullCartaDesarollo());
         cartaDeDesarollo.usar(this, tablero, jugadores);
+        cartasUsables.remove(cartaDeDesarollo);
+        cartasUsadas.add(cartaDeDesarollo);
     }
 
     public Hexagono moverLadron(Tablero tablero, int posicion) {
@@ -254,6 +265,7 @@ public class Jugador implements Observable {
 
             construcciones.remove(construccionAActualizar);
             construcciones.add(new Ciudad(verticeBuscado));
+            sumarPuntos(1);
             return true;
         }
 
@@ -265,9 +277,7 @@ public class Jugador implements Observable {
         costo.put(Recurso.MADERA, 1);
         costo.put(Recurso.LADRILLO, 1);
 
-        // Fase inicial: asumimos que las primeras carreteras son gratis si acompañan al poblado
-        // Ojo: Si tu lógica de juego maneja carreteras iniciales aparte, ajusta esto.
-        boolean esGratis = carreteras.isEmpty();
+        boolean esGratis = carreteras.size() <= 1;
 
         if (!esGratis && !poseeRecursos(costo)) {
             return false;
@@ -276,9 +286,8 @@ public class Jugador implements Observable {
         Arista aristaAgregar = tablero.obtenerArista(idArista);
         boolean conectaConRutaPropia = false;
 
-        // Verificar adyacencia (salvo que sea la primera ruta del juego para este jugador)
-        if (carreteras.isEmpty()) {
-            conectaConRutaPropia = true; // Simplificación para la primera ruta
+        if (carreteras.size() <= 1) {
+            conectaConRutaPropia = true;
         } else {
             List<Arista> aristasAdyacentes = aristaAgregar.verAdyacentes();
             for (Arista aristaActual : carreteras) {
@@ -294,14 +303,74 @@ public class Jugador implements Observable {
                 this.inventario.quitar(costo);
                 notificarObservadores();
             }
-            carreteras.add(aristaAgregar);
             aristaAgregar.ocupar();
+            carreteras.add(aristaAgregar);
+            sumarPuntos(1);
+
+            List<Camino> tocadas = new ArrayList<>();
+            for (Camino c : caminos) {
+                if (c.conectaCon(aristaAgregar)) {
+                    tocadas.add(c);
+                }
+            }   
+
+            Camino fusion = new Camino();
+            for (Camino c : tocadas) {
+                fusion.agregarCarreteras(c.getCarreteras());
+            }
+            fusion.agregarCarretera(aristaAgregar);
+
+            caminos.removeAll(tocadas);
+            fusion.recalcularDiametro();
+            caminos.add(fusion);
+
             return true;
         }
+
         return false;
     }
 
+
+    public int obtenerRutaMasLarga() {
+        int max = 0;
+        for (Camino c : caminos) {
+            max = Math.max(max, c.getDiametro());
+        }
+        return max;
+    }
+    
+    public int obtenerCaballerosUsados() {
+    	int contador = 0;
+        for (CartaDesarollo c : cartasUsadas) {
+            if (c instanceof Caballero) {
+                contador++;
+            }
+        }
+        return contador;
+    }
+    
+    public int obtenerPuntosVictoriaOcultos() {
+        return puntosDeVictoriaOcultos;
+    }
+    
+    public void sumarPuntos(int puntos) {
+        puntosDeVictoria += puntos;
+    }
+
+    public void restarPuntos(int puntos) {
+        puntosDeVictoria -= puntos;
+    }
+    
+    public int obtenerPuntage() {
+        return puntosDeVictoria;
+    }
+
     public void finalizarTurno() {
+    	for (CartaDesarollo c : cartasNuevas) {
+            if (c instanceof PuntoDeVictoria) {
+                puntosDeVictoriaOcultos++;
+            }
+        }
         cartasUsables.addAll(cartasNuevas);
         cartasNuevas.clear();
     }

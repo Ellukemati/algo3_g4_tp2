@@ -52,4 +52,9 @@ public class Arista implements Observable {
     public void agregarAristaAdyacente(Arista arista) {
         aristasAdyacentes.add(arista);
     }
+
+
+	public int obtenerId() {
+		return id;
+	}
 }

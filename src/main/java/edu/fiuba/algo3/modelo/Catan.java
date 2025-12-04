@@ -7,10 +7,11 @@ public class Catan implements Observable {
     private final Tablero tablero;
     private final List<Jugador> jugadores;
     private final Dado dado;
+    private final GranCaballeria granCaballeria;
+    private final GranRutaComercial granRutaComercial;
     private final List<Observador> observadores;
-
-    // Estado del juego
     private int indiceJugadorActual;
+    private int contadorTurnos;
     private boolean juegoIniciado;
     private int contadorTurnos;
 
@@ -19,6 +20,8 @@ public class Catan implements Observable {
         this.tablero = new Tablero();
         this.jugadores = new ArrayList<>();
         this.dado = new Dado();
+        this.granCaballeria = new GranCaballeria();
+        this.granRutaComercial = new GranRutaComercial();
         this.observadores = new ArrayList<>();
         this.indiceJugadorActual = 0;
         this.juegoIniciado = false;
@@ -45,7 +48,6 @@ public class Catan implements Observable {
 
     public void siguienteTurno() {
         contadorTurnos++;
-        // Finaliza el turno del jugador anterior
         obtenerJugadorActual().finalizarTurno();
 
         // Avanza al siguiente (circular)
@@ -55,13 +57,16 @@ public class Catan implements Observable {
         notificarObservadores();
     }
 
+    public int obtenerTurno() {
+        return contadorTurnos;
+    }
+
     public int lanzarDado() {
         int resultado = dado.tirar();
         jugarTurno(resultado); // Tu lógica existente de mover ladrón o cobrar recursos
         return resultado;
     }
 
-    // Adaptamos tu método jugarTurno para recibir el int del dado
     private void jugarTurno(int numeroDado) {
         Jugador jugadorActual = obtenerJugadorActual();
 
@@ -87,6 +92,28 @@ public class Catan implements Observable {
         notificarObservadores();
     }
 
+    public void jugadorColocarCarretera(Jugador jugador, int idArista) throws ConstruccionInvalidaException {
+    	jugador.construirCarretera(tablero, idArista);
+        granRutaComercial.actualizar(jugador);
+    }
+    
+    public void jugadorUsarCartaDeDesarrollo(Jugador jugador, CartaDesarollo carta) {
+        jugador.usarCartaDeDesarrollo(carta, tablero, jugadores);
+        granCaballeria.actualizar(jugador);
+    }
+    
+    public Boolean verificarSiGanó(Jugador jugador) {
+        int puntosVisibles = jugador.obtenerPuntage();
+        int puntosDeVictoria = jugador.obtenerPuntosVictoriaOcultos();
+        
+        if (puntosVisibles + puntosDeVictoria >= 10) {
+            return true;
+       
+        }else {
+        	return false;
+        }
+    }
+
     // --- Getters para la Vista ---
 
     public Tablero obtenerTablero() {
@@ -106,8 +133,5 @@ public class Catan implements Observable {
             observador.actualizar();
         }
     }
-
-    public int obtenerTurno() {
-        return contadorTurnos;
-    }
 }
+
