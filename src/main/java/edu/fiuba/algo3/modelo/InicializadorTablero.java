@@ -17,18 +17,15 @@ public class InicializadorTablero {
     }
 
     public int inicializar() {
-        // 1. Crear objetos básicos
         crearComponentesBasicos();
         inicializarHexagonos();
 
-        // 2. Asignar Ladrón
         Random random = new Random();
         int ladronIndex = random.nextInt(19);
         hexagonos.get(ladronIndex).ladronOcupar();
 
         conectarAristasConVertices();
 
-        // Como ya conectamos las aristas, ahora los vértices saben quiénes son sus vecinos
         conectarVerticesDesdeAristas();
 
         conectarAristas();
@@ -69,9 +66,11 @@ public class InicializadorTablero {
         }
         hexagonos.add(new Hexagono(null, 0)); // Desierto
         Collections.shuffle(hexagonos);
+        for (int i = 0; i < 18; i++) {
+            hexagonos.get(i).asignarId(i);
+        }
     }
 
-    // --- CONEXIÓN GEOMÉTRICA (ARISTAS <-> VÉRTICES) ---
 
     private void conectarAristasConVertices() {
         conectarAristasCirculares(0, 29, 0);
@@ -88,9 +87,9 @@ public class InicializadorTablero {
         for (int i = 0; i < 12; i++) {
             linkearAristaYVertices(aristas.get(idArista), vertices.get(vExterno), vertices.get(vMedio));
             idArista++;
-            if (i % 2 == 0) { // Paso PAR (+3 Ext, +1 Med)
+            if (i % 2 == 0) {
                 vExterno += 3; vMedio += 1;
-            } else { // Paso IMPAR (+2 Ext, +2 Med)
+            } else {
                 vExterno += 2; vMedio += 2;
             }
         }

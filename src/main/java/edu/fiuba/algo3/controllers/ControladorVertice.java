@@ -29,12 +29,15 @@ public class ControladorVertice implements EventHandler<MouseEvent> {
         this.avanzarTurnoCallback = avanzarTurnoCallback;
     }
 
+
+
     @Override
     public void handle(MouseEvent mouseEvent) {
         mouseEvent.consume();
         vistaTablero.limpiarAcciones();
-        boolean faseInicial = juego.obtenerFaseInicial();
+
         Jugador jugadorActual = juego.obtenerJugadorActual();
+        boolean faseInicial = juego.esFaseInicial();
 
         // CASO 1: Vértice libre -> Construir Poblado
         if (!vertice.verificarOcupado()) {
@@ -44,7 +47,7 @@ public class ControladorVertice implements EventHandler<MouseEvent> {
                     if (jugadorActual.construirPoblado(tablero, vertice.getId())) {
                         vistaTablero.limpiarAcciones();
 
-                        if (avanzarTurnoCallback != null) {
+                        if ((avanzarTurnoCallback != null) && (((juego.obtenerTurno() > juego.obtenerJugadores().size()) && (juego.obtenerTurno() <= juego.obtenerJugadores().size() * 2)))) {
                             avanzarTurnoCallback.run();
                         }
                     }

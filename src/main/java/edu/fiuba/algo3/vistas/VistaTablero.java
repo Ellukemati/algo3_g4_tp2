@@ -8,11 +8,11 @@ import javafx.scene.Group;
 import javafx.scene.control.Button;
 import javafx.scene.layout.Pane;
 import edu.fiuba.algo3.modelo.Catan;
-import org.junit.internal.runners.statements.RunAfters;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 public class VistaTablero extends Pane {
     private final Tablero tablero;
@@ -22,7 +22,8 @@ public class VistaTablero extends Pane {
     private final double CENTRO_Y = 350;
     private final Map<Integer, VistaVertice> vistasVertices = new HashMap<>();
     private final double DX = RADIO * Math.sqrt(3) / 2;
-    private final double DY = RADIO / 2;private final Group panelAcciones = new Group();
+    private final double DY = RADIO / 2;
+    private final Group panelAcciones = new Group();
     private final Map<Integer, Point2D> mapaVertices = new HashMap<>();
     private Runnable avanzarTurnoCallback;
 
@@ -40,11 +41,10 @@ public class VistaTablero extends Pane {
     }
 
     public void mostrarBotonAccion(Button boton, double x, double y) {
-        limpiarAcciones(); // Borra botones anteriores
+        limpiarAcciones();
 
         boton.setLayoutX(x);
         boton.setLayoutY(y);
-        // Estilo base para que se vea bien
         boton.setStyle("-fx-background-color: white; -fx-border-color: black; -fx-cursor: hand; -fx-font-size: 10px;");
 
         panelAcciones.getChildren().add(boton);
@@ -134,7 +134,8 @@ public class VistaTablero extends Pane {
             double x = CENTRO_X + RADIO * (Math.sqrt(3) * (q + r/2.0));
             double y = CENTRO_Y + RADIO * (1.5 * r);
 
-            VistaHexagono hex = new VistaHexagono(hexagonos.get(i), RADIO);
+            Hexagono hexagono = hexagonos.get(i);
+            VistaHexagono hex = new VistaHexagono(hexagono, RADIO);
             hex.setLayoutX(x - ancho/2);
             hex.setLayoutY(y - alto/2);
             grupo.getChildren().add(hex);
@@ -158,8 +159,6 @@ public class VistaTablero extends Pane {
         }
     }
 
-
-
     private void dibujarAristas() {
         for (int i = 0; i < 72; i++) {
             try {
@@ -173,13 +172,14 @@ public class VistaTablero extends Pane {
                     if (p1 != null && p2 != null) {
                         VistaArista vistaArista = new VistaArista(arista, p1.getX(), p1.getY(), p2.getX(), p2.getY());
 
-                        vistaArista.setOnMouseClicked(e -> {vistaArista.setOnMouseClicked(new ControladorArista(tablero, arista, this, juego));                        });
+                        vistaArista.setOnMouseClicked(e -> {
+                            vistaArista.setOnMouseClicked(new ControladorArista(tablero, arista, this, juego));
+                        });
 
                         this.getChildren().add(vistaArista);
                     }
                 }
             } catch (Exception e) {
-
             }
         }
     }

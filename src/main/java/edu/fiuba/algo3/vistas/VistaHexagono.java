@@ -6,6 +6,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.ImagePattern;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Polygon;
 import javafx.scene.text.Font;
@@ -17,8 +18,13 @@ import java.util.Map;
 public class VistaHexagono extends StackPane {
     private final Hexagono hexagono;
     private final double radio;
+    private final ImageView imagenLadron;
+    private boolean tieneLadron = false;
+    private boolean clickeableParaLadron = false;
+
 
     private static final Map<Recurso, String> imagenesRecursos = new HashMap<>();
+    private static Image imagenLadronGlobal;
 
     static {
         imagenesRecursos.put(Recurso.LADRILLO, "/recursos/ladrillo.png");
@@ -26,14 +32,70 @@ public class VistaHexagono extends StackPane {
         imagenesRecursos.put(Recurso.MINERAL, "/recursos/mineral.png");
         imagenesRecursos.put(Recurso.MADERA, "/recursos/madera.png");
         imagenesRecursos.put(Recurso.GRANO, "/recursos/trigo.png");
+
+        try {
+            imagenLadronGlobal = new Image(VistaHexagono.class.getResourceAsStream("/imagenes/ladron.png"));
+        } catch (Exception e) {
+            System.out.println("No se pudo cargar la imagen del ladrón. Se usará un círculo rojo.");
+            imagenLadronGlobal = null;
+        }
     }
 
     public VistaHexagono(Hexagono hexagono, double radio) {
         this.hexagono = hexagono;
         this.radio = radio;
 
+        this.imagenLadron = crearImagenLadron();
+
         this.dibujarForma();
         this.dibujarFichaNumero();
+
+        verificarLadronInicial();
+
+        this.setOnMouseEntered(e -> {
+            if (clickeableParaLadron) {
+                this.setEffect(new javafx.scene.effect.DropShadow(10, Color.RED));
+            }
+        });
+
+        this.setOnMouseExited(e -> {
+            if (clickeableParaLadron) {
+                this.setEffect(null);
+            }
+        });
+
+        this.setOnMouseClicked(e -> {
+            if (clickeableParaLadron) {
+                e.consume();
+            }
+        });
+
+        this.getChildren().add(imagenLadron);
+    }
+
+    private ImageView crearImagenLadron() {
+        ImageView imageView;
+
+        if (imagenLadronGlobal != null) {
+            imageView = new ImageView(imagenLadronGlobal);
+            double tamano = radio * 0.7;
+            imageView.setFitWidth(tamano);
+            imageView.setFitHeight(tamano);
+        } else {
+            Circle circuloLadron = new Circle(radio * 0.3);
+            circuloLadron.setFill(Color.RED);
+            circuloLadron.setStroke(Color.BLACK);
+            circuloLadron.setStrokeWidth(2);
+
+            imageView = new ImageView();
+        }
+
+        imageView.setTranslateX(-imageView.getFitWidth() / 2);
+        imageView.setTranslateY(-imageView.getFitHeight() / 2);
+
+        imageView.setVisible(false);
+
+        return imageView;
     }
 
     private void dibujarForma() {
@@ -88,5 +150,63 @@ public class VistaHexagono extends StackPane {
 
             this.getChildren().addAll(fichaFondo, textoNumero);
         }
+    }
+
+    private void verificarLadronInicial() {
+        if (hexagono.getNumero() == 0) {
+            mostrarLadron(true);
+        }
+    }
+
+    public void mostrarLadron(boolean mostrar) {
+        this.tieneLadron = mostrar;
+        imagenLadron.setVisible(mostrar);
+
+        if (mostrar && imagenLadronGlobal == null) {
+            Circle circuloLadron = new Circle(radio * 0.3);
+            circuloLadron.setFill(Color.RED);
+            circuloLadron.setStroke(Color.BLACK);
+            circuloLadron.setStrokeWidth(2);
+            this.getChildren().add(circuloLadron);
+        }
+    }
+
+    public boolean tieneLadron() {
+        return tieneLadron;
+    }
+
+    public void resaltarComoConLadron(boolean resaltar) {
+        Polygon forma = (Polygon) this.getChildren().get(0);
+
+        if (resaltar) {
+            forma.setStroke(Color.RED);
+            forma.setStrokeWidth(3);
+        } else {
+            forma.setStroke(Color.BLACK);
+            forma.setStrokeWidth(2);
+        }
+    }
+
+    public void hacerClickeableParaLadron(boolean clickeable) {
+        this.clickeableParaLadron = clickeable;
+
+        if (clickeable) {
+            this.setCursor(javafx.scene.Cursor.HAND);
+        } else {
+            this.setCursor(javafx.scene.Cursor.DEFAULT);
+            this.setEffect(null);
+        }
+    }
+
+    public boolean esClickeableParaLadron() {
+        return clickeableParaLadron;
+    }
+
+    public Hexagono getHexagono() {
+        return hexagono;
+    }
+
+    public int getIdHexagono() {
+        return hexagono.obtenerId();
     }
 }

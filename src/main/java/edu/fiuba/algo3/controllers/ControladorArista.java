@@ -33,8 +33,9 @@ public class ControladorArista implements EventHandler<MouseEvent> {
 
         Jugador jugadorActual = juego.obtenerJugadorActual();
 
+
         if (!arista.verificarOcupado()) {
-            if (puedePagarCarretera(jugadorActual)) {
+            if ( puedePagarCarretera(jugadorActual) || (juego.obtenerTurno() <= (juego.obtenerJugadores().size()))) {
                 Button btnCamino = new Button("Construir Camino");
                 btnCamino.setOnAction(e -> {
                     if (jugadorActual.construirCarretera(tablero, arista.getId())) {

@@ -11,13 +11,13 @@ public class Catan implements Observable {
     private final GranRutaComercial granRutaComercial;
     private final List<Observador> observadores;
     private final Banca banca;
-
+    private boolean faseInicial;
     private int indiceJugadorActual;
     private int contadorTurnos;
     private boolean juegoIniciado;
-    private boolean faseInicial;
 
     public Catan() {
+        this.faseInicial = true;
         this.contadorTurnos = 0;
         this.tablero = new Tablero();
         this.jugadores = new ArrayList<>();
@@ -36,6 +36,7 @@ public class Catan implements Observable {
     public void agregarJugador(Jugador jugador) {
         if (!juegoIniciado && jugadores.size() < 4) {
             jugadores.add(jugador);
+
         }
     }
 
@@ -64,8 +65,8 @@ public class Catan implements Observable {
         // Avanza al siguiente (circular)
         indiceJugadorActual = (indiceJugadorActual + 1) % jugadores.size();
 
-        if (contadorTurnos == (jugadores.size() * 2)) {
-            faseInicial = false;
+        if (contadorTurnos >= jugadores.size() * 2) {
+                faseInicial = false;
         }
         notificarObservadores();
     }
@@ -78,20 +79,15 @@ public class Catan implements Observable {
 
     public int obtenerTurno() {
         return contadorTurnos;
-
     }
 
     public int lanzarDado() {
         int resultado = dado.tirar();
 
         if (resultado != 7) {
-            // Si NO es 7, repartimos recursos automáticamente
             repartirRecursos(resultado);
         } else {
-            // Si ES 7, gestionamos el descarte por exceso de cartas
             gestionarDescartePorSiete();
-            // NOTA: El movimiento del ladrón NO se hace acá,
-            // la Vista debe detectar el 7 y pedirle al usuario que elija hexágono.
         }
 
         return resultado;
@@ -114,15 +110,12 @@ public class Catan implements Observable {
 
     // --- Acciones del Jugador ---
 
-    // Método separado para cuando la UI mande la coordenada del ladrón
     public void moverLadron(int posicionHexagono, Jugador victima) {
         Jugador jugadorActual = obtenerJugadorActual();
         Hexagono hexagono = jugadorActual.moverLadron(tablero, posicionHexagono);
 
-        // Solo robamos si se eligió una víctima (puede no haber nadie)
         if (victima != null && victima != jugadorActual) {
             Recurso robado = jugadorActual.robarA(victima); // Usar tu método nuevo
-            // O la lógica de intercambio forzado que tenías
         }
         notificarObservadores();
     }
@@ -157,7 +150,7 @@ public class Catan implements Observable {
         return this.tablero;
     }
 
-    public boolean obtenerFaseInicial() {
+    public boolean esFaseInicial() {
         return faseInicial;
     }
 
