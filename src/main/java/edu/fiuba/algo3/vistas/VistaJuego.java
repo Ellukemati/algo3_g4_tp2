@@ -33,7 +33,7 @@ public class VistaJuego extends StackPane implements Observador {
         this.juego = juego;
         this.vistaRecursos = new VistaCartaDeRecursos();
 
-        VistaTablero vistaTablero = new VistaTablero(juego);
+        VistaTablero vistaTablero = new VistaTablero(juego, null);
         HBox panelRecursos = vistaRecursos.inicializarVistaCarta();
         inicializarLabels();
         inicializarPanelIntercambio();
