@@ -103,7 +103,7 @@ public class App extends Application {
         actualizarControladoresJugadorActual();
 
         // 5. Mostrar Escena
-        Scene scene = new Scene(raiz, 1024, 768);
+        Scene scene = new Scene(raiz, 800, 600);
         cargarEstilos(scene);
         stage.setScene(scene);
     }
