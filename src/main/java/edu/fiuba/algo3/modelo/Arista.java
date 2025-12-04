@@ -3,11 +3,12 @@ package edu.fiuba.algo3.modelo;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Arista {
+public class Arista implements Observable {
     private int id;
     private final List<Arista> aristasAdyacentes;
     private List<Vertice> vertices;
     private boolean ocupado;
+    private List<Observador> observadores = new ArrayList<>();
 
     public Arista(int id) {
         this.id = id;
@@ -16,8 +17,24 @@ public class Arista {
         this.vertices = new ArrayList<>();
     }
 
+    @Override
+    public void agregarObservador(Observador observador) {
+        this.observadores.add(observador);
+    }
 
-    public void ocupar() { ocupado = true; }
+    @Override
+    public void notificarObservadores() {
+        for (Observador observador : observadores) {
+            observador.actualizar();
+        }
+    }
+    public void ocupar() {
+        ocupado = true;
+        notificarObservadores();
+    }
+    public int getId() {
+        return this.id;
+    }
 
     public void agregarVertice(Vertice vertice) {
         if (!this.vertices.contains(vertice)) {

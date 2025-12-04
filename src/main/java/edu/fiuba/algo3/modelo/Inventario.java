@@ -58,10 +58,9 @@ public class Inventario {
         return true;
     }
 
-    public void canjear(Recurso recursoAEntregar, int costo, Recurso recursoARecibir, int ganancia) {
-        if (this.cantidadDe(recursoAEntregar) >= costo) {
-            this.quitar(recursoAEntregar, costo);
-            this.agregar(recursoARecibir, ganancia);
+    public void canjear(Map<Recurso, Integer> salida, Map<Recurso, Integer> entrada) {
+        if (this.poseeSuficientes(salida)) {
+            realizarTransferencia(salida, entrada);
         }
     }
 

@@ -1,12 +1,13 @@
 package edu.fiuba.algo3.modelo;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
 
-public class Jugador implements Bonificacion{
+public class Jugador implements Observable, Bonificacion {
 
+    private final String nombre;
     private final Inventario inventario;
     private final List<CartaDesarollo> cartasNuevas;
     private final List<CartaDesarollo> cartasUsables;
@@ -18,7 +19,10 @@ public class Jugador implements Bonificacion{
     private int puntosDeVictoria; 
     private int puntosDeVictoriaOcultos; 
 
-    public Jugador() {
+    private List<Observador> observadores = new ArrayList<>();
+
+    public Jugador(String nombre) {
+        this.nombre = nombre;
         this.inventario = new Inventario();
         this.cartasNuevas = new ArrayList<>();
         this.cartasUsables = new ArrayList<>();
@@ -34,9 +38,39 @@ public class Jugador implements Bonificacion{
         this.puntosDeVictoriaOcultos = 0; 
     }
 
-    // GESTIÓN INTERNA
+    public Jugador() {
+        this("");
+    }
+
+    // --- IMPLEMENTACIÓN OBSERVER ---
+
+    @Override
+    public void agregarObservador(Observador observador) {
+        this.observadores.add(observador);
+    }
+
+    @Override
+    public void notificarObservadores() {
+        for (Observador observador : observadores) {
+            observador.actualizar();
+        }
+    }
+
+    // --- GETTERS ---
+
+    public int cantidadDe(Recurso recurso) {
+        return this.inventario.cantidadDe(recurso);
+    }
+
+    public int obtenerTasaDe(Recurso recurso) {
+        return this.tasasDeIntercambioConBanca.get(recurso);
+    }
+
+    // --- GESTIÓN INTERNA ---
+
     public void agregarRecurso(Recurso recurso, int cantidadAAgregar) {
         this.inventario.agregar(recurso, cantidadAAgregar);
+        notificarObservadores();
     }
 
     public int cantidadTotalDeRecursos() {
@@ -58,16 +92,17 @@ public class Jugador implements Bonificacion{
     public int quitarCantidadTotalDeRecursos(Recurso recurso) {
         int cantidadRecurso = this.inventario.cantidadDe(recurso);
         this.inventario.quitar(recurso, cantidadRecurso);
+        notificarObservadores();
         return cantidadRecurso;
     }
 
-    // LÓGICA DE JUEGO
+    // --- LÓGICA DE JUEGO ---
 
     public void recibirLanzamientoDeDados(int numeroDado) {
         if (numeroDado == 7) {
             this.inventario.descartarMitad();
-
-            // AÚN NO IMPLEMENTA moverLadron(). Iría acá?
+            notificarObservadores();
+            // La lógica de mover ladrón suele ser iniciada por el controlador/turno.
         }
 
         for (Construccion c : construcciones) {
@@ -81,23 +116,45 @@ public class Jugador implements Bonificacion{
     public void intercambiar(Jugador otroJugador, Map<Recurso, Integer> oferta, Map<Recurso, Integer> solicitud) {
         if (this.poseeRecursos(oferta) && otroJugador.poseeRecursos(solicitud)) {
             this.inventario.realizarTransferencia(oferta, solicitud);
-
+            notificarObservadores();
             otroJugador.confirmarIntercambio(oferta, solicitud);
         }
     }
 
     protected void confirmarIntercambio(Map<Recurso, Integer> recursosRecibidos, Map<Recurso, Integer> recursosDados) {
         this.inventario.realizarTransferencia(recursosDados, recursosRecibidos);
+        notificarObservadores();
     }
 
-    public void comerciarConBanca(Recurso recursoAEntregar, Recurso recursoAPedir) {
-        int costo = this.tasasDeIntercambioConBanca.get(recursoAEntregar);
-        this.inventario.canjear(recursoAEntregar, costo, recursoAPedir, 1);
+    public void comerciarConBanca(Map<Recurso, Integer> oferta, Map<Recurso, Integer> solicitud) {
+        if (esIntercambioConBancaValido(oferta, solicitud)) {
+            this.inventario.canjear(oferta, solicitud);
+            notificarObservadores();
+        }
+    }
+
+    private boolean esIntercambioConBancaValido(Map<Recurso, Integer> oferta, Map<Recurso, Integer> solicitud) {
+        int capacidadDeCompra = 0;
+
+        for (Map.Entry<Recurso, Integer> entry : oferta.entrySet()) {
+            Recurso recurso = entry.getKey();
+            int cantidadOfrecida = entry.getValue();
+
+            int tasa = this.tasasDeIntercambioConBanca.get(recurso);
+            if (cantidadOfrecida % tasa != 0) {
+                return false;
+            }
+            capacidadDeCompra += (cantidadOfrecida / tasa);
+        }
+
+        int cantidadSolicitada = solicitud.values().stream().mapToInt(Integer::intValue).sum();
+        return capacidadDeCompra == cantidadSolicitada;
     }
 
     public void comprarCartaDeDesarollo(Banca banca) {
         try {
             cartasNuevas.add(banca.comprarCartaDeDesarollo(inventario));
+            notificarObservadores();
         } catch (IllegalArgumentException e) {
             System.out.println(e.getMessage());
         }
@@ -113,14 +170,12 @@ public class Jugador implements Bonificacion{
         cartasUsadas.add(cartaDeDesarollo);
     }
 
-    // a ser usada cuando toca 7 en la tirada y por la carta de desarrollo si el jugador la posee y usa
     public Hexagono moverLadron(Tablero tablero, int posicion) {
         return tablero.moverLadron(posicion);
     }
 
     public Recurso serRobadoPorLadron(Hexagono hexagonoRobar) {
         boolean soyVictima = false;
-
         for (Construccion c : construcciones) {
             Vertice vert = c.obtenerVertice();
             if (vert.obtenerHexagonosAdyacentes().contains(hexagonoRobar)) {
@@ -130,25 +185,50 @@ public class Jugador implements Bonificacion{
         }
 
         if (soyVictima) {
-            return this.inventario.extraerRecursoAlAzar();
+            Recurso robado = this.inventario.extraerRecursoAlAzar();
+            if (robado != null) {
+                notificarObservadores();
+                return robado;
+            }
         }
         return null;
     }
 
-    // LÓGICA DE CONSTRUCCIÓN
+    // --- LÓGICA DE CONSTRUCCIÓN ---
 
-    //Strategy aplicar aca
-    //considerar para caso de size > 3, es decir para el resto del juego
     public boolean construirPoblado(Tablero tablero, int idVertice) {
-        Vertice vertice = tablero.obtenerVertice(idVertice);
-        Construccion nuevaConstruccion = new Poblado(vertice);
+        // Definir costo
+        Map<Recurso, Integer> costo = new HashMap<>();
+        costo.put(Recurso.MADERA, 1);
+        costo.put(Recurso.LADRILLO, 1);
+        costo.put(Recurso.LANA, 1);
+        costo.put(Recurso.GRANO, 1);
 
+        // Lógica de fase inicial (los primeros 2 son gratis)
+        boolean esFaseInicial = (this.construcciones.size() < 2);
+
+        // 1. Verificación de Recursos (solo si no es fase inicial)
+        if (!esFaseInicial && !poseeRecursos(costo)) {
+            return false;
+        }
+
+        // 2. Intentar construir en el tablero (validaciones de reglas)
         if (tablero.construirPoblado(idVertice)) {
-            construcciones.add(nuevaConstruccion);
-            vertice.aplicarEfectosSiCorresponde(this);
+            Vertice vertice = tablero.obtenerVertice(idVertice);
+            Construccion nuevaConstruccion = new Poblado(vertice);
 
-            if (this.construcciones.size() == 2) {
-                // pasarle -1 significa que siempre recoge mientras no haya ladron
+            // 3. Pagar (si corresponde)
+            if (!esFaseInicial) {
+                this.inventario.quitar(costo);
+                notificarObservadores();
+            }
+
+            // 4. Actualizar estado del jugador
+            construcciones.add(nuevaConstruccion);
+            vertice.aplicarEfectos(this); // Activa puertos si los hay
+
+            // Regla especial: Recibir recursos del segundo poblado inicial
+            if (construcciones.size() == 2) {
                 List<Recurso> recursosVertice = nuevaConstruccion.cosechar(-1);
                 for (Recurso recursoActual : recursosVertice) {
                     this.agregarRecurso(recursoActual, 1);
@@ -160,6 +240,14 @@ public class Jugador implements Bonificacion{
     }
 
     public boolean construirCiudad(Tablero tablero, int idVertice) {
+        Map<Recurso, Integer> costo = new HashMap<>();
+        costo.put(Recurso.GRANO, 2);
+        costo.put(Recurso.MINERAL, 3);
+
+        if (!poseeRecursos(costo)) {
+            return false;
+        }
+
         Vertice verticeBuscado = tablero.obtenerVertice(idVertice);
         Construccion construccionAActualizar = null;
 
@@ -170,9 +258,14 @@ public class Jugador implements Bonificacion{
             }
         }
 
+        // Verificar que sea un Poblado antes de convertirlo
         if (construccionAActualizar instanceof Poblado) {
+            this.inventario.quitar(costo);
+            notificarObservadores();
+
             construcciones.remove(construccionAActualizar);
             construcciones.add(new Ciudad(verticeBuscado));
+            sumarPuntos(1);
             return true;
         }
 
@@ -180,65 +273,63 @@ public class Jugador implements Bonificacion{
     }
 
     public boolean construirCarretera(Tablero tablero, int idArista) {
+        Map<Recurso, Integer> costo = new HashMap<>();
+        costo.put(Recurso.MADERA, 1);
+        costo.put(Recurso.LADRILLO, 1);
+
+        boolean esGratis = carreteras.size() <= 1;
+
+        if (!esGratis && !poseeRecursos(costo)) {
+            return false;
+        }
+
         Arista aristaAgregar = tablero.obtenerArista(idArista);
+        boolean conectaConRutaPropia = false;
 
-        if (carreteras.isEmpty()) {
-            carreteras.add(aristaAgregar);
-
+        if (carreteras.size() <= 1) {
+            conectaConRutaPropia = true;
         } else {
             List<Arista> aristasAdyacentes = aristaAgregar.verAdyacentes();
             for (Arista aristaActual : carreteras) {
                 if (aristasAdyacentes.contains(aristaActual)) {
-                    carreteras.add(aristaAgregar);
-                    return true;
+                    conectaConRutaPropia = true;
+                    break;
                 }
             }
-            return false;
         }
-        return true;
-    }
-    public boolean tieneCarreteraEnAristasAdyacentes(List<Arista> aristasAdyacentes) {
-        for (Arista propia : carreteras) {
-            if (aristasAdyacentes.contains(propia)) {
-                return true;
+
+        if (conectaConRutaPropia && !aristaAgregar.verificarOcupado()) {
+            if (!esGratis) {
+                this.inventario.quitar(costo);
+                notificarObservadores();
             }
+            aristaAgregar.ocupar();
+            carreteras.add(aristaAgregar);
+            sumarPuntos(1);
+
+            List<Camino> tocadas = new ArrayList<>();
+            for (Camino c : caminos) {
+                if (c.conectaCon(aristaAgregar)) {
+                    tocadas.add(c);
+                }
+            }   
+
+            Camino fusion = new Camino();
+            for (Camino c : tocadas) {
+                fusion.agregarCarreteras(c.getCarreteras());
+            }
+            fusion.agregarCarretera(aristaAgregar);
+
+            caminos.removeAll(tocadas);
+            fusion.recalcularDiametro();
+            caminos.add(fusion);
+
+            return true;
         }
+
         return false;
     }
 
-    public boolean tieneConstruccionEnVertices(List<Vertice> vertices) {
-        for (Construccion c : construcciones) {
-            if (vertices.contains(c.obtenerVertice())) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public void agregarCarretera(Arista arista) {
-    	if(!arista.verificarOcupado() ) {
-    		if(tieneCarreteraEnAristasAdyacentes(arista.verAdyacentes()) || tieneConstruccionEnVertices(arista.obtenerVertices())){
-    			arista.ocupar();
-    	        carreteras.add(arista);
-    	        List<Camino> tocadas = new ArrayList<>();
-    	        for (Camino c : caminos) {
-    	            if (c.conectaCon(arista)) {
-    	                tocadas.add(c);
-    	            }
-    	        }
-    	        Camino fusion = new Camino();
-    	        for (Camino c : tocadas) {
-    	            fusion.agregarCarreteras(c.getCarreteras());
-    	        }
-    	        fusion.agregarCarretera(arista);
-    	        caminos.removeAll(tocadas);
-    	        fusion.recalcularDiametro();
-    	        caminos.add(fusion);
-    		}
-    	}else {
-    		throw new ConstruccionInvalidaException("La arista ya está ocupada");
-    	}
-    }
 
     public int obtenerRutaMasLarga() {
         int max = 0;
@@ -282,5 +373,9 @@ public class Jugador implements Bonificacion{
         }
         cartasUsables.addAll(cartasNuevas);
         cartasNuevas.clear();
+    }
+    
+    public String obtenerNombre() {
+        return nombre;
     }
 }

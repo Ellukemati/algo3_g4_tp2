@@ -20,7 +20,8 @@ public class CatanTest {
         when(jugador.obtenerPuntosVictoriaOcultos()).thenReturn(3);
         List<Jugador> jugadores = new ArrayList<>();
         jugadores.add(jugador);
-        Catan catan = new Catan(jugadores);
+        Catan catan = new Catan();
+        catan.agregarJugador(jugador);
 
         // ACT
         boolean resultado = catan.verificarSiGanó(jugador);

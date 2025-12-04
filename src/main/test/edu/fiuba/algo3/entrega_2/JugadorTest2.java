@@ -95,18 +95,19 @@ public class JugadorTest2 {
         assertFalse(jugador1.construirCarretera(tablero, 0));
     }
 
-        @Test
-        public void test06CreacionCarreterasAdyacentes() {
-            //ARRANGE
-            Jugador jugador1 = new Jugador();
-            Tablero tablero = new Tablero();
+    @Test
+    public void test06CreacionCarreterasAdyacentes() {
+        //ARRANGE
+        Jugador jugador1 = new Jugador();
+        Tablero tablero = new Tablero();
 
-            //ACT
-            jugador1.construirCarretera(tablero, 0);
+        //ACT
+        jugador1.construirCarretera(tablero, 0);
 
-            // ASSERT
-            assertTrue(jugador1.construirCarretera(tablero, 1));
-        }
+        // ASSERT
+        assertTrue(jugador1.construirCarretera(tablero, 1));
+    }
+
     @Test
     public void test07ComproCartaDeDesarolloConLosRecursosJustos() {
         //ARRANGE
@@ -188,16 +189,18 @@ public class JugadorTest2 {
     public void test11jugadorConstruyeCarreterasEnCadenaYCalculaRutaMasLarga() {
         Tablero tablero = new Tablero();
         Jugador jugador = new Jugador();
+        jugador.agregarRecurso(Recurso.MADERA, 10);
+        jugador.agregarRecurso(Recurso.LADRILLO, 10);
+        jugador.agregarRecurso(Recurso.LANA, 2);
+        jugador.agregarRecurso(Recurso.GRANO, 2);
         
-        jugador.construirPoblado(tablero, 5);
-        jugador.agregarCarretera(tablero.obtenerArista(5));
-        jugador.agregarCarretera(tablero.obtenerArista(6));
-        jugador.agregarCarretera(tablero.obtenerArista(7));
-        jugador.construirPoblado(tablero, 12);
-        jugador.agregarCarretera(tablero.obtenerArista(12));
-        jugador.agregarCarretera(tablero.obtenerArista(13));
-        jugador.agregarCarretera(tablero.obtenerArista(14));
-        jugador.agregarCarretera(tablero.obtenerArista(15));
+        jugador.construirCarretera(tablero, 12);
+        jugador.construirCarretera(tablero, 5);
+        jugador.construirCarretera(tablero, 6);
+        jugador.construirCarretera(tablero,7);
+        jugador.construirCarretera(tablero, 13);
+        jugador.construirCarretera(tablero, 14);
+        jugador.construirCarretera(tablero, 15);
 
         assertEquals(4, jugador.obtenerRutaMasLarga());
     }
@@ -207,15 +210,17 @@ public class JugadorTest2 {
         //ARRANGE
         Tablero tablero = new Tablero();
         Jugador jugador = new Jugador();
+        jugador.agregarRecurso(Recurso.MADERA, 10);
+        jugador.agregarRecurso(Recurso.LADRILLO, 10);
+        jugador.agregarRecurso(Recurso.LANA, 2);
+        jugador.agregarRecurso(Recurso.GRANO, 2);
 
         //ACT
-        jugador.construirPoblado(tablero, 2);
-        jugador.agregarCarretera(tablero.obtenerArista(2));
-        jugador.agregarCarretera(tablero.obtenerArista(3));
-        jugador.construirPoblado(tablero, 5);
-        jugador.agregarCarretera(tablero.obtenerArista(5));
-        jugador.agregarCarretera(tablero.obtenerArista(6));
-        jugador.agregarCarretera(tablero.obtenerArista(4));
+        jugador.construirCarretera(tablero, 5);
+        jugador.construirCarretera(tablero, 2);
+        jugador.construirCarretera(tablero, 3);
+        jugador.construirCarretera(tablero, 6);
+        jugador.construirCarretera(tablero, 4);
 
         //ASSERT
         assertEquals(5, jugador.obtenerRutaMasLarga());
