@@ -14,13 +14,11 @@ public class Tablero {
         this.vertices = new ArrayList<>();
         this.aristas = new ArrayList<>();
 
-        // Delegamos la inicialización a la nueva clase
         InicializadorTablero inicializador = new InicializadorTablero(hexagonos, vertices, aristas);
         this.ladron = inicializador.inicializar();
     }
 
 
-    // --- MÉTODOS PÚBLICOS DEL JUEGO ---
     public List<Hexagono> obtenerHexagonos() {
         return this.hexagonos;
     }

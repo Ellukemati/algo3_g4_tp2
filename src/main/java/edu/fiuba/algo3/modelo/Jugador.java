@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 
 public class Jugador implements Observable, Bonificacion {
-
     private final String nombre;
     private final Inventario inventario;
     private final List<CartaDesarollo> cartasNuevas;
@@ -15,9 +14,9 @@ public class Jugador implements Observable, Bonificacion {
     private final Map<Recurso, Integer> tasasDeIntercambioConBanca;
     private final List<Construccion> construcciones;
     private final List<Arista> carreteras;
-    private final List<Camino> caminos;
-    private int puntosDeVictoria; 
-    private int puntosDeVictoriaOcultos; 
+    private final List<Camino> caminos; // Asumiendo que esta clase existe
+    private int puntosDeVictoria;
+    private int puntosDeVictoriaOcultos;
 
     private List<Observador> observadores = new ArrayList<>();
 
@@ -34,13 +33,11 @@ public class Jugador implements Observable, Bonificacion {
         this.construcciones = new ArrayList<>();
         this.caminos = new ArrayList<>();
         this.carreteras = new ArrayList<>();
-        this.puntosDeVictoria = 0;  
-        this.puntosDeVictoriaOcultos = 0; 
+        this.puntosDeVictoria = 0;
+        this.puntosDeVictoriaOcultos = 0;
     }
 
-    public Jugador() {
-        this("");
-    }
+
 
     // --- IMPLEMENTACIÓN OBSERVER ---
 
@@ -108,7 +105,6 @@ public class Jugador implements Observable, Bonificacion {
         if (numeroDado == 7) {
             this.inventario.descartarMitad();
             notificarObservadores();
-            // La lógica de mover ladrón suele ser iniciada por el controlador/turno.
         }
 
         for (Construccion c : construcciones) {
@@ -201,40 +197,31 @@ public class Jugador implements Observable, Bonificacion {
         return null;
     }
 
-    // --- LÓGICA DE CONSTRUCCIÓN ---
-
-    public boolean construirPoblado(Tablero tablero, int idVertice) {
-        // Definir costo
+    public boolean construirPoblado(Tablero tablero, int idVertice, boolean esFaseInicial) {
         Map<Recurso, Integer> costo = new HashMap<>();
         costo.put(Recurso.MADERA, 1);
         costo.put(Recurso.LADRILLO, 1);
         costo.put(Recurso.LANA, 1);
         costo.put(Recurso.GRANO, 1);
 
-        // Lógica de fase inicial (los primeros 2 son gratis)
-        boolean esFaseInicial = (this.construcciones.size() < 2);
-
-        // 1. Verificación de Recursos (solo si no es fase inicial)
         if (!esFaseInicial && !poseeRecursos(costo)) {
             return false;
         }
 
-        // 2. Intentar construir en el tablero (validaciones de reglas)
         if (tablero.construirPoblado(idVertice)) {
             Vertice vertice = tablero.obtenerVertice(idVertice);
+            vertice.establecerDueño(this);
             Construccion nuevaConstruccion = new Poblado(vertice);
 
-            // 3. Pagar (si corresponde)
             if (!esFaseInicial) {
                 this.inventario.quitar(costo);
                 notificarObservadores();
             }
 
-            // 4. Actualizar estado del jugador
             construcciones.add(nuevaConstruccion);
-            vertice.aplicarEfectos(this); // Activa puertos si los hay
+            sumarPuntos(1); // Poblado vale 1 punto
+            vertice.aplicarEfectos(this);
 
-            // Regla especial: Recibir recursos del segundo poblado inicial
             if (construcciones.size() == 2) {
                 List<Recurso> recursosVertice = nuevaConstruccion.cosechar(-1);
                 for (Recurso recursoActual : recursosVertice) {
@@ -265,61 +252,72 @@ public class Jugador implements Observable, Bonificacion {
             }
         }
 
-        // Verificar que sea un Poblado antes de convertirlo
         if (construccionAActualizar instanceof Poblado) {
             this.inventario.quitar(costo);
             notificarObservadores();
 
             construcciones.remove(construccionAActualizar);
             construcciones.add(new Ciudad(verticeBuscado));
-            sumarPuntos(1);
+            sumarPuntos(1); // Suma 1 extra (la ciudad vale 2, pero reemplaza al poblado de 1)
             return true;
         }
 
         return false;
     }
 
-    public boolean construirCarretera(Tablero tablero, int idArista) {
+    public boolean construirCarretera(Tablero tablero, int idArista, boolean esFaseInicial) {
         Map<Recurso, Integer> costo = new HashMap<>();
         costo.put(Recurso.MADERA, 1);
         costo.put(Recurso.LADRILLO, 1);
 
-        boolean esGratis = carreteras.size() <= 1;
-
-        if (!esGratis && !poseeRecursos(costo)) {
+        if (!esFaseInicial && !poseeRecursos(costo)) {
             return false;
         }
 
         Arista aristaAgregar = tablero.obtenerArista(idArista);
-        boolean conectaConRutaPropia = false;
+        if (aristaAgregar.verificarOcupado()) return false;
 
-        if (carreteras.size() <= 1) {
-            conectaConRutaPropia = true;
-        } else {
-            List<Arista> aristasAdyacentes = aristaAgregar.verAdyacentes();
-            for (Arista aristaActual : carreteras) {
-                if (aristasAdyacentes.contains(aristaActual)) {
-                    conectaConRutaPropia = true;
+        boolean conectaConLoSuyo = false;
+
+        List<Arista> aristasVecinas = aristaAgregar.verAdyacentes();
+        for (Arista vecina : aristasVecinas) {
+            if (vecina.obtenerDueño() == this) {
+                conectaConLoSuyo = true;
+                break;
+            }
+        }
+
+        if (!conectaConLoSuyo) {
+            List<Vertice> verticesDeArista = aristaAgregar.obtenerVertices();
+            for (Vertice v : verticesDeArista) {
+                if (v.obtenerDueño() == this) {
+                    conectaConLoSuyo = true;
                     break;
                 }
             }
         }
 
-        if (conectaConRutaPropia && !aristaAgregar.verificarOcupado()) {
-            if (!esGratis) {
+        if (carreteras.isEmpty()) {
+            if (construcciones.isEmpty()) conectaConLoSuyo = true;
+        }
+
+        if (conectaConLoSuyo) {
+            if (!esFaseInicial) {
                 this.inventario.quitar(costo);
                 notificarObservadores();
             }
+
+            aristaAgregar.establecerDueño(this);
             aristaAgregar.ocupar();
             carreteras.add(aristaAgregar);
-            sumarPuntos(1);
+
 
             List<Camino> tocadas = new ArrayList<>();
             for (Camino c : caminos) {
                 if (c.conectaCon(aristaAgregar)) {
                     tocadas.add(c);
                 }
-            }   
+            }
 
             Camino fusion = new Camino();
             for (Camino c : tocadas) {
@@ -345,9 +343,9 @@ public class Jugador implements Observable, Bonificacion {
         }
         return max;
     }
-    
+
     public int obtenerCaballerosUsados() {
-    	int contador = 0;
+        int contador = 0;
         for (CartaDesarollo c : cartasUsadas) {
             if (c instanceof Caballero) {
                 contador++;
@@ -355,11 +353,11 @@ public class Jugador implements Observable, Bonificacion {
         }
         return contador;
     }
-    
+
     public int obtenerPuntosVictoriaOcultos() {
         return puntosDeVictoriaOcultos;
     }
-    
+
     public void sumarPuntos(int puntos) {
         puntosDeVictoria += puntos;
     }
@@ -367,17 +365,13 @@ public class Jugador implements Observable, Bonificacion {
     public void restarPuntos(int puntos) {
         puntosDeVictoria -= puntos;
     }
-    
+
+    // Mantenemos el nombre (con posible typo) para compatibilidad con Catan.java
     public int obtenerPuntage() {
         return puntosDeVictoria;
     }
 
     public void finalizarTurno() {
-    	for (CartaDesarollo c : cartasNuevas) {
-            if (c instanceof PuntoDeVictoria) {
-                puntosDeVictoriaOcultos++;
-            }
-        }
         cartasUsables.addAll(cartasNuevas);
         cartasNuevas.clear();
     }

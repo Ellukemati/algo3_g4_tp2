@@ -8,6 +8,7 @@ public class Arista implements Observable {
     private final List<Arista> aristasAdyacentes;
     private List<Vertice> vertices;
     private boolean ocupado;
+    private Jugador duennio;
     private List<Observador> observadores = new ArrayList<>();
 
     public Arista(int id) {
@@ -15,8 +16,16 @@ public class Arista implements Observable {
         this.aristasAdyacentes = new ArrayList<>();
         this.ocupado = false;
         this.vertices = new ArrayList<>();
+        this.duennio = null;
     }
-
+    public void establecerDueño(Jugador jugador) {
+        this.duennio = jugador;
+        this.ocupado = true; // Si tiene dueño, está ocupada
+        notificarObservadores();
+    }
+    public Jugador obtenerDueño() {
+        return this.duennio;
+    }
     @Override
     public void agregarObservador(Observador observador) {
         this.observadores.add(observador);

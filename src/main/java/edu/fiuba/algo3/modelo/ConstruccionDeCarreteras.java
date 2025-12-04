@@ -8,7 +8,7 @@ public class ConstruccionDeCarreteras extends CartaDesarolloGeneral {
 
     @Override
     public void usar(Jugador jugador, Tablero tablero, List<Jugador> jugadores, ParametrosCarta parametrosCarta) {
-        // debe recibie los valores del id por imput
+        // debe recibir los valores del id por imput
         int idArista1 = parametrosCarta.getIdArista1();
         int idArista2 = parametrosCarta.getIdArista2();
         jugador.construirCarretera(tablero, idArista1);

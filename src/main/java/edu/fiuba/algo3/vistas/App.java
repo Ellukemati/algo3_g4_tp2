@@ -1,29 +1,11 @@
 package edu.fiuba.algo3.vistas;
 
-import edu.fiuba.algo3.controllers.IntercambioController;
 import edu.fiuba.algo3.modelo.Catan;
 import edu.fiuba.algo3.modelo.Jugador;
 import edu.fiuba.algo3.modelo.Recurso;
-
 import javafx.application.Application;
-import javafx.fxml.FXMLLoader;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Region;
-
-import javafx.scene.layout.StackPane;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
-import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import javafx.scene.shape.Rectangle;
-import javafx.scene.paint.Color;
-
 
 import java.io.IOException;
 
@@ -33,48 +15,49 @@ public class App extends Application {
 
     @Override
     public void start(Stage stage) {
-
         this.stage = stage;
         stage.setTitle("AlgoCatan - TP2");
-
-        // Iniciamos mostrando el menú
         mostrarMenuInicio();
-
         stage.show();
     }
 
     private void mostrarMenuInicio() {
-        // Pasamos una expresión lambda que dice qué hacer cuando se elija la cantidad
         VistaMenuInicio vistaMenu = new VistaMenuInicio(cantidad -> {
-            try {
-                iniciarJuego(cantidad);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            iniciarJuego(cantidad);
         });
-
         Scene scene = new Scene(vistaMenu, 800, 600);
         stage.setScene(scene);
     }
 
-    private void iniciarJuego(int cantidadJugadores) throws IOException {
-        // 1. Instanciamos la Facade
+    private void iniciarJuego(int cantidadJugadores) {
+        // 1. Crear Modelo
+        Catan juego = crearModeloJuego(cantidadJugadores);
+
+        // 2. Crear Vista Principal (toda la lógica UI está encapsulada aquí)
+        VistaJuego vistaJuego = new VistaJuego(juego);
+
+        // 3. Configurar Escena
+        Scene scene = new Scene(vistaJuego, 800, 600);
+        cargarEstilos(scene);
+
+        stage.setScene(scene);
+        // stage.setFullScreen(true);
+    }
+
+    private Catan crearModeloJuego(int cantidadJugadores) {
         Catan juego = new Catan();
-
         for (int i = 1; i <= cantidadJugadores; i++) {
-            Jugador nuevoJugador = new Jugador("jugador" + i);
-
-            // --- RECURSOS DE PRUEBA (SOLO PARA DEBUG) ---
-            // Le damos suficiente para 2 caminos, 1 poblado y 1 ciudad
+            Jugador nuevoJugador = new Jugador("Jugador " + i);
+            // Recursos iniciales de prueba
             nuevoJugador.agregarRecurso(Recurso.MADERA, 5);
             nuevoJugador.agregarRecurso(Recurso.LADRILLO, 5);
             nuevoJugador.agregarRecurso(Recurso.LANA, 5);
             nuevoJugador.agregarRecurso(Recurso.GRANO, 5);
             nuevoJugador.agregarRecurso(Recurso.MINERAL, 5);
-            // ---------------------------------------------
-
             juego.agregarJugador(nuevoJugador);
         }
+        return juego;
+    }
 
         // 3. Creamos la vista del tablero
         VistaTablero vistaTablero = new VistaTablero(juego);
@@ -152,30 +135,12 @@ public class App extends Application {
 
         // Cambio de Escena
         Scene scene = new Scene(raiz, 800, 600);
+    private void cargarEstilos(Scene scene) {
         try {
             scene.getStylesheets().add(getClass().getResource("/estilos/intercambio.css").toExternalForm());
         } catch (Exception e) {
-            System.out.println("No se encontró CSS, continuando sin estilos.");
+            System.out.println("Advertencia: No se encontró CSS (/estilos/intercambio.css). Continuando sin estilos.");
         }
-
-        stage.setScene(scene);
-        // Opcional: stage.setFullScreen(true);
-    }
-
-    private void configurarPanelIntercambio(Region panel, IntercambioController controlador, Catan juego) {
-        controlador.setJugador(juego.obtenerJugadorActual());
-        panel.setMaxSize(650, 400);
-        panel.setVisible(false);
-    }
-
-    private Button crearBotonAbrirComercio(Region panelObjetivo) {
-        Button btn = new Button("Comerciar");
-        btn.getStyleClass().add("boton-comerciar");
-        btn.setOnAction(e -> {
-            panelObjetivo.setVisible(true);
-            panelObjetivo.toFront();
-        });
-        return btn;
     }
 
     public static void main(String[] args) {

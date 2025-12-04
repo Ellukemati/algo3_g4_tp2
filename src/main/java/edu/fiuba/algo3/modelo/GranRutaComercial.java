@@ -17,7 +17,7 @@ public class GranRutaComercial implements CartaDeBonificacion{
         	jugador.restarPuntos(2);
         	jugadorAEvaluar.sumarPuntos(2);
         	longCamino = longitudNueva;
-        	jugador = jugadorAEvaluar;
+        	jugador = (Bonificacion) jugadorAEvaluar;
         }
     }
 }
