@@ -2,11 +2,14 @@ package edu.fiuba.algo3.vistas;
 
 import edu.fiuba.algo3.controllers.IntercambioController;
 import edu.fiuba.algo3.modelo.Catan;
+import edu.fiuba.algo3.modelo.Hexagono;
+import edu.fiuba.algo3.modelo.Jugador;
 import edu.fiuba.algo3.modelo.Observador;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
+import javafx.scene.control.ChoiceDialog;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
@@ -14,6 +17,9 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import java.io.IOException;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class VistaJuego extends StackPane implements Observador {
 
@@ -21,6 +27,7 @@ public class VistaJuego extends StackPane implements Observador {
     private final VistaCartaDeRecursos vistaRecursos;
     private IntercambioController intercambioController;
     private Region panelIntercambio;
+    private VistaTablero vistaTablero;
 
     private Label lblDado;
     private Label lblJugador;
@@ -33,7 +40,8 @@ public class VistaJuego extends StackPane implements Observador {
         this.juego = juego;
         this.vistaRecursos = new VistaCartaDeRecursos();
 
-        VistaTablero vistaTablero = new VistaTablero(juego, null);
+        this.vistaTablero = new VistaTablero(juego, null);
+
         HBox panelRecursos = vistaRecursos.inicializarVistaCarta();
         inicializarLabels();
         inicializarPanelIntercambio();
@@ -83,7 +91,7 @@ public class VistaJuego extends StackPane implements Observador {
             intercambioController.setJugador(juego.obtenerJugadorActual());
         } catch (IOException e) {
             System.err.println("Advertencia: No se pudo cargar /vistas/intercambio.fxml");
-            this.panelIntercambio = new Region(); // Placeholder vacío
+            this.panelIntercambio = new Region();
         }
     }
 
@@ -118,11 +126,60 @@ public class VistaJuego extends StackPane implements Observador {
 
     private void manejarLanzamientoDados() {
         int resultado = juego.lanzarDado();
-
         lblDado.setText("Dado: " + resultado);
-
         btnLanzarDados.setDisable(true);
-        btnPasarTurno.setDisable(false);
+
+        if (resultado == 7) {
+            System.out.println("DEBUG: Salió 7. Iniciando movimiento ladrón.");
+            btnPasarTurno.setDisable(true);
+            iniciarMovimientoLadron();
+        } else {
+            btnPasarTurno.setDisable(false);
+        }
+    }
+
+    private void iniciarMovimientoLadron() {
+        lblDado.setText("¡LADRÓN! (7) - Selecciona dónde mover");
+
+        vistaTablero.activarSeleccionLadron(hexagonoDestino -> {
+            gestionarRobo(hexagonoDestino);
+            vistaTablero.desactivarSeleccionLadron();
+            vistaTablero.actualizarTablero();
+            btnPasarTurno.setDisable(false);
+            lblDado.setText("Ladrón movido. Fin del robo.");
+        });
+    }
+
+    private void gestionarRobo(Hexagono hexagono) {
+        Jugador jugadorActual = juego.obtenerJugadorActual();
+
+        List<Jugador> victimas = juego.obtenerJugadores().stream()
+                .filter(j -> !j.equals(jugadorActual))
+                .filter(j -> tieneConstruccionEnHexagono(j, hexagono))
+                .filter(j -> j.cantidadTotalDeRecursos() > 0)
+                .collect(Collectors.toList());
+
+        Jugador victimaSeleccionada = null;
+
+        if (!victimas.isEmpty()) {
+            if (victimas.size() == 1) {
+                victimaSeleccionada = victimas.get(0);
+            } else {
+                ChoiceDialog<Jugador> dialog = new ChoiceDialog<>(victimas.get(0), victimas);
+                dialog.setTitle("Robar Recurso");
+                dialog.setHeaderText("Elige a quién robar");
+                dialog.setContentText("Víctima:");
+                Optional<Jugador> result = dialog.showAndWait();
+                if (result.isPresent()) victimaSeleccionada = result.get();
+            }
+        }
+
+        juego.moverLadron(hexagono.obtenerId(), victimaSeleccionada);
+        vistaRecursos.actualizarRecursos(jugadorActual);
+    }
+
+    private boolean tieneConstruccionEnHexagono(Jugador j, Hexagono h) {
+        return j.serRobadoPorLadron(h) != null;
     }
 
     private void manejarPaseDeTurno() {
@@ -147,7 +204,6 @@ public class VistaJuego extends StackPane implements Observador {
     }
 
     private void configurarEstadoInicialTurno() {
-
         lblDado.setText("Dado: -");
 
         boolean esFasePreparacion = juego.obtenerTurno() < (juego.obtenerJugadores().size() * 2);

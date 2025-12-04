@@ -28,15 +28,11 @@ public class Catan implements Observable {
         this.indiceJugadorActual = 0;
         this.juegoIniciado = false;
         this.banca = new Banca();
-        this.faseInicial = true;
     }
-
-    // Gestión de Jugadores
 
     public void agregarJugador(Jugador jugador) {
         if (!juegoIniciado && jugadores.size() < 4) {
             jugadores.add(jugador);
-
         }
     }
 
@@ -56,21 +52,15 @@ public class Catan implements Observable {
         return jugadores.get(indiceJugadorActual);
     }
 
-    // Lógica de Turnos
-
     public void siguienteTurno() {
         contadorTurnos++;
         obtenerJugadorActual().finalizarTurno();
-
-        // Avanza al siguiente (circular)
         indiceJugadorActual = (indiceJugadorActual + 1) % jugadores.size();
-
         if (contadorTurnos >= jugadores.size() * 2) {
-                faseInicial = false;
+            faseInicial = false;
         }
         notificarObservadores();
     }
-
 
     public void jugadorActualComprarCartaDeDesarrollo() {
         Jugador jugadorActual = obtenerJugadorActual();
@@ -83,13 +73,11 @@ public class Catan implements Observable {
 
     public int lanzarDado() {
         int resultado = dado.tirar();
-
         if (resultado != 7) {
             repartirRecursos(resultado);
         } else {
             gestionarDescartePorSiete();
         }
-
         return resultado;
     }
 
@@ -102,32 +90,26 @@ public class Catan implements Observable {
 
     private void gestionarDescartePorSiete() {
         for (Jugador j : jugadores) {
-            // Cada jugador verifica si tiene > 7 cartas y descarta la mitad
-            // (Esto ya lo implementaste en Jugador.recibirLanzamientoDeDados(7))
             j.recibirLanzamientoDeDados(7);
         }
     }
 
-    // --- Acciones del Jugador ---
-
     public void moverLadron(int posicionHexagono, Jugador victima) {
         Jugador jugadorActual = obtenerJugadorActual();
-        Hexagono hexagono = jugadorActual.moverLadron(tablero, posicionHexagono);
-
+        jugadorActual.moverLadron(tablero, posicionHexagono);
         if (victima != null && victima != jugadorActual) {
-            Recurso robado = jugadorActual.robarA(victima); // Usar tu método nuevo
+            jugadorActual.robarA(victima);
         }
         notificarObservadores();
     }
 
-    public void jugadorColocarCarretera(Jugador jugador, int idArista) {
-        try {
-            jugador.construirCarretera(tablero, idArista);
+    public boolean jugadorColocarCarretera(Jugador jugador, int idArista) {
+        boolean exito = jugador.construirCarretera(tablero, idArista);
+        if (exito) {
             granRutaComercial.actualizar(jugador);
             notificarObservadores();
-        } catch (Exception e) {
-            // Manejar error
         }
+        return exito;
     }
 
     public void jugadorUsarCartaDeDesarrollo(Jugador jugador, CartaDesarollo carta, ParametrosCarta parametrosCarta) {
@@ -137,14 +119,10 @@ public class Catan implements Observable {
     }
 
     public boolean verificarSiGano(Jugador jugador) {
-        // Ahora estos métodos existen en Jugador gracias a la corrección
         int puntosVisibles = jugador.obtenerPuntaje();
         int puntosOcultos = jugador.obtenerPuntosVictoriaOcultos();
-
         return (puntosVisibles + puntosOcultos) >= 10;
     }
-
-    // --- Getters y Observable ---
 
     public Tablero obtenerTablero() {
         return this.tablero;

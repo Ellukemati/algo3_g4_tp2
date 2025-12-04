@@ -20,7 +20,6 @@ public class ControladorPanelControl implements Observador {
         actualizarDatos();
     }
 
-    // App.java nos pasará qué código ejecutar cuando toquen el botón
     public void setOnAbrirComercio(Runnable accion) {
         this.accionAbrirComercio = accion;
     }

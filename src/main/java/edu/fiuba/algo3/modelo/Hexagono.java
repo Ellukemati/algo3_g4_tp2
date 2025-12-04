@@ -45,4 +45,7 @@ public class Hexagono {
     }
 
     public int obtenerId() { return id; }
+    public boolean tieneLadron() {
+        return this.ladron;
+    }
 }

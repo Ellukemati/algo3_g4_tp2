@@ -1,19 +1,12 @@
 package edu.fiuba.algo3.entrega_1;
 
-import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
-import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
+import edu.fiuba.algo3.modelo.*;
+
+import edu.fiuba.algo3.modelo.Vertice;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
-import java.lang.reflect.Field;
 import java.util.List;
-import java.util.Set;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.Queue;
-import edu.fiuba.algo3.modelo.*;
 
 public class TableroTest {
     @Test
