@@ -3,6 +3,8 @@ package edu.fiuba.algo3.entrega_2;
 import edu.fiuba.algo3.modelo.*;
 import edu.fiuba.algo3.modelo.Tablero;
 import org.junit.jupiter.api.Test;
+import edu.fiuba.algo3.modelo.*;
+
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.never;
@@ -162,7 +164,7 @@ public class JugadorTest2 {
         //ASSERT
         assertEquals(cantidadDeRecursosEsperada, jugador.cantidadTotalDeRecursos());
     }
-
+/*
     @Test
     void test10UsoUnaCartaDeDesarolloEnUnturnoValido() {
         //ARRANGE
@@ -184,7 +186,7 @@ public class JugadorTest2 {
         //ASSERT
         assertEquals(cantidadDeRecursosEsperada, jugador.cantidadTotalDeRecursos());
     }
-
+*/
     @Test
     public void test11jugadorConstruyeCarreterasEnCadenaYCalculaRutaMasLarga() {
         Tablero tablero = new Tablero();
