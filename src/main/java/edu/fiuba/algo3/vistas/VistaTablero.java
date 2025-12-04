@@ -7,8 +7,7 @@ import javafx.geometry.Point2D;
 import javafx.scene.Group;
 import javafx.scene.control.Button;
 import javafx.scene.layout.Pane;
-import edu.fiuba.algo3.modelo.Catan;
-
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,6 +24,10 @@ public class VistaTablero extends Pane {
     private final double DY = RADIO / 2;
     private final Group panelAcciones = new Group();
     private final Map<Integer, Point2D> mapaVertices = new HashMap<>();
+
+    // LISTA IMPORTANTE: Guardamos las vistas para poder iterarlas fácil
+    private final List<VistaHexagono> listaHexagonosVisuales = new ArrayList<>();
+
     private Runnable avanzarTurnoCallback;
 
     public VistaTablero(Catan juego, Runnable avanzarTurnoCallback) {
@@ -40,78 +43,64 @@ public class VistaTablero extends Pane {
         this.setOnMouseClicked(e -> limpiarAcciones());
     }
 
+    // --- LÓGICA DE LADRÓN CON BOTONES ---
+    public void activarSeleccionLadron(Consumer<Hexagono> onHexagonoSeleccionado) {
+        System.out.println("Activando botones de ladrón en " + listaHexagonosVisuales.size() + " hexágonos.");
+        for (VistaHexagono vHex : listaHexagonosVisuales) {
+            vHex.mostrarBotonMover(onHexagonoSeleccionado);
+        }
+    }
+
+    public void desactivarSeleccionLadron() {
+        for (VistaHexagono vHex : listaHexagonosVisuales) {
+            vHex.ocultarBotonMover();
+        }
+    }
+
+    public void actualizarTablero() {
+        for (VistaHexagono vHex : listaHexagonosVisuales) {
+            if (vHex.getHexagono().tieneLadron()) {
+                vHex.mostrarLadron(true);
+            } else {
+                vHex.mostrarLadron(false);
+            }
+        }
+    }
+    // ------------------------------------
+
     public void mostrarBotonAccion(Button boton, double x, double y) {
         limpiarAcciones();
-
         boton.setLayoutX(x);
         boton.setLayoutY(y);
         boton.setStyle("-fx-background-color: white; -fx-border-color: black; -fx-cursor: hand; -fx-font-size: 10px;");
-
         panelAcciones.getChildren().add(boton);
     }
+
     public void limpiarAcciones() {
         panelAcciones.getChildren().clear();
     }
+
     private void inicializarCoordenadas() {
-        // === ANILLO EXTERIOR (0-29) ===
-        mapa(0,  -3 * DX, -5 * DY);
-        mapa(1,  -3 * DX, -7 * DY);
-        mapa(2,  -2 * DX, -8 * DY);
-        mapa(3,  -1 * DX, -7 * DY);
-        mapa(4,   0 * DX, -8 * DY);
-        mapa(5,   1 * DX, -7 * DY);
-        mapa(6,   2 * DX, -8 * DY);
-        mapa(7,   3 * DX, -7 * DY);
-        mapa(8,   3 * DX, -5 * DY);
-        mapa(9,   4 * DX, -4 * DY);
-        mapa(10,  4 * DX, -2 * DY);
-        mapa(11,  5 * DX, -1 * DY);
-        mapa(12,  5 * DX,  1 * DY);
-        mapa(13,  4 * DX,  2 * DY);
-        mapa(14,  4 * DX,  4 * DY);
-        mapa(15,  3 * DX,  5 * DY);
-        mapa(16,  3 * DX,  7 * DY);
-        mapa(17,  2 * DX,  8 * DY);
-        mapa(18,  1 * DX,  7 * DY);
-        mapa(19,  0 * DX,  8 * DY);
-        mapa(20, -1 * DX,  7 * DY);
-        mapa(21, -2 * DX,  8 * DY);
-        mapa(22, -3 * DX,  7 * DY);
-        mapa(23, -3 * DX,  5 * DY);
-        mapa(24, -4 * DX,  4 * DY);
-        mapa(25, -4 * DX,  2 * DY);
-        mapa(26, -5 * DX,  1 * DY);
-        mapa(27, -5 * DX, -1 * DY);
-        mapa(28, -4 * DX, -2 * DY);
-        mapa(29, -4 * DX, -4 * DY);
+        mapa(0,  -3 * DX, -5 * DY); mapa(1,  -3 * DX, -7 * DY); mapa(2,  -2 * DX, -8 * DY);
+        mapa(3,  -1 * DX, -7 * DY); mapa(4,   0 * DX, -8 * DY); mapa(5,   1 * DX, -7 * DY);
+        mapa(6,   2 * DX, -8 * DY); mapa(7,   3 * DX, -7 * DY); mapa(8,   3 * DX, -5 * DY);
+        mapa(9,   4 * DX, -4 * DY); mapa(10,  4 * DX, -2 * DY); mapa(11,  5 * DX, -1 * DY);
+        mapa(12,  5 * DX,  1 * DY); mapa(13,  4 * DX,  2 * DY); mapa(14,  4 * DX,  4 * DY);
+        mapa(15,  3 * DX,  5 * DY); mapa(16,  3 * DX,  7 * DY); mapa(17,  2 * DX,  8 * DY);
+        mapa(18,  1 * DX,  7 * DY); mapa(19,  0 * DX,  8 * DY); mapa(20, -1 * DX,  7 * DY);
+        mapa(21, -2 * DX,  8 * DY); mapa(22, -3 * DX,  7 * DY); mapa(23, -3 * DX,  5 * DY);
+        mapa(24, -4 * DX,  4 * DY); mapa(25, -4 * DX,  2 * DY); mapa(26, -5 * DX,  1 * DY);
+        mapa(27, -5 * DX, -1 * DY); mapa(28, -4 * DX, -2 * DY); mapa(29, -4 * DX, -4 * DY);
 
-        // === ANILLO MEDIO (30-47) ===
-        mapa(30, -2 * DX, -4 * DY);
-        mapa(31, -1 * DX, -5 * DY);
-        mapa(32,  0 * DX, -4 * DY);
-        mapa(33,  1 * DX, -5 * DY);
-        mapa(34,  2 * DX, -4 * DY);
-        mapa(35,  2 * DX, -2 * DY);
-        mapa(36,  3 * DX, -1 * DY);
-        mapa(37,  3 * DX,  1 * DY);
-        mapa(38,  2 * DX,  2 * DY);
-        mapa(39,  2 * DX,  4 * DY);
-        mapa(40,  1 * DX,  5 * DY);
-        mapa(41,  0 * DX,  4 * DY);
-        mapa(42, -1 * DX,  5 * DY);
-        mapa(43, -2 * DX,  4 * DY);
-        mapa(44, -2 * DX,  2 * DY);
-        mapa(45, -3 * DX,  1 * DY);
-        mapa(46, -3 * DX, -1 * DY);
-        mapa(47, -2 * DX, -2 * DY);
+        mapa(30, -2 * DX, -4 * DY); mapa(31, -1 * DX, -5 * DY); mapa(32,  0 * DX, -4 * DY);
+        mapa(33,  1 * DX, -5 * DY); mapa(34,  2 * DX, -4 * DY); mapa(35,  2 * DX, -2 * DY);
+        mapa(36,  3 * DX, -1 * DY); mapa(37,  3 * DX,  1 * DY); mapa(38,  2 * DX,  2 * DY);
+        mapa(39,  2 * DX,  4 * DY); mapa(40,  1 * DX,  5 * DY); mapa(41,  0 * DX,  4 * DY);
+        mapa(42, -1 * DX,  5 * DY); mapa(43, -2 * DX,  4 * DY); mapa(44, -2 * DX,  2 * DY);
+        mapa(45, -3 * DX,  1 * DY); mapa(46, -3 * DX, -1 * DY); mapa(47, -2 * DX, -2 * DY);
 
-        // === ANILLO INTERIOR (48-53) ===
-        mapa(48,  0 * DX, -2 * DY);
-        mapa(49,  1 * DX, -1 * DY);
-        mapa(50,  1 * DX,  1 * DY);
-        mapa(51,  0 * DX,  2 * DY);
-        mapa(52, -1 * DX,  1 * DY);
-        mapa(53, -1 * DX, -1 * DY);
+        mapa(48,  0 * DX, -2 * DY); mapa(49,  1 * DX, -1 * DY); mapa(50,  1 * DX,  1 * DY);
+        mapa(51,  0 * DX,  2 * DY); mapa(52, -1 * DX,  1 * DY); mapa(53, -1 * DX, -1 * DY);
     }
 
     private void mapa(int id, double xOffset, double yOffset) {
@@ -125,8 +114,6 @@ public class VistaTablero extends Pane {
                 {0,0}, {1,-1},{1,0},{0,1},{-1,1},{-1,0},{0,-1},
                 {2,-2},{2,-1},{2,0},{1,1},{0,2},{-1,2},{-2,2},{-2,1},{-2,0},{-1,-1},{0,-2},{1,-2}
         };
-        double ancho = Math.sqrt(3) * RADIO;
-        double alto = 2 * RADIO;
 
         for (int i = 0; i < hexagonos.size() && i < axiales.length; i++) {
             int q = axiales[i][0];
@@ -136,8 +123,11 @@ public class VistaTablero extends Pane {
 
             Hexagono hexagono = hexagonos.get(i);
             VistaHexagono hex = new VistaHexagono(hexagono, RADIO);
-            hex.setLayoutX(x - ancho/2);
-            hex.setLayoutY(y - alto/2);
+            hex.setLayoutX(x - (Math.sqrt(3) * RADIO)/2); // Ajuste fino de centrado
+            hex.setLayoutY(y - RADIO);
+
+            // AGREGAMOS A LA LISTA
+            listaHexagonosVisuales.add(hex);
             grupo.getChildren().add(hex);
         }
         this.getChildren().add(grupo);
@@ -150,10 +140,10 @@ public class VistaTablero extends Pane {
 
             VistaVertice vistaV = new VistaVertice(v, p.getX(), p.getY());
 
-            // Pasamos 'juego' y 'this' (la vista) al controlador
             vistaV.setOnMouseClicked(new ControladorVertice(
-                    tablero, v, this, juego, avanzarTurnoCallback
+                    tablero, v, this, juego
             ));
+
             this.getChildren().add(vistaV);
             vistasVertices.put(entry.getKey(), vistaV);
         }
@@ -171,16 +161,11 @@ public class VistaTablero extends Pane {
 
                     if (p1 != null && p2 != null) {
                         VistaArista vistaArista = new VistaArista(arista, p1.getX(), p1.getY(), p2.getX(), p2.getY());
-
-                        vistaArista.setOnMouseClicked(e -> {
-                            vistaArista.setOnMouseClicked(new ControladorArista(tablero, arista, this, juego));
-                        });
-
+                        vistaArista.setOnMouseClicked(new ControladorArista(tablero, arista, this, juego, avanzarTurnoCallback));
                         this.getChildren().add(vistaArista);
                     }
                 }
-            } catch (Exception e) {
-            }
+            } catch (Exception e) {}
         }
     }
 }

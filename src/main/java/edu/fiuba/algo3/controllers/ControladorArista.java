@@ -9,7 +9,6 @@ import edu.fiuba.algo3.vistas.VistaTablero;
 import javafx.event.EventHandler;
 import javafx.scene.control.Button;
 import javafx.scene.input.MouseEvent;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -18,12 +17,14 @@ public class ControladorArista implements EventHandler<MouseEvent> {
     private final Arista arista;
     private final VistaTablero vistaTablero;
     private final Catan juego;
+    private final Runnable avanzarTurnoCallback;
 
-    public ControladorArista(Tablero tablero, Arista arista, VistaTablero vistaTablero, Catan juego) {
+    public ControladorArista(Tablero tablero, Arista arista, VistaTablero vistaTablero, Catan juego, Runnable avanzarTurnoCallback) {
         this.tablero = tablero;
         this.arista = arista;
         this.vistaTablero = vistaTablero;
         this.juego = juego;
+        this.avanzarTurnoCallback = avanzarTurnoCallback;
     }
 
     @Override
@@ -33,20 +34,29 @@ public class ControladorArista implements EventHandler<MouseEvent> {
 
         Jugador jugadorActual = juego.obtenerJugadorActual();
 
-
         if (!arista.verificarOcupado()) {
-            if ( puedePagarCarretera(jugadorActual) || (juego.obtenerTurno() <= (juego.obtenerJugadores().size()))) {
+            if (juego.esFaseInicial()) {
+                if (jugadorActual.obtenerCantidadCarreteras() < jugadorActual.obtenerCantidadConstrucciones()) {
+                    Button btnCamino = new Button("Construir Camino (Gratis)");
+                    btnCamino.setOnAction(e -> {
+                        if (juego.jugadorColocarCarretera(jugadorActual, arista.getId())) {
+                            vistaTablero.limpiarAcciones();
+                            if (avanzarTurnoCallback != null) {
+                                avanzarTurnoCallback.run();
+                            }
+                        }
+                    });
+                    vistaTablero.mostrarBotonAccion(btnCamino, mouseEvent.getX(), mouseEvent.getY() - 15);
+                }
+            }
+            else if (puedePagarCarretera(jugadorActual)) {
                 Button btnCamino = new Button("Construir Camino");
                 btnCamino.setOnAction(e -> {
-                    if (jugadorActual.construirCarretera(tablero, arista.getId())) {
-                        System.out.println("Carretera construida en arista " + arista.getId());
+                    if (juego.jugadorColocarCarretera(jugadorActual, arista.getId())) {
                         vistaTablero.limpiarAcciones();
-                        juego.notificarObservadores();
                     }
                 });
                 vistaTablero.mostrarBotonAccion(btnCamino, mouseEvent.getX(), mouseEvent.getY() - 15);
-            } else {
-                System.out.println("Recursos insuficientes para Carretera");
             }
         }
     }
