@@ -49,10 +49,8 @@ public class App extends Application {
     }
 
     private void iniciarJuego(int cantidadJugadores) throws IOException {
-        // 1. Configurar Modelo
         configurarModelo(cantidadJugadores);
 
-        // 2. Cargar Vistas y Controladores
         VistaTablero vistaTablero = new VistaTablero(juego, this::avanzarTurno);
 
 
@@ -69,19 +67,15 @@ public class App extends Application {
         vistaRecursos = new VistaCartaDeRecursos();
         HBox panelRecursos = vistaRecursos.inicializarVistaCarta();
 
-        // INSTANCIA Y CONFIGURACIÓN DE LA NUEVA VISTA
         vistaSuperior = new VistaPanelControl();
         vistaSuperior.setAccionPasarTurno(this::avanzarTurno);
 
-        // 3. Armar Layout Principal
         StackPane raiz = new StackPane();
 
-        // Capa 1: Tablero (Fondo)
         raiz.getChildren().add(vistaTablero);
 
-        // Capa 2: Interfaz Estática (Arriba y Abajo solamente)
         BorderPane interfaz = new BorderPane();
-        interfaz.setPickOnBounds(false); // CRÍTICO: Deja pasar clics al mapa
+        interfaz.setPickOnBounds(false);
 
         interfaz.setTop(vistaSuperior);
         interfaz.setBottom(panelRecursos);
