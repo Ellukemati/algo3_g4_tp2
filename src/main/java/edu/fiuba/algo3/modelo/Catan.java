@@ -9,10 +9,10 @@ public class Catan implements Observable {
     private final Dado dado;
     private final List<Observador> observadores;
 
-    // Estado del juego
     private int indiceJugadorActual;
     private boolean juegoIniciado;
     private int contadorTurnos;
+    private boolean faseInicial;
 
     public Catan() {
         this.contadorTurnos = 0;
@@ -22,9 +22,8 @@ public class Catan implements Observable {
         this.observadores = new ArrayList<>();
         this.indiceJugadorActual = 0;
         this.juegoIniciado = false;
+        this.faseInicial = true;
     }
-
-    // --- Gestión de Jugadores ---
 
     public void agregarJugador(Jugador jugador) {
         if (!juegoIniciado) {
@@ -41,33 +40,35 @@ public class Catan implements Observable {
         return jugadores.get(indiceJugadorActual);
     }
 
-    // --- Lógica de Turnos ---
-
     public void siguienteTurno() {
         contadorTurnos++;
-        // Finaliza el turno del jugador anterior
+
+        if (contadorTurnos >= jugadores.size() * 2) {
+            faseInicial = false;
+        }
+
         obtenerJugadorActual().finalizarTurno();
 
-        // Avanza al siguiente (circular)
         indiceJugadorActual = (indiceJugadorActual + 1) % jugadores.size();
 
-        // Notificamos a la vista que el turno cambió (para actualizar labels, inventarios, etc.)
         notificarObservadores();
     }
 
     public int lanzarDado() {
+        if (faseInicial) {
+            return 0;
+        }
+
         int resultado = dado.tirar();
-        jugarTurno(resultado); // Tu lógica existente de mover ladrón o cobrar recursos
+        jugarTurno(resultado);
         return resultado;
     }
 
-    // Adaptamos tu método jugarTurno para recibir el int del dado
     private void jugarTurno(int numeroDado) {
         Jugador jugadorActual = obtenerJugadorActual();
 
         if (numeroDado == 7) {
-            // Lógica simplificada del ladrón (puedes expandirla luego)
-            int posicionLadron = 10; // TODO: Esto debería venir de la vista/input
+            int posicionLadron = 10;
             Hexagono hexagonoRobar = jugadorActual.moverLadron(tablero, posicionLadron);
 
             for (Jugador j : jugadores) {
@@ -79,7 +80,6 @@ public class Catan implements Observable {
                 }
             }
         } else {
-            // Repartir recursos a todos
             for (Jugador j : jugadores) {
                 j.recibirLanzamientoDeDados(numeroDado);
             }
@@ -87,13 +87,9 @@ public class Catan implements Observable {
         notificarObservadores();
     }
 
-    // --- Getters para la Vista ---
-
     public Tablero obtenerTablero() {
         return this.tablero;
     }
-
-    // --- Implementación de Observable ---
 
     @Override
     public void agregarObservador(Observador observador) {
@@ -109,5 +105,9 @@ public class Catan implements Observable {
 
     public int obtenerTurno() {
         return contadorTurnos;
+    }
+
+    public boolean esFaseInicial() {
+        return faseInicial;
     }
 }

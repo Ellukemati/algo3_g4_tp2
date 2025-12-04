@@ -1,8 +1,9 @@
 package edu.fiuba.algo3.vistas;
 
 import edu.fiuba.algo3.modelo.Vertice;
-import edu.fiuba.algo3.modelo.Jugador; // Importante
+import edu.fiuba.algo3.modelo.Jugador;
 import edu.fiuba.algo3.modelo.Observador;
+import edu.fiuba.algo3.modelo.SinPuerto;
 import javafx.scene.Group;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
@@ -14,27 +15,24 @@ import javafx.scene.text.Text;
 public class VistaVertice extends Group implements Observador {
     private final Vertice vertice;
     private final Circle forma;
-    private final Text textoDuennio; // Cambiamos textoId por textoDueño
+    private final Text textoDuennio;
     private final double radio = 10;
 
     public VistaVertice(Vertice vertice, double x, double y) {
         this.vertice = vertice;
         this.vertice.agregarObservador(this);
 
-        // 1. Círculo principal
         this.forma = new Circle(radio);
         this.forma.setCenterX(x);
         this.forma.setCenterY(y);
 
-        // Debug Click
         this.forma.setOnMouseClicked(e -> {
             System.out.println("Click en Vértice ID: " + vertice.getId());
         });
 
         this.getChildren().add(forma);
 
-        // 2. Puerto (si tiene)
-        if (vertice.obtenerPuerto() != null) {
+        if (!(vertice.obtenerPuerto() instanceof SinPuerto)) {
             Rectangle barco = new Rectangle(10, 10);
             barco.setX(x + 8);
             barco.setY(y - 8);
@@ -43,9 +41,9 @@ public class VistaVertice extends Group implements Observador {
         }
 
         textoDuennio = new Text("");
-        textoDuennio.setX(x - 4); // Ajuste centrado
+        textoDuennio.setX(x - 4);
         textoDuennio.setY(y + 4);
-        textoDuennio.setFill(Color.WHITE); // Blanco para contrastar con Rojo
+        textoDuennio.setFill(Color.WHITE);
         textoDuennio.setFont(Font.font("Arial", FontWeight.BOLD, 12));
         textoDuennio.setMouseTransparent(true);
 
@@ -53,7 +51,6 @@ public class VistaVertice extends Group implements Observador {
 
         actualizarVisualizacion();
     }
-
 
     @Override
     public void actualizar() {
@@ -72,13 +69,11 @@ public class VistaVertice extends Group implements Observador {
                 textoDuennio.setText(etiqueta);
                 textoDuennio.setVisible(true);
             }
-        }
-        else if (vertice.verificarOcupado()) {
+        } else if (vertice.verificarOcupado()) {
             this.forma.setFill(Color.BLACK);
             this.forma.setStroke(Color.BLACK);
             textoDuennio.setVisible(false);
-        }
-        else {
+        } else {
             this.forma.setFill(Color.TRANSPARENT);
             this.forma.setStroke(Color.GRAY);
             textoDuennio.setVisible(false);

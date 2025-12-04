@@ -33,7 +33,6 @@ public class Jugador implements Observable {
         this("");
     }
 
-
     @Override
     public void agregarObservador(Observador observador) {
         this.observadores.add(observador);
@@ -46,7 +45,6 @@ public class Jugador implements Observable {
         }
     }
 
-
     public int cantidadDe(Recurso recurso) {
         return this.inventario.cantidadDe(recurso);
     }
@@ -54,7 +52,6 @@ public class Jugador implements Observable {
     public int obtenerTasaDe(Recurso recurso) {
         return this.tasasDeIntercambioConBanca.get(recurso);
     }
-
 
     public void agregarRecurso(Recurso recurso, int cantidadAAgregar) {
         this.inventario.agregar(recurso, cantidadAAgregar);
@@ -83,7 +80,6 @@ public class Jugador implements Observable {
         notificarObservadores();
         return cantidadRecurso;
     }
-
 
     public void recibirLanzamientoDeDados(int numeroDado) {
         if (numeroDado == 7) {
@@ -178,16 +174,12 @@ public class Jugador implements Observable {
         return null;
     }
 
-
-    public boolean construirPoblado(Tablero tablero, int idVertice) {
-        // Definir costo
+    public boolean construirPoblado(Tablero tablero, int idVertice, boolean esFaseInicial) {
         Map<Recurso, Integer> costo = new HashMap<>();
         costo.put(Recurso.MADERA, 1);
         costo.put(Recurso.LADRILLO, 1);
         costo.put(Recurso.LANA, 1);
         costo.put(Recurso.GRANO, 1);
-
-        boolean esFaseInicial = (this.construcciones.size() < 2);
 
         if (!esFaseInicial && !poseeRecursos(costo)) {
             return false;
@@ -248,26 +240,22 @@ public class Jugador implements Observable {
         return false;
     }
 
-    public boolean construirCarretera(Tablero tablero, int idArista) {
+    public boolean construirCarretera(Tablero tablero, int idArista, boolean esFaseInicial) {
         Map<Recurso, Integer> costo = new HashMap<>();
         costo.put(Recurso.MADERA, 1);
         costo.put(Recurso.LADRILLO, 1);
 
-        boolean esGratis = carreteras.isEmpty() && construcciones.size() < 2;
-
-        if (!esGratis && !poseeRecursos(costo)) {
+        if (!esFaseInicial && !poseeRecursos(costo)) {
             return false;
         }
 
         Arista aristaAgregar = tablero.obtenerArista(idArista);
-        if (aristaAgregar.verificarOcupado()) return false; // Ya está ocupada
+        if (aristaAgregar.verificarOcupado()) return false;
 
         boolean conectaConLoSuyo = false;
 
-
         List<Arista> aristasVecinas = aristaAgregar.verAdyacentes();
         for (Arista vecina : aristasVecinas) {
-
             if (vecina.obtenerDueño() == this) {
                 conectaConLoSuyo = true;
                 break;
@@ -289,14 +277,12 @@ public class Jugador implements Observable {
         }
 
         if (conectaConLoSuyo) {
-            if (!esGratis) {
+            if (!esFaseInicial) {
                 this.inventario.quitar(costo);
                 notificarObservadores();
             }
 
-            aristaAgregar.establecerDueño(this); //
-
-
+            aristaAgregar.establecerDueño(this);
             carreteras.add(aristaAgregar);
             return true;
         }

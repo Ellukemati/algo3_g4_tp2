@@ -6,7 +6,7 @@ import java.util.List;
 public class Vertice implements Observable {
     private final int id;
     private boolean tieneEdificio;
-    private Jugador dueño; // <--- NUEVO ATRIBUTO
+    private Jugador duennio;
 
     private final List<Hexagono> hexagonosAdyacentes;
     private final List<Vertice> verticesAdyacentes;
@@ -23,21 +23,18 @@ public class Vertice implements Observable {
         this.puerto = new SinPuerto();
         this.tieneEdificio = false;
         this.ocupado = false;
-        this.dueño = null;
+        this.duennio = null;
     }
 
-    // --- MÉTODOS DE DUEÑO ---
     public void establecerDueño(Jugador jugador) {
-        this.dueño = jugador;
+        this.duennio = jugador;
         notificarObservadores();
     }
 
     public Jugador obtenerDueño() {
-        return this.dueño;
+        return this.duennio;
     }
-    // -------------------------
 
-    // ... Resto de métodos (agregarObservador, notificar, etc.) siguen igual ...
 
     @Override
     public void agregarObservador(Observador observador) {
