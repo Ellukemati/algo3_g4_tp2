@@ -33,7 +33,6 @@ public class Jugador implements Observable {
         this("");
     }
 
-    // --- IMPLEMENTACIÓN OBSERVER ---
 
     @Override
     public void agregarObservador(Observador observador) {
@@ -47,7 +46,6 @@ public class Jugador implements Observable {
         }
     }
 
-    // --- GETTERS ---
 
     public int cantidadDe(Recurso recurso) {
         return this.inventario.cantidadDe(recurso);
@@ -57,7 +55,6 @@ public class Jugador implements Observable {
         return this.tasasDeIntercambioConBanca.get(recurso);
     }
 
-    // --- GESTIÓN INTERNA ---
 
     public void agregarRecurso(Recurso recurso, int cantidadAAgregar) {
         this.inventario.agregar(recurso, cantidadAAgregar);
@@ -87,13 +84,11 @@ public class Jugador implements Observable {
         return cantidadRecurso;
     }
 
-    // --- LÓGICA DE JUEGO ---
 
     public void recibirLanzamientoDeDados(int numeroDado) {
         if (numeroDado == 7) {
             this.inventario.descartarMitad();
             notificarObservadores();
-            // La lógica de mover ladrón suele ser iniciada por el controlador/turno.
         }
 
         for (Construccion c : construcciones) {
@@ -183,7 +178,6 @@ public class Jugador implements Observable {
         return null;
     }
 
-    // --- LÓGICA DE CONSTRUCCIÓN ---
 
     public boolean construirPoblado(Tablero tablero, int idVertice) {
         // Definir costo
@@ -193,31 +187,25 @@ public class Jugador implements Observable {
         costo.put(Recurso.LANA, 1);
         costo.put(Recurso.GRANO, 1);
 
-        // Lógica de fase inicial (los primeros 2 son gratis)
         boolean esFaseInicial = (this.construcciones.size() < 2);
 
-        // 1. Verificación de Recursos (solo si no es fase inicial)
         if (!esFaseInicial && !poseeRecursos(costo)) {
             return false;
         }
 
-        // 2. Intentar construir en el tablero (validaciones de reglas)
         if (tablero.construirPoblado(idVertice)) {
             Vertice vertice = tablero.obtenerVertice(idVertice);
             vertice.establecerDueño(this);
             Construccion nuevaConstruccion = new Poblado(vertice);
 
-            // 3. Pagar (si corresponde)
             if (!esFaseInicial) {
                 this.inventario.quitar(costo);
                 notificarObservadores();
             }
 
-            // 4. Actualizar estado del jugador
             construcciones.add(nuevaConstruccion);
-            vertice.aplicarEfectos(this); // Activa puertos si los hay
+            vertice.aplicarEfectos(this);
 
-            // Regla especial: Recibir recursos del segundo poblado inicial
             if (construcciones.size() == 2) {
                 List<Recurso> recursosVertice = nuevaConstruccion.cosechar(-1);
                 for (Recurso recursoActual : recursosVertice) {
@@ -265,37 +253,51 @@ public class Jugador implements Observable {
         costo.put(Recurso.MADERA, 1);
         costo.put(Recurso.LADRILLO, 1);
 
-        // Fase inicial: asumimos que las primeras carreteras son gratis si acompañan al poblado
-        // Ojo: Si tu lógica de juego maneja carreteras iniciales aparte, ajusta esto.
-        boolean esGratis = carreteras.isEmpty();
+        boolean esGratis = carreteras.isEmpty() && construcciones.size() < 2;
 
         if (!esGratis && !poseeRecursos(costo)) {
             return false;
         }
 
         Arista aristaAgregar = tablero.obtenerArista(idArista);
-        boolean conectaConRutaPropia = false;
+        if (aristaAgregar.verificarOcupado()) return false; // Ya está ocupada
 
-        // Verificar adyacencia (salvo que sea la primera ruta del juego para este jugador)
-        if (carreteras.isEmpty()) {
-            conectaConRutaPropia = true; // Simplificación para la primera ruta
-        } else {
-            List<Arista> aristasAdyacentes = aristaAgregar.verAdyacentes();
-            for (Arista aristaActual : carreteras) {
-                if (aristasAdyacentes.contains(aristaActual)) {
-                    conectaConRutaPropia = true;
+        boolean conectaConLoSuyo = false;
+
+
+        List<Arista> aristasVecinas = aristaAgregar.verAdyacentes();
+        for (Arista vecina : aristasVecinas) {
+
+            if (vecina.obtenerDueño() == this) {
+                conectaConLoSuyo = true;
+                break;
+            }
+        }
+
+        if (!conectaConLoSuyo) {
+            List<Vertice> verticesDeArista = aristaAgregar.obtenerVertices();
+            for (Vertice v : verticesDeArista) {
+                if (v.obtenerDueño() == this) {
+                    conectaConLoSuyo = true;
                     break;
                 }
             }
         }
 
-        if (conectaConRutaPropia && !aristaAgregar.verificarOcupado()) {
+        if (carreteras.isEmpty()) {
+            if (construcciones.isEmpty()) conectaConLoSuyo = true;
+        }
+
+        if (conectaConLoSuyo) {
             if (!esGratis) {
                 this.inventario.quitar(costo);
                 notificarObservadores();
             }
+
+            aristaAgregar.establecerDueño(this); //
+
+
             carreteras.add(aristaAgregar);
-            aristaAgregar.ocupar();
             return true;
         }
         return false;
