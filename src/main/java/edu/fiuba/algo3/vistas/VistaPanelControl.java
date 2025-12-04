@@ -12,6 +12,7 @@ public class VistaPanelControl extends HBox {
 
     private final Label lblDado;
     private final Button btnPasarTurno;
+    private final Button btnComprarCarta;
 
     public VistaPanelControl() {
         super(10); // Espaciado entre elementos (spacing)
@@ -25,7 +26,8 @@ public class VistaPanelControl extends HBox {
         btnPasarTurno = new Button("Pasar Turno");
         btnPasarTurno.setStyle("-fx-font-size: 16px; -fx-base: #87CEEB; -fx-cursor: hand;");
 
-        this.getChildren().addAll(lblDado, btnPasarTurno);
+        btnComprarCarta = new Button("Comprar carta");
+        this.getChildren().addAll(lblDado, btnPasarTurno, btnComprarCarta);
     }
 
     public void actualizarDado(int valor) {
@@ -34,5 +36,9 @@ public class VistaPanelControl extends HBox {
 
     public void setAccionPasarTurno(Runnable accion) {
         btnPasarTurno.setOnAction(e -> accion.run());
+    }
+
+    public void setAccionComprarCarta(Runnable accion) {
+        btnComprarCarta.setOnAction(e -> accion.run());
     }
 }
