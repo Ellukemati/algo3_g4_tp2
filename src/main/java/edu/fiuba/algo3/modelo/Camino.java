@@ -1,10 +1,12 @@
 package edu.fiuba.algo3.modelo;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class Camino {
-	private final List<Arista> carreteras = new ArrayList<>();
+    private final List<Arista> carreteras = new ArrayList<>();
     private int diametro = 0;
 
     public void agregarCarretera(Arista a) {
@@ -33,29 +35,41 @@ public class Camino {
     }
 
     public void recalcularDiametro() {
-        Arista start = carreteras.iterator().next();
-        Arista extremo = dfsLejano(start, new ArrayList<>()).nodo;
-        diametro = dfsLejano(extremo, new ArrayList<>()).distancia + 1;
+        if (carreteras.isEmpty()) {
+            diametro = 0;
+            return;
+        }
+
+        Arista inicio = carreteras.get(0);
+
+        Resultado extremo = dfsLejano(inicio, new HashSet<>());
+
+        Resultado finalR = dfsLejano(extremo.nodo, new HashSet<>());
+
+        this.diametro = finalR.distancia + 1;
     }
 
-    private Resultado dfsLejano(Arista actual, List<Arista> visit) {
-        visit.add(actual);
+    private Resultado dfsLejano(Arista actual, Set<Arista> visitados) {
+        visitados.add(actual);
         Resultado mejor = new Resultado(actual, 0);
+
         for (Arista ady : actual.verAdyacentes()) {
-            if (!visit.contains(ady) && carreteras.contains(ady)) {
-                List<Arista> copia = new ArrayList<>(visit);
-                Resultado r = dfsLejano(ady, copia);
+            if (!visitados.contains(ady) && carreteras.contains(ady)) {
+                Resultado r = dfsLejano(ady, visitados);
+
                 if (r.distancia + 1 > mejor.distancia) {
                     mejor = new Resultado(r.nodo, r.distancia + 1);
                 }
             }
         }
+
         return mejor;
     }
 
     private static class Resultado {
         Arista nodo;
         int distancia;
+
         Resultado(Arista n, int d) {
             nodo = n;
             distancia = d;

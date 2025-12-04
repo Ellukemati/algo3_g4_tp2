@@ -35,10 +35,11 @@ public class VistaTablero extends Pane {
         this.setOnMouseClicked(e -> limpiarAcciones());
     }
     public void mostrarBotonAccion(Button boton, double x, double y) {
-        limpiarAcciones();
+        limpiarAcciones(); // Borra botones anteriores
 
         boton.setLayoutX(x);
         boton.setLayoutY(y);
+        // Estilo base para que se vea bien
         boton.setStyle("-fx-background-color: white; -fx-border-color: black; -fx-cursor: hand; -fx-font-size: 10px;");
 
         panelAcciones.getChildren().add(boton);

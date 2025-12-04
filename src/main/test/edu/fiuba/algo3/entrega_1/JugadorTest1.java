@@ -4,7 +4,6 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 import edu.fiuba.algo3.modelo.*;
-import java.util.List;
 
 public class JugadorTest1 {
 
@@ -72,22 +71,26 @@ public class JugadorTest1 {
         // ARRANGE
         Tablero tablero = new Tablero();
         Jugador jugador = new Jugador();
-        int idVertice = 10; // Elegimos un vértice interior arbitrario
-        // Si no hay poblado, construirCiudad debería fallar.
-        jugador.construirPoblado(tablero, idVertice);
+        int idVertice = 10;
+
+        jugador.agregarRecurso(Recurso.MADERA, 1);
+        jugador.agregarRecurso(Recurso.LADRILLO, 1);
+        jugador.agregarRecurso(Recurso.LANA, 1);
+        jugador.agregarRecurso(Recurso.GRANO, 1);
+
+        boolean pobladoConstruido = jugador.construirPoblado(tablero, idVertice);
+        assertTrue(pobladoConstruido, "El poblado debería construirse");
+
+        jugador.agregarRecurso(Recurso.GRANO, 2);
+        jugador.agregarRecurso(Recurso.MINERAL, 3);
 
         // ACT
-        // Intentamos mejorar ese poblado a ciudad
         boolean ciudadConstruida = jugador.construirCiudad(tablero, idVertice);
 
         // ASSERT
-        // 1. Verificamos que la operación fue exitosa
         assertTrue(ciudadConstruida, "Debería permitir construir Ciudad sobre un Poblado propio");
-
-        // 2. Verificación de comportamiento (Producción duplicada)
-        // NOTA: Como el tablero es aleatorio, es difícil saber EXACTAMENTE qué recursos tiene.
-
     }
+
     @Test
     public void test06NoSePuedeConstruirCiudadEnVerticeVacio() {
         // ARRANGE

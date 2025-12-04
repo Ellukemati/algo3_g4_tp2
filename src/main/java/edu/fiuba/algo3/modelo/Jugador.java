@@ -6,304 +6,319 @@ import java.util.List;
 import java.util.Map;
 
 public class Jugador implements Observable, Bonificacion {
+
     private final String nombre;
     private final Inventario inventario;
-    private final List<CartaDesarollo> cartasNuevas;
-    private final List<CartaDesarollo> cartasUsables;
-    private final List<CartaDesarollo> cartasUsadas;
-    private final Map<Recurso, Integer> tasasDeIntercambioConBanca;
-    private final List<Construccion> construcciones;
-    private final List<Arista> carreteras;
-    private final List<Camino> caminos; // Asumiendo que esta clase existe
-    private int puntosDeVictoria;
-    private int puntosDeVictoriaOcultos;
 
-    private List<Observador> observadores = new ArrayList<>();
+    private final List<CartaDesarollo> cartasNuevas = new ArrayList<>();
+    private final List<CartaDesarollo> cartasUsables = new ArrayList<>();
+    private final List<CartaDesarollo> cartasUsadas = new ArrayList<>();
+
+    private final Map<Recurso, Integer> tasasDeIntercambioConBanca = new HashMap<>();
+
+    private final List<Construccion> construcciones = new ArrayList<>();
+    private final List<Arista> carreteras = new ArrayList<>();
+    private final List<Camino> caminos = new ArrayList<>();
+
+    private boolean tieneGranRuta = false;
+    private boolean tieneGranCaballeria = false;
+
+    private final List<Observador> observadores = new ArrayList<>();
+
+    // --- CONSTRUCTORES ---
 
     public Jugador(String nombre) {
         this.nombre = nombre;
         this.inventario = new Inventario();
-        this.cartasNuevas = new ArrayList<>();
-        this.cartasUsables = new ArrayList<>();
-        this.cartasUsadas = new ArrayList<>();
-        this.tasasDeIntercambioConBanca = new HashMap<>();
         for (Recurso r : Recurso.values()) {
-            this.tasasDeIntercambioConBanca.put(r, 4);
+            tasasDeIntercambioConBanca.put(r, 4);
         }
-        this.construcciones = new ArrayList<>();
-        this.caminos = new ArrayList<>();
-        this.carreteras = new ArrayList<>();
-        this.puntosDeVictoria = 0;
-        this.puntosDeVictoriaOcultos = 0;
     }
 
+    public Jugador() {
+        this("Jugador");
+    }
 
-
-    // --- IMPLEMENTACIÓN OBSERVER ---
+    // --- OBSERVER ---
 
     @Override
     public void agregarObservador(Observador observador) {
-        this.observadores.add(observador);
+        observadores.add(observador);
     }
 
     @Override
     public void notificarObservadores() {
-        for (Observador observador : observadores) {
-            observador.actualizar();
-        }
+        observadores.forEach(Observador::actualizar);
     }
 
-    // --- GETTERS ---
+    // --- PUNTAJE ---
+
+    public int obtenerPuntajeTotal() {
+        return calcularPuntosVisibles() + obtenerPuntosVictoriaOcultos();
+    }
+
+    public int obtenerPuntaje() {
+        return calcularPuntosVisibles();
+    }
+
+    private int calcularPuntosVisibles() {
+        int puntos = construcciones.stream()
+                .mapToInt(Construccion::obtenerPuntosDeVictoria)
+                .sum();
+
+        if (tieneGranRuta) puntos += 2;
+        if (tieneGranCaballeria) puntos += 2;
+
+        return puntos;
+    }
+
+    public int obtenerPuntosVictoriaOcultos() {
+        List<CartaDesarollo> todas = new ArrayList<>(cartasNuevas);
+        todas.addAll(cartasUsables);
+        return (int) todas.stream().filter(c -> c instanceof PuntoDeVictoria).count();
+    }
+
+    // --- BONIFICACIONES ---
+
+    @Override
+    public void asignarGranRuta(boolean tiene) {
+        this.tieneGranRuta = tiene;
+        notificarObservadores();
+    }
+
+    @Override
+    public void asignarGranCaballeria(boolean tiene) {
+        this.tieneGranCaballeria = tiene;
+        notificarObservadores();
+    }
+
+    // --- RECURSOS ---
 
     public int cantidadDe(Recurso recurso) {
-        return this.inventario.cantidadDe(recurso);
-    }
-
-    public int obtenerTasaDe(Recurso recurso) {
-        return this.tasasDeIntercambioConBanca.get(recurso);
-    }
-
-    // --- GESTIÓN INTERNA ---
-
-    public void agregarRecurso(Recurso recurso, int cantidadAAgregar) {
-        this.inventario.agregar(recurso, cantidadAAgregar);
-        notificarObservadores();
+        return inventario.cantidadDe(recurso);
     }
 
     public int cantidadTotalDeRecursos() {
-        return this.inventario.cantidadTotalDeRecursos();
+        return inventario.cantidadTotalDeRecursos();
     }
 
-    public boolean poseeRecursos(Map<Recurso, Integer> recursosAChequear) {
-        return this.inventario.poseeSuficientes(recursosAChequear);
+    public int obtenerTasaDe(Recurso recurso) {
+        return tasasDeIntercambioConBanca.get(recurso);
     }
 
-    public void activarDescuentoGenerico() {
-        this.tasasDeIntercambioConBanca.replaceAll((k, v) -> Math.min(v, 3));
+    public void agregarRecurso(Recurso recurso, int cantidad) {
+        inventario.agregar(recurso, cantidad);
+        notificarObservadores();
     }
 
-    public void activarDescuentoPara(Recurso recurso) {
-        this.tasasDeIntercambioConBanca.put(recurso, 2);
+    public boolean poseeRecursos(Map<Recurso, Integer> recursos) {
+        return inventario.poseeSuficientes(recursos);
     }
 
     public int quitarCantidadTotalDeRecursos(Recurso recurso) {
-        int cantidadRecurso = this.inventario.cantidadDe(recurso);
-        this.inventario.quitar(recurso, cantidadRecurso);
+        int cantidad = inventario.cantidadDe(recurso);
+        inventario.quitar(recurso, cantidad);
         notificarObservadores();
-        return cantidadRecurso;
+        return cantidad;
     }
 
-    // --- LÓGICA DE JUEGO ---
+    // --- COMERCIO ---
 
-    public void recibirLanzamientoDeDados(int numeroDado) {
-        if (numeroDado == 7) {
-            this.inventario.descartarMitad();
+    public void activarDescuentoGenerico() {
+        tasasDeIntercambioConBanca.replaceAll((k, v) -> Math.min(v, 3));
+    }
+
+    public void activarDescuentoPara(Recurso recurso) {
+        tasasDeIntercambioConBanca.put(recurso, 2);
+    }
+
+    public void intercambiar(Jugador otro, Map<Recurso, Integer> oferta, Map<Recurso, Integer> solicitud) {
+        if (poseeRecursos(oferta) && otro.poseeRecursos(solicitud)) {
+            inventario.realizarTransferencia(oferta, solicitud);
+            otro.confirmarIntercambio(oferta, solicitud);
             notificarObservadores();
         }
-
-        for (Construccion c : construcciones) {
-            List<Recurso> recursosCosechados = c.cosechar(numeroDado);
-            for (Recurso recursoActual : recursosCosechados) {
-                this.agregarRecurso(recursoActual, 1);
-            }
-        }
     }
 
-    public void intercambiar(Jugador otroJugador, Map<Recurso, Integer> oferta, Map<Recurso, Integer> solicitud) {
-        if (this.poseeRecursos(oferta) && otroJugador.poseeRecursos(solicitud)) {
-            this.inventario.realizarTransferencia(oferta, solicitud);
-            notificarObservadores();
-            otroJugador.confirmarIntercambio(oferta, solicitud);
-        }
-    }
-
-    protected void confirmarIntercambio(Map<Recurso, Integer> recursosRecibidos, Map<Recurso, Integer> recursosDados) {
-        this.inventario.realizarTransferencia(recursosDados, recursosRecibidos);
+    protected void confirmarIntercambio(Map<Recurso, Integer> recibidos, Map<Recurso, Integer> dados) {
+        inventario.realizarTransferencia(dados, recibidos);
         notificarObservadores();
     }
 
     public void comerciarConBanca(Map<Recurso, Integer> oferta, Map<Recurso, Integer> solicitud) {
         if (esIntercambioConBancaValido(oferta, solicitud)) {
-            this.inventario.canjear(oferta, solicitud);
+            inventario.canjear(oferta, solicitud);
             notificarObservadores();
         }
     }
 
     private boolean esIntercambioConBancaValido(Map<Recurso, Integer> oferta, Map<Recurso, Integer> solicitud) {
-        int capacidadDeCompra = 0;
+        int capacidad = oferta.entrySet().stream()
+                .mapToInt(e -> (e.getValue() / tasasDeIntercambioConBanca.get(e.getKey())))
+                .filter(x -> x > 0)
+                .sum();
 
-        for (Map.Entry<Recurso, Integer> entry : oferta.entrySet()) {
-            Recurso recurso = entry.getKey();
-            int cantidadOfrecida = entry.getValue();
+        int solicitado = solicitud.values().stream().mapToInt(Integer::intValue).sum();
 
-            int tasa = this.tasasDeIntercambioConBanca.get(recurso);
-            if (cantidadOfrecida % tasa != 0) {
-                return false;
-            }
-            capacidadDeCompra += (cantidadOfrecida / tasa);
-        }
-
-        int cantidadSolicitada = solicitud.values().stream().mapToInt(Integer::intValue).sum();
-        return capacidadDeCompra == cantidadSolicitada;
+        return capacidad == solicitado;
     }
 
-    public void comprarCartaDeDesarollo(Banca banca) {
-        try {
-            cartasNuevas.add(banca.comprarCartaDeDesarollo(inventario));
+    // --- DADOS Y LADRÓN ---
+
+    public void recibirLanzamientoDeDados(int numero) {
+        if (numero == 7) {
+            inventario.descartarMitad();
             notificarObservadores();
-        } catch (IllegalArgumentException e) {
-            System.out.println(e.getMessage());
         }
-    }
 
-    public void usarCartaDeDesarrollo(CartaDesarollo carta, Tablero tablero, List<Jugador> jugadores) {
-        CartaDesarollo cartaDeDesarollo = cartasUsables.stream()
-                .filter((cd) -> cd.equals(carta))
-                .findFirst()
-                .orElse(new NullCartaDesarollo());
-        cartaDeDesarollo.usar(this, tablero, jugadores);
-        cartasUsables.remove(cartaDeDesarollo);
-        cartasUsadas.add(cartaDeDesarollo);
+        for (Construccion c : construcciones) {
+            c.cosechar(numero).forEach(r -> agregarRecurso(r, 1));
+        }
     }
 
     public Hexagono moverLadron(Tablero tablero, int posicion) {
         return tablero.moverLadron(posicion);
     }
 
-    public Recurso serRobadoPorLadron(Hexagono hexagonoRobar) {
-        boolean soyVictima = false;
-        for (Construccion c : construcciones) {
-            Vertice vert = c.obtenerVertice();
-            if (vert.obtenerHexagonosAdyacentes().contains(hexagonoRobar)) {
-                soyVictima = true;
-                break;
-            }
-        }
-
-        if (soyVictima) {
-            Recurso robado = this.inventario.extraerRecursoAlAzar();
-            if (robado != null) {
-                notificarObservadores();
-                return robado;
-            }
-        }
-        return null;
+    public Recurso robarA(Jugador victima) {
+        Recurso robado = victima.entregarRecursoAlAzar();
+        if (robado != null) agregarRecurso(robado, 1);
+        return robado;
     }
 
-    public boolean construirPoblado(Tablero tablero, int idVertice, boolean esFaseInicial) {
-        Map<Recurso, Integer> costo = new HashMap<>();
-        costo.put(Recurso.MADERA, 1);
-        costo.put(Recurso.LADRILLO, 1);
-        costo.put(Recurso.LANA, 1);
-        costo.put(Recurso.GRANO, 1);
+    public Recurso perderRecursoAlAzar() {
+        return entregarRecursoAlAzar();
+    }
 
-        if (!esFaseInicial && !poseeRecursos(costo)) {
-            return false;
+    public Recurso entregarRecursoAlAzar() {
+        Recurso r = inventario.extraerRecursoAlAzar();
+        if (r != null) notificarObservadores();
+        return r;
+    }
+
+    public Recurso serRobadoPorLadron(Hexagono hexagono) {
+        boolean soyVictima = construcciones.stream()
+                .anyMatch(c -> c.obtenerVertice().obtenerHexagonosAdyacentes().contains(hexagono));
+
+        return soyVictima ? entregarRecursoAlAzar() : null;
+    }
+
+    // --- CARTAS DE DESARROLLO ---
+
+    public void comprarCartaDeDesarrollo(Banca banca) {
+        try {
+            cartasNuevas.add(banca.comprarCartaDeDesarollo(inventario));
+            notificarObservadores();
+        } catch (Exception ignored) {}
+    }
+
+    public void usarCartaDeDesarrollo(CartaDesarollo carta, Tablero tablero, List<Jugador> jugadores) {
+        CartaDesarollo encontrada = cartasUsables.stream()
+                .filter(cd -> cd.equals(carta))
+                .findFirst()
+                .orElse(new NullCartaDesarollo());
+
+        encontrada.usar(this, tablero, jugadores);
+
+        cartasUsables.remove(encontrada);
+        cartasUsadas.add(encontrada);
+    }
+
+    public void finalizarTurno() {
+        cartasUsables.addAll(cartasNuevas);
+        cartasNuevas.clear();
+    }
+
+    // --- CONSTRUCCIONES ---
+
+    public boolean construirPoblado(Tablero tablero, int idVertice) {
+        Map<Recurso, Integer> costo = Map.of(
+                Recurso.MADERA, 1,
+                Recurso.LADRILLO, 1,
+                Recurso.LANA, 1,
+                Recurso.GRANO, 1
+        );
+
+        boolean esFaseInicial = construcciones.size() < 2;
+
+        if (!esFaseInicial && !poseeRecursos(costo)) return false;
+        if (!tablero.construirPoblado(idVertice)) return false;
+
+        Vertice vertice = tablero.obtenerVertice(idVertice);
+        Construccion poblado = new Poblado(vertice);
+
+        if (!esFaseInicial) {
+            inventario.quitar(costo);
         }
 
-        if (tablero.construirPoblado(idVertice)) {
-            Vertice vertice = tablero.obtenerVertice(idVertice);
-            vertice.establecerDueño(this);
-            Construccion nuevaConstruccion = new Poblado(vertice);
+        construcciones.add(poblado);
+        vertice.aplicarEfectos(this);
 
-            if (!esFaseInicial) {
-                this.inventario.quitar(costo);
-                notificarObservadores();
-            }
-
-            construcciones.add(nuevaConstruccion);
-            sumarPuntos(1); // Poblado vale 1 punto
-            vertice.aplicarEfectos(this);
-
-            if (construcciones.size() == 2) {
-                List<Recurso> recursosVertice = nuevaConstruccion.cosechar(-1);
-                for (Recurso recursoActual : recursosVertice) {
-                    this.agregarRecurso(recursoActual, 1);
-                }
-            }
-            return true;
+        if (construcciones.size() == 2) {
+            poblado.cosechar(-1).forEach(r -> agregarRecurso(r, 1));
         }
-        return false;
+
+        notificarObservadores();
+        return true;
     }
 
     public boolean construirCiudad(Tablero tablero, int idVertice) {
-        Map<Recurso, Integer> costo = new HashMap<>();
-        costo.put(Recurso.GRANO, 2);
-        costo.put(Recurso.MINERAL, 3);
+        Map<Recurso, Integer> costo = Map.of(
+                Recurso.GRANO, 2,
+                Recurso.MINERAL, 3
+        );
 
-        if (!poseeRecursos(costo)) {
-            return false;
-        }
+        if (!poseeRecursos(costo)) return false;
 
-        Vertice verticeBuscado = tablero.obtenerVertice(idVertice);
-        Construccion construccionAActualizar = null;
+        Vertice vertice = tablero.obtenerVertice(idVertice);
+        Construccion poblado = construcciones.stream()
+                .filter(c -> c instanceof Poblado && c.obtenerVertice() == vertice)
+                .findFirst()
+                .orElse(null);
 
-        for (Construccion c : construcciones) {
-            if (c.obtenerVertice() == verticeBuscado) {
-                construccionAActualizar = c;
-                break;
-            }
-        }
+        if (poblado == null) return false;
 
-        if (construccionAActualizar instanceof Poblado) {
-            this.inventario.quitar(costo);
-            notificarObservadores();
+        inventario.quitar(costo);
+        construcciones.remove(poblado);
+        construcciones.add(new Ciudad(vertice));
 
-            construcciones.remove(construccionAActualizar);
-            construcciones.add(new Ciudad(verticeBuscado));
-            sumarPuntos(1); // Suma 1 extra (la ciudad vale 2, pero reemplaza al poblado de 1)
-            return true;
-        }
-
-        return false;
+        notificarObservadores();
+        return true;
     }
 
-    public boolean construirCarretera(Tablero tablero, int idArista, boolean esFaseInicial) {
+    public boolean construirCarretera(Tablero tablero, int idArista) {
         Map<Recurso, Integer> costo = new HashMap<>();
         costo.put(Recurso.MADERA, 1);
         costo.put(Recurso.LADRILLO, 1);
 
-        if (!esFaseInicial && !poseeRecursos(costo)) {
+        boolean esGratis = carreteras.size() <= 1;
+
+        if (!esGratis && !poseeRecursos(costo)) {
             return false;
         }
 
         Arista aristaAgregar = tablero.obtenerArista(idArista);
-        if (aristaAgregar.verificarOcupado()) return false;
+        boolean conectaConRutaPropia = false;
 
-        boolean conectaConLoSuyo = false;
-
-        List<Arista> aristasVecinas = aristaAgregar.verAdyacentes();
-        for (Arista vecina : aristasVecinas) {
-            if (vecina.obtenerDueño() == this) {
-                conectaConLoSuyo = true;
-                break;
-            }
-        }
-
-        if (!conectaConLoSuyo) {
-            List<Vertice> verticesDeArista = aristaAgregar.obtenerVertices();
-            for (Vertice v : verticesDeArista) {
-                if (v.obtenerDueño() == this) {
-                    conectaConLoSuyo = true;
+        if (carreteras.isEmpty()) {
+            conectaConRutaPropia = true;
+        } else {
+            List<Arista> aristasAdyacentes = aristaAgregar.verAdyacentes();
+            for (Arista aristaActual : carreteras) {
+                if (aristasAdyacentes.contains(aristaActual)) {
+                    conectaConRutaPropia = true;
                     break;
                 }
             }
         }
 
-        if (carreteras.isEmpty()) {
-            if (construcciones.isEmpty()) conectaConLoSuyo = true;
-        }
-
-        if (conectaConLoSuyo) {
-            if (!esFaseInicial) {
+        if (conectaConRutaPropia && !aristaAgregar.verificarOcupado()) {
+            if (!esGratis) {
                 this.inventario.quitar(costo);
                 notificarObservadores();
             }
-
-            aristaAgregar.establecerDueño(this);
             aristaAgregar.ocupar();
             carreteras.add(aristaAgregar);
-
 
             List<Camino> tocadas = new ArrayList<>();
             for (Camino c : caminos) {
@@ -328,45 +343,16 @@ public class Jugador implements Observable, Bonificacion {
         return false;
     }
 
-
+    // --- MÉTRICAS ---
     public int obtenerRutaMasLarga() {
-        int max = 0;
-        for (Camino c : caminos) {
-            max = Math.max(max, c.getDiametro());
-        }
-        return max;
+        return caminos.stream()
+                .mapToInt(Camino::getDiametro)
+                .max()
+                .orElse(0);
     }
 
     public int obtenerCaballerosUsados() {
-        int contador = 0;
-        for (CartaDesarollo c : cartasUsadas) {
-            if (c instanceof Caballero) {
-                contador++;
-            }
-        }
-        return contador;
-    }
-
-    public int obtenerPuntosVictoriaOcultos() {
-        return puntosDeVictoriaOcultos;
-    }
-
-    public void sumarPuntos(int puntos) {
-        puntosDeVictoria += puntos;
-    }
-
-    public void restarPuntos(int puntos) {
-        puntosDeVictoria -= puntos;
-    }
-
-    // Mantenemos el nombre (con posible typo) para compatibilidad con Catan.java
-    public int obtenerPuntage() {
-        return puntosDeVictoria;
-    }
-
-    public void finalizarTurno() {
-        cartasUsables.addAll(cartasNuevas);
-        cartasNuevas.clear();
+        return (int) cartasUsadas.stream().filter(c -> c instanceof Caballero).count();
     }
 
     public String obtenerNombre() {

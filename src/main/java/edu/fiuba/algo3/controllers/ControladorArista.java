@@ -32,13 +32,12 @@ public class ControladorArista implements EventHandler<MouseEvent> {
         vistaTablero.limpiarAcciones();
 
         Jugador jugadorActual = juego.obtenerJugadorActual();
-        boolean esFaseInicial = juego.esFaseInicial();
 
         if (!arista.verificarOcupado()) {
-            if (esFaseInicial || puedePagarCarretera(jugadorActual)) {
+            if (puedePagarCarretera(jugadorActual)) {
                 Button btnCamino = new Button("Construir Camino");
                 btnCamino.setOnAction(e -> {
-                    if (jugadorActual.construirCarretera(tablero, arista.getId(), esFaseInicial)) {
+                    if (jugadorActual.construirCarretera(tablero, arista.getId())) {
                         System.out.println("Carretera construida en arista " + arista.getId());
                         vistaTablero.limpiarAcciones();
                         juego.notificarObservadores();

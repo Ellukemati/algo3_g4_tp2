@@ -1,11 +1,11 @@
 package edu.fiuba.algo3.modelo;
 
-public class JugadorNulo implements Bonificacion{
-	@Override
-    public void sumarPuntos(int n) {
+public class JugadorNulo implements Bonificacion {
+    @Override
+    public void asignarGranRuta(boolean tiene) {
     }
 
     @Override
-    public void restarPuntos(int n) {
+    public void asignarGranCaballeria(boolean tiene) {
     }
 }

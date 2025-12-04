@@ -12,4 +12,6 @@ public class Poblado extends Construccion {
     public List<Recurso> cosechar(int numeroDado) {
         return vertice.cosecharRecursos(numeroDado);
     }
+
+    public int obtenerPuntosDeVictoria() { return 1; }
 }

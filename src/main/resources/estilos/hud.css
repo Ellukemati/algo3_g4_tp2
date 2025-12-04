@@ -1,0 +1,43 @@
+.hud-container {
+    -fx-background-color: transparent;
+    -fx-border-width: 0;
+    -fx-effect: none;
+}
+
+.panel-info-jugador {
+    -fx-background-color: rgba(255, 255, 255, 0.9); /* Blanco casi opaco */
+    -fx-background-radius: 8;
+    -fx-border-color: #999;
+    -fx-border-radius: 8;
+    -fx-padding: 10 10 10 10;
+    -fx-alignment: center-right;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.3), 3, 0, 0, 1);
+}
+
+.lbl-nombre {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #333333;
+}
+
+.lbl-puntos {
+    -fx-font-size: 14px;
+    -fx-text-fill: #555555;
+}
+
+.boton-comerciar {
+    -fx-background-color: #FFFACD;
+    -fx-border-color: #FFD700;
+    -fx-border-width: 3px;
+    -fx-background-radius: 5;
+    -fx-border-radius: 5;
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-padding: 10 10 10 10;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.3), 3, 0, 0, 1);
+}
+
+.boton-comerciar:hover {
+    -fx-background-color: #FFEC8B;
+}

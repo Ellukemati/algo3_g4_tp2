@@ -132,7 +132,7 @@ public class VistaJuego extends StackPane implements Observador {
     @Override
     public void actualizar() {
         lblJugador.setText(juego.obtenerJugadorActual().obtenerNombre());
-        vistaRecursos.actualizar(juego.obtenerJugadorActual());
+        vistaRecursos.actualizarRecursos(juego.obtenerJugadorActual());
 
         if (intercambioController != null) {
             intercambioController.setJugador(juego.obtenerJugadorActual());

@@ -13,7 +13,7 @@
       stylesheets="@../estilos/intercambio.css"
       xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
-      fx:controller="edu.fiuba.algo3.controllers.IntercambioController">
+      fx:controller="edu.fiuba.algo3.controllers.ControladorIntercambio">
 
     <Label text="INTERCAMBIO" styleClass="titulo"/>
 
