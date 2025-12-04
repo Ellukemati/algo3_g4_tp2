@@ -69,6 +69,7 @@ public class App extends Application {
 
         vistaSuperior = new VistaPanelControl();
         vistaSuperior.setAccionPasarTurno(this::avanzarTurno);
+        vistaSuperior.setAccionComprarCarta(this::accionComprarCarta);
 
         StackPane raiz = new StackPane();
 
@@ -110,11 +111,11 @@ public class App extends Application {
         for (int i = 1; i <= cantidadJugadores; i++) {
             Jugador nuevoJugador = new Jugador("Jugador " + i);
             // Recursos iniciales para testing
-            //nuevoJugador.agregarRecurso(Recurso.MADERA, 5);
-            //nuevoJugador.agregarRecurso(Recurso.LADRILLO, 5);
-            //nuevoJugador.agregarRecurso(Recurso.LANA, 5);
-            //nuevoJugador.agregarRecurso(Recurso.GRANO, 5);
-            //nuevoJugador.agregarRecurso(Recurso.MINERAL, 5);
+//            nuevoJugador.agregarRecurso(Recurso.MADERA, 5);
+//            nuevoJugador.agregarRecurso(Recurso.LADRILLO, 5);
+//            nuevoJugador.agregarRecurso(Recurso.LANA, 5);
+//            nuevoJugador.agregarRecurso(Recurso.GRANO, 5);
+//            nuevoJugador.agregarRecurso(Recurso.MINERAL, 5);
             juego.agregarJugador(nuevoJugador);
         }
         juego.iniciarJuego();
@@ -163,6 +164,12 @@ public class App extends Application {
         } catch (Exception e) {
             System.out.println("Advertencia: No se pudo cargar algún archivo CSS.");
         }
+    }
+
+    private void accionComprarCarta() {
+        juego.jugadorActualComprarCartaDeDesarrollo();
+        vistaRecursos.actulizarCartaDesarollo(juego.obtenerJugadorActual());
+        vistaRecursos.actualizarRecursos(juego.obtenerJugadorActual());
     }
 
     public static void main(String[] args) {
