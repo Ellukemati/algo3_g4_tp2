@@ -204,6 +204,7 @@ public class Jugador implements Observable {
         // 2. Intentar construir en el tablero (validaciones de reglas)
         if (tablero.construirPoblado(idVertice)) {
             Vertice vertice = tablero.obtenerVertice(idVertice);
+            vertice.establecerDueño(this);
             Construccion nuevaConstruccion = new Poblado(vertice);
 
             // 3. Pagar (si corresponde)
@@ -247,7 +248,6 @@ public class Jugador implements Observable {
             }
         }
 
-        // Verificar que sea un Poblado antes de convertirlo
         if (construccionAActualizar instanceof Poblado) {
             this.inventario.quitar(costo);
             notificarObservadores();
