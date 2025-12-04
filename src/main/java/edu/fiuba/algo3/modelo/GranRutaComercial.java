@@ -1,23 +1,24 @@
 package edu.fiuba.algo3.modelo;
 
+public class GranRutaComercial {
+    private int recordLongitud;
+    private Bonificacion poseedorActual;
 
-public class GranRutaComercial implements CartaDeBonificacion{
-	private int longCamino;
-    private Bonificacion  jugador;
-    
     public GranRutaComercial() {
-        this.jugador = new JugadorNulo();
-        this.longCamino = 4;
+        this.poseedorActual = new JugadorNulo();
+        this.recordLongitud = 4;
     }
-    
-    @Override
-    public void actualizar(Jugador jugadorAEvaluar) {
-    	int longitudNueva = jugadorAEvaluar.obtenerRutaMasLarga();
-        if(longitudNueva > longCamino) {
-        	jugador.restarPuntos(2);
-        	jugadorAEvaluar.sumarPuntos(2);
-        	longCamino = longitudNueva;
-        	jugador = (Bonificacion) jugadorAEvaluar;
+
+    public void actualizar(Jugador jugadorCandidato) {
+        int longitudCandidato = jugadorCandidato.obtenerRutaMasLarga();
+
+        if (longitudCandidato > recordLongitud) {
+            poseedorActual.asignarGranRuta(false);
+
+            recordLongitud = longitudCandidato;
+
+            poseedorActual = jugadorCandidato;
+            poseedorActual.asignarGranRuta(true);
         }
     }
 }

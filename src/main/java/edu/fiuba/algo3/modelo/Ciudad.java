@@ -20,4 +20,6 @@ public class Ciudad extends Construccion {
         }
         return recursosDuplicados;
     }
+
+    public int obtenerPuntosDeVictoria() { return 2; }
 }

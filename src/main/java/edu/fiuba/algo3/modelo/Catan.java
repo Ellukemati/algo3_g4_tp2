@@ -7,27 +7,22 @@ public class Catan implements Observable {
     private final Tablero tablero;
     private final List<Jugador> jugadores;
     private final Dado dado;
-
     private final GranCaballeria granCaballeria;
     private final GranRutaComercial granRutaComercial;
-
     private final List<Observador> observadores;
     private final Banca banca;
 
     private int indiceJugadorActual;
     private int contadorTurnos;
     private boolean juegoIniciado;
-    private boolean faseInicial;
 
     public Catan() {
         this.contadorTurnos = 0;
         this.tablero = new Tablero();
         this.jugadores = new ArrayList<>();
         this.dado = new Dado();
-
         this.granCaballeria = new GranCaballeria();
         this.granRutaComercial = new GranRutaComercial();
-
         this.observadores = new ArrayList<>();
         this.indiceJugadorActual = 0;
         this.juegoIniciado = false;
@@ -35,10 +30,18 @@ public class Catan implements Observable {
         this.faseInicial = true;
     }
 
+    // Gestión de Jugadores
 
     public void agregarJugador(Jugador jugador) {
-        if (!juegoIniciado) {
+        if (!juegoIniciado && jugadores.size() < 4) {
             jugadores.add(jugador);
+        }
+    }
+
+    public void iniciarJuego() {
+        if (jugadores.size() >= 3) {
+            this.juegoIniciado = true;
+            notificarObservadores();
         }
     }
 
@@ -51,16 +54,13 @@ public class Catan implements Observable {
         return jugadores.get(indiceJugadorActual);
     }
 
+    // Lógica de Turnos
 
     public void siguienteTurno() {
         contadorTurnos++;
-
-        if (contadorTurnos >= jugadores.size() * 2) {
-            faseInicial = false;
-        }
-
         obtenerJugadorActual().finalizarTurno();
 
+        // Avanza al siguiente (circular)
         indiceJugadorActual = (indiceJugadorActual + 1) % jugadores.size();
 
         notificarObservadores();
@@ -77,77 +77,81 @@ public class Catan implements Observable {
 
     }
 
-    public boolean esFaseInicial() {
-        return faseInicial;
-    }
-
     public int lanzarDado() {
-        // En fase inicial no se tiran dados
-        if (faseInicial) {
-            return 0;
+        int resultado = dado.tirar();
+
+        if (resultado != 7) {
+            // Si NO es 7, repartimos recursos automáticamente
+            repartirRecursos(resultado);
+        } else {
+            // Si ES 7, gestionamos el descarte por exceso de cartas
+            gestionarDescartePorSiete();
+            // NOTA: El movimiento del ladrón NO se hace acá,
+            // la Vista debe detectar el 7 y pedirle al usuario que elija hexágono.
         }
 
-        int resultado = dado.tirar();
-        jugarTurno(resultado);
         return resultado;
     }
 
-    private void jugarTurno(int numeroDado) {
-        Jugador jugadorActual = obtenerJugadorActual();
-
-        if (numeroDado == 7) {
-            int posicionLadron = 10; // TODO: Esto debería venir de la vista/input
-            Hexagono hexagonoRobar = jugadorActual.moverLadron(tablero, posicionLadron);
-
-            for (Jugador j : jugadores) {
-                if (j != jugadorActual) {
-                    Recurso recursoRobado = j.serRobadoPorLadron(hexagonoRobar);
-                    if (recursoRobado != null) {
-                        jugadorActual.agregarRecurso(recursoRobado, 1);
-                    }
-                }
-            }
-        } else {
-            for (Jugador j : jugadores) {
-                j.recibirLanzamientoDeDados(numeroDado);
-            }
+    private void repartirRecursos(int numeroDado) {
+        for (Jugador j : jugadores) {
+            j.recibirLanzamientoDeDados(numeroDado);
         }
         notificarObservadores();
     }
 
+    private void gestionarDescartePorSiete() {
+        for (Jugador j : jugadores) {
+            // Cada jugador verifica si tiene > 7 cartas y descarta la mitad
+            // (Esto ya lo implementaste en Jugador.recibirLanzamientoDeDados(7))
+            j.recibirLanzamientoDeDados(7);
+        }
+    }
+
+    // --- Acciones del Jugador ---
+
+    // Método separado para cuando la UI mande la coordenada del ladrón
+    public void moverLadron(int posicionHexagono, Jugador victima) {
+        Jugador jugadorActual = obtenerJugadorActual();
+        Hexagono hexagono = jugadorActual.moverLadron(tablero, posicionHexagono);
+
+        // Solo robamos si se eligió una víctima (puede no haber nadie)
+        if (victima != null && victima != jugadorActual) {
+            Recurso robado = jugadorActual.robarA(victima); // Usar tu método nuevo
+            // O la lógica de intercambio forzado que tenías
+        }
+        notificarObservadores();
+    }
 
     public void jugadorColocarCarretera(Jugador jugador, int idArista) {
-        boolean construyo = jugador.construirCarretera(tablero, idArista, this.faseInicial);
-
-        if (construyo) {
+        try {
+            jugador.construirCarretera(tablero, idArista);
             granRutaComercial.actualizar(jugador);
+            notificarObservadores();
+        } catch (Exception e) {
+            // Manejar error
         }
     }
 
     public void jugadorUsarCartaDeDesarrollo(Jugador jugador, CartaDesarollo carta, ParametrosCarta parametrosCarta) {
         jugador.usarCartaDeDesarrollo(carta, tablero, jugadores, parametrosCarta);
         granCaballeria.actualizar(jugador);
+        notificarObservadores();
     }
 
-    public Boolean verificarSiGanó(Jugador jugador) {
-        int puntosVisibles = jugador.obtenerPuntage();
-        int puntosDeVictoria = jugador.obtenerPuntosVictoriaOcultos();
+    public boolean verificarSiGano(Jugador jugador) {
+        // Ahora estos métodos existen en Jugador gracias a la corrección
+        int puntosVisibles = jugador.obtenerPuntaje();
+        int puntosOcultos = jugador.obtenerPuntosVictoriaOcultos();
 
-        if (puntosVisibles + puntosDeVictoria >= 10) {
-            return true;
-
-        }else {
-        	return false;
-        }
+        return (puntosVisibles + puntosOcultos) >= 10;
     }
 
-        return (puntosVisibles + puntosDeVictoria) >= 10;
-    }
+    // --- Getters y Observable ---
 
     public Tablero obtenerTablero() {
         return this.tablero;
     }
-
 
     @Override
     public void agregarObservador(Observador observador) {

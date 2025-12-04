@@ -13,4 +13,6 @@ public abstract class Construccion {
     }
 
     public abstract List<Recurso> cosechar(int numeroDado);
+
+    public abstract int obtenerPuntosDeVictoria();
 }
