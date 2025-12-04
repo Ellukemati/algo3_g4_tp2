@@ -18,7 +18,6 @@ public class MapaDeColores {
     }
 
     public static Color obtenerColor(Recurso recurso) {
-        // Si es null desierto, devolvemos un color arena
         return colores.getOrDefault(recurso, Color.SANDYBROWN);
     }
 }
