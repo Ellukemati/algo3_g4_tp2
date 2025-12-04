@@ -7,11 +7,15 @@ public class Catan implements Observable {
     private final Tablero tablero;
     private final List<Jugador> jugadores;
     private final Dado dado;
+
+    private final GranCaballeria granCaballeria;
+    private final GranRutaComercial granRutaComercial;
+
     private final List<Observador> observadores;
 
     private int indiceJugadorActual;
-    private boolean juegoIniciado;
     private int contadorTurnos;
+    private boolean juegoIniciado;
     private boolean faseInicial;
 
     public Catan() {
@@ -19,11 +23,16 @@ public class Catan implements Observable {
         this.tablero = new Tablero();
         this.jugadores = new ArrayList<>();
         this.dado = new Dado();
+
+        this.granCaballeria = new GranCaballeria();
+        this.granRutaComercial = new GranRutaComercial();
+
         this.observadores = new ArrayList<>();
         this.indiceJugadorActual = 0;
         this.juegoIniciado = false;
         this.faseInicial = true;
     }
+
 
     public void agregarJugador(Jugador jugador) {
         if (!juegoIniciado) {
@@ -40,6 +49,7 @@ public class Catan implements Observable {
         return jugadores.get(indiceJugadorActual);
     }
 
+
     public void siguienteTurno() {
         contadorTurnos++;
 
@@ -54,7 +64,16 @@ public class Catan implements Observable {
         notificarObservadores();
     }
 
+    public int obtenerTurno() {
+        return contadorTurnos;
+    }
+
+    public boolean esFaseInicial() {
+        return faseInicial;
+    }
+
     public int lanzarDado() {
+        // En fase inicial no se tiran dados
         if (faseInicial) {
             return 0;
         }
@@ -68,7 +87,7 @@ public class Catan implements Observable {
         Jugador jugadorActual = obtenerJugadorActual();
 
         if (numeroDado == 7) {
-            int posicionLadron = 10;
+            int posicionLadron = 10; // TODO: Esto debería venir de la vista/input
             Hexagono hexagonoRobar = jugadorActual.moverLadron(tablero, posicionLadron);
 
             for (Jugador j : jugadores) {
@@ -87,9 +106,31 @@ public class Catan implements Observable {
         notificarObservadores();
     }
 
+
+    public void jugadorColocarCarretera(Jugador jugador, int idArista) {
+        boolean construyo = jugador.construirCarretera(tablero, idArista, this.faseInicial);
+
+        if (construyo) {
+            granRutaComercial.actualizar(jugador);
+        }
+    }
+
+    public void jugadorUsarCartaDeDesarrollo(Jugador jugador, CartaDesarollo carta) {
+        jugador.usarCartaDeDesarrollo(carta, tablero, jugadores);
+        granCaballeria.actualizar(jugador);
+    }
+
+    public Boolean verificarSiGanó(Jugador jugador) {
+        int puntosVisibles = jugador.obtenerPuntage();
+        int puntosDeVictoria = jugador.obtenerPuntosVictoriaOcultos();
+
+        return (puntosVisibles + puntosDeVictoria) >= 10;
+    }
+
     public Tablero obtenerTablero() {
         return this.tablero;
     }
+
 
     @Override
     public void agregarObservador(Observador observador) {
@@ -101,13 +142,5 @@ public class Catan implements Observable {
         for (Observador observador : observadores) {
             observador.actualizar();
         }
-    }
-
-    public int obtenerTurno() {
-        return contadorTurnos;
-    }
-
-    public boolean esFaseInicial() {
-        return faseInicial;
     }
 }

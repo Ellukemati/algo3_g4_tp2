@@ -5,14 +5,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class Jugador implements Observable {
+public class Jugador implements Observable, Bonificacion {
     private final String nombre;
     private final Inventario inventario;
     private final List<CartaDesarollo> cartasNuevas;
     private final List<CartaDesarollo> cartasUsables;
+    private final List<CartaDesarollo> cartasUsadas;
     private final Map<Recurso, Integer> tasasDeIntercambioConBanca;
     private final List<Construccion> construcciones;
     private final List<Arista> carreteras;
+    private final List<Camino> caminos; // Asumiendo que esta clase existe
+    private int puntosDeVictoria;
+    private int puntosDeVictoriaOcultos;
 
     private List<Observador> observadores = new ArrayList<>();
 
@@ -21,17 +25,21 @@ public class Jugador implements Observable {
         this.inventario = new Inventario();
         this.cartasNuevas = new ArrayList<>();
         this.cartasUsables = new ArrayList<>();
+        this.cartasUsadas = new ArrayList<>();
         this.tasasDeIntercambioConBanca = new HashMap<>();
         for (Recurso r : Recurso.values()) {
             this.tasasDeIntercambioConBanca.put(r, 4);
         }
         this.construcciones = new ArrayList<>();
+        this.caminos = new ArrayList<>();
         this.carreteras = new ArrayList<>();
+        this.puntosDeVictoria = 0;
+        this.puntosDeVictoriaOcultos = 0;
     }
 
-    public Jugador() {
-        this("");
-    }
+
+
+    // --- IMPLEMENTACIÓN OBSERVER ---
 
     @Override
     public void agregarObservador(Observador observador) {
@@ -45,6 +53,8 @@ public class Jugador implements Observable {
         }
     }
 
+    // --- GETTERS ---
+
     public int cantidadDe(Recurso recurso) {
         return this.inventario.cantidadDe(recurso);
     }
@@ -52,6 +62,8 @@ public class Jugador implements Observable {
     public int obtenerTasaDe(Recurso recurso) {
         return this.tasasDeIntercambioConBanca.get(recurso);
     }
+
+    // --- GESTIÓN INTERNA ---
 
     public void agregarRecurso(Recurso recurso, int cantidadAAgregar) {
         this.inventario.agregar(recurso, cantidadAAgregar);
@@ -80,6 +92,8 @@ public class Jugador implements Observable {
         notificarObservadores();
         return cantidadRecurso;
     }
+
+    // --- LÓGICA DE JUEGO ---
 
     public void recibirLanzamientoDeDados(int numeroDado) {
         if (numeroDado == 7) {
@@ -142,12 +156,14 @@ public class Jugador implements Observable {
         }
     }
 
-    public void usarCartaDeDesarollo(CartaDesarollo carta, Tablero tablero, List<Jugador> jugadores) {
+    public void usarCartaDeDesarrollo(CartaDesarollo carta, Tablero tablero, List<Jugador> jugadores) {
         CartaDesarollo cartaDeDesarollo = cartasUsables.stream()
                 .filter((cd) -> cd.equals(carta))
                 .findFirst()
                 .orElse(new NullCartaDesarollo());
         cartaDeDesarollo.usar(this, tablero, jugadores);
+        cartasUsables.remove(cartaDeDesarollo);
+        cartasUsadas.add(cartaDeDesarollo);
     }
 
     public Hexagono moverLadron(Tablero tablero, int posicion) {
@@ -196,6 +212,7 @@ public class Jugador implements Observable {
             }
 
             construcciones.add(nuevaConstruccion);
+            sumarPuntos(1); // Poblado vale 1 punto
             vertice.aplicarEfectos(this);
 
             if (construcciones.size() == 2) {
@@ -234,6 +251,7 @@ public class Jugador implements Observable {
 
             construcciones.remove(construccionAActualizar);
             construcciones.add(new Ciudad(verticeBuscado));
+            sumarPuntos(1); // Suma 1 extra (la ciudad vale 2, pero reemplaza al poblado de 1)
             return true;
         }
 
@@ -283,10 +301,67 @@ public class Jugador implements Observable {
             }
 
             aristaAgregar.establecerDueño(this);
+            aristaAgregar.ocupar();
             carreteras.add(aristaAgregar);
+
+
+            List<Camino> tocadas = new ArrayList<>();
+            for (Camino c : caminos) {
+                if (c.conectaCon(aristaAgregar)) {
+                    tocadas.add(c);
+                }
+            }
+
+            Camino fusion = new Camino();
+            for (Camino c : tocadas) {
+                fusion.agregarCarreteras(c.getCarreteras());
+            }
+            fusion.agregarCarretera(aristaAgregar);
+
+            caminos.removeAll(tocadas);
+            fusion.recalcularDiametro();
+            caminos.add(fusion);
+
             return true;
         }
+
         return false;
+    }
+
+
+    public int obtenerRutaMasLarga() {
+        int max = 0;
+        for (Camino c : caminos) {
+            max = Math.max(max, c.getDiametro());
+        }
+        return max;
+    }
+
+    public int obtenerCaballerosUsados() {
+        int contador = 0;
+        for (CartaDesarollo c : cartasUsadas) {
+            if (c instanceof Caballero) {
+                contador++;
+            }
+        }
+        return contador;
+    }
+
+    public int obtenerPuntosVictoriaOcultos() {
+        return puntosDeVictoriaOcultos;
+    }
+
+    public void sumarPuntos(int puntos) {
+        puntosDeVictoria += puntos;
+    }
+
+    public void restarPuntos(int puntos) {
+        puntosDeVictoria -= puntos;
+    }
+
+    // Mantenemos el nombre (con posible typo) para compatibilidad con Catan.java
+    public int obtenerPuntage() {
+        return puntosDeVictoria;
     }
 
     public void finalizarTurno() {
