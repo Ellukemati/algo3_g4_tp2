@@ -6,7 +6,7 @@ import java.util.List;
 
 public interface CartaDesarollo {
 
-    void usar(Jugador jugador, Tablero tablero, List<Jugador> jugadores);
+    void usar(Jugador jugador, Tablero tablero, List<Jugador> jugadores, ParametrosCarta parametrosCarta);
 
     void mostrar(CartaDesarolloRenderizador renderizador);
 }

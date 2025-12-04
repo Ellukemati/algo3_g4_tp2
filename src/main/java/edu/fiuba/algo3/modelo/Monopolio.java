@@ -6,9 +6,9 @@ import java.util.List;
 
 public class Monopolio extends CartaDesarolloGeneral {
     @Override
-    public void usar(Jugador jugador, Tablero tablero, List<Jugador> jugadores) {
+    public void usar(Jugador jugador, Tablero tablero, List<Jugador> jugadores, ParametrosCarta parametrosCarta) {
         // deve ser recibido por imput
-        Recurso recursoSeleccionado = Recurso.MADERA;
+        Recurso recursoSeleccionado = parametrosCarta.getRecursoAPedir();
         int cantidadTotalDeRecurso = 0;
         for (Jugador jugador1 : jugadores) {
             if (!jugador1.equals(jugador)) {

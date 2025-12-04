@@ -166,12 +166,13 @@ public class Jugador implements Observable, Bonificacion {
         }
     }
 
-    public void usarCartaDeDesarrollo(CartaDesarollo carta, Tablero tablero, List<Jugador> jugadores) {
+    public void usarCartaDeDesarrollo(CartaDesarollo carta, Tablero tablero, List<Jugador> jugadores,
+                                      ParametrosCarta parametrosCarta) {
         CartaDesarollo cartaDeDesarollo = cartasUsables.stream()
                 .filter((cd) -> cd.equals(carta))
                 .findFirst()
                 .orElse(new NullCartaDesarollo());
-        cartaDeDesarollo.usar(this, tablero, jugadores);
+        cartaDeDesarollo.usar(this, tablero, jugadores, parametrosCarta);
         cartasUsables.remove(cartaDeDesarollo);
         cartasUsadas.add(cartaDeDesarollo);
     }

@@ -108,8 +108,8 @@ public class Catan implements Observable {
         granRutaComercial.actualizar(jugador);
     }
 
-    public void jugadorUsarCartaDeDesarrollo(Jugador jugador, CartaDesarollo carta) {
-        jugador.usarCartaDeDesarrollo(carta, tablero, jugadores);
+    public void jugadorUsarCartaDeDesarrollo(Jugador jugador, CartaDesarollo carta, ParametrosCarta parametrosCarta) {
+        jugador.usarCartaDeDesarrollo(carta, tablero, jugadores, parametrosCarta);
         granCaballeria.actualizar(jugador);
     }
 
